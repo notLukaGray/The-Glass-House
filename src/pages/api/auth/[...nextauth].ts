@@ -13,7 +13,7 @@ interface HardcodedUser {
 // Get users from environment variable (JSON string)
 const users: HardcodedUser[] = process.env.AUTH_USERS ? JSON.parse(process.env.AUTH_USERS) : [];
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -46,4 +46,6 @@ export default NextAuth({
       return token;
     }
   }
-} as NextAuthOptions); 
+};
+
+export default NextAuth(authOptions); 

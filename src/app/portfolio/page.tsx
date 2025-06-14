@@ -2,6 +2,8 @@ import { client } from '@/_lib/sanity';
 import Link from 'next/link';
 import { getImageAsset } from '@/handlers/imageHandler';
 
+export const revalidate = 60; // cache for 60 seconds
+
 interface PortfolioPreview {
   _id: string;
   title: { en: string };
@@ -9,6 +11,7 @@ interface PortfolioPreview {
   slug: { current: string };
   coverAsset: { _ref: string };
   featured: boolean;
+  locked: boolean;
   categories: Array<{ _id: string; title: { en: string } }>;
   tags: Array<{ _id: string; title: { en: string } }>;
 }
@@ -21,6 +24,7 @@ async function getPortfolios() {
     slug,
     coverAsset,
     featured,
+    locked,
     categories[]-> {
       _id,
       title
@@ -55,7 +59,7 @@ export default async function PortfolioListPage() {
               href={`/portfolio/${portfolio.slug.current}`}
               className="group block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
             >
-              <div className="aspect-w-16 aspect-h-9 bg-gray-100">
+              <div className="aspect-w-16 aspect-h-9 bg-gray-100 relative">
                 {coverImage ? (
                   <img
                     src={coverImage.url}
@@ -66,6 +70,9 @@ export default async function PortfolioListPage() {
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <span className="text-gray-400">No image</span>
                   </div>
+                )}
+                {portfolio.locked && (
+                  <span className="absolute top-2 right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded shadow">Locked</span>
                 )}
               </div>
               

@@ -1,11 +1,13 @@
 "use server";
 
 import { client } from '@/_lib/sanity';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import PortfolioSectionRenderer from '@/app/_components/_content/PortfolioSectionRenderer';
 import { getImageAsset } from '@/handlers/imageHandler';
 import { getSvgAsset } from '@/handlers/svgHandler';
 import { getVideoAsset } from '@/handlers/videoHandler';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 // TODO: Add authentication gate for locked portfolios
 // This will be implemented later to protect locked portfolio pages
@@ -72,10 +74,13 @@ export default async function PortfolioPage(props: { params: Promise<{ slug: str
     notFound();
   }
 
-  // TODO: Add authentication check for locked portfolios
-  // if (portfolio.locked) {
-  //   // Redirect to login or show auth gate
-  // }
+  // Require login for locked portfolios
+  if (portfolio.locked) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      redirect(`/login?callbackUrl=/portfolio/${slug}`);
+    }
+  }
 
   // Resolve cover image asset if present
   let coverImage = null;
