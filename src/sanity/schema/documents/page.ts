@@ -57,7 +57,17 @@ const page = {
       of: pageSections,
       description: 'Add, remove, and drag to order content sections for this page.'
     }
-  ]
+  ],
+  preview: {
+    select: {
+      title: 'title.en'
+    },
+    prepare({ title }: { title?: string }) {
+      return {
+        title: title || 'Page'
+      }
+    }
+  }
 }
 
 export default page; 

@@ -9,6 +9,9 @@ import { getVideoAsset } from '@/handlers/videoHandler';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
+// Add revalidation configuration
+export const revalidate = 0; // Disable static generation, always fetch fresh data
+
 // TODO: Add authentication gate for locked portfolios
 // This will be implemented later to protect locked portfolio pages
 
