@@ -22,11 +22,6 @@ const nextConfig = {
       test: /\.svg$/,
       use: ['@svgr/webpack']
     });
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'react-dom$': 'react-dom/profiling',
-      'scheduler/tracing': 'scheduler/tracing-profiling',
-    }
     return config;
   }
 }

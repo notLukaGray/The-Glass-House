@@ -6,14 +6,24 @@ import { getSvgAsset } from '@/handlers/svgHandler';
 import { getVideoAsset } from '@/handlers/videoHandler';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import type { 
+  ProjectMeta, 
+  ImageSection, 
+  GallerySection, 
+  VideoSection,
+  AvatarSection,
+  ProcessStepSection,
+  ImageAsset,
+  VideoAsset,
+  SvgAsset
+} from '@/types/sanity';
 
-// Add revalidation configuration
-export const revalidate = 0; // Disable static generation, always fetch fresh data
+export const revalidate = 0;
 
 // TODO: Add authentication gate for locked portfolios
 // This will be implemented later to protect locked portfolio pages
 
-async function getPortfolio(slug: string) {
+async function getPortfolio(slug: string): Promise<ProjectMeta | null> {
   const query = `*[_type == "projectMeta" && slug.current == $slug][0]{
     _id,
     title,
@@ -63,16 +73,23 @@ async function getPortfolio(slug: string) {
     }
   }`;
 
-  const portfolio = await client.fetch(query, { slug });
-  return portfolio;
+  return await client.fetch<ProjectMeta>(query, { slug });
 }
 
-export default async function PortfolioPage(props: { params: Promise<{ slug: string }> }) {
-  const { slug } = await props.params;
+export default async function PortfolioPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const portfolio = await getPortfolio(slug);
 
-  if (!portfolio) {
-    notFound();
+  // Show empty state if portfolio or sections are missing
+  if (!portfolio || !portfolio.sections) {
+    return (
+      <main className="container mx-auto px-4 py-8">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">Portfolio Not Found</h1>
+          <p className="text-xl text-gray-600">No portfolio data available for this slug.</p>
+        </header>
+      </main>
+    );
   }
 
   // Require login for locked portfolios
@@ -84,70 +101,43 @@ export default async function PortfolioPage(props: { params: Promise<{ slug: str
   }
 
   // Resolve cover image asset if present
-  let coverImage = null;
+  let coverImage: ImageAsset | null = null;
   if (portfolio.coverAsset?._ref) {
     coverImage = await getImageAsset({ id: portfolio.coverAsset._ref });
   }
 
   // Resolve all asset references in sections
   const sectionsWithAssets = await Promise.all(
-    portfolio.sections.map(async (section: any) => {
+    (portfolio.sections ?? []).map(async (section) => {
       // ImageSection
-      if (section._type === 'imageSection' && section.image?._ref) {
-        const imageAsset = await getImageAsset({ id: section.image._ref });
+      if (section._type === 'imageSection' && (section as ImageSection).image?._ref) {
+        const imageAsset = await getImageAsset({ id: (section as ImageSection).image._ref });
         return { ...section, image: imageAsset };
       }
       // GallerySection
-      if (section._type === 'gallerySection' && Array.isArray(section.images)) {
+      if (section._type === 'gallerySection' && Array.isArray((section as GallerySection).images)) {
         const images = await Promise.all(
-          section.images.map(async (img: any) =>
+          (section as GallerySection).images.map(async (img) =>
             img?._ref ? await getImageAsset({ id: img._ref }) : null
           )
         );
         return { ...section, images };
       }
+      // VideoSection
+      if (section._type === 'videoSection' && (section as VideoSection).video?._ref) {
+        const videoAsset = await getVideoAsset({ id: (section as VideoSection).video._ref });
+        return { ...section, video: videoAsset };
+      }
       // AvatarSection
-      if (section._type === 'avatarSection' && section.avatar?._ref) {
-        const avatarAsset = await getImageAsset({ id: section.avatar._ref });
+      if (section._type === 'avatarSection' && (section as AvatarSection).avatar?._ref) {
+        const avatarAsset = await getImageAsset({ id: (section as AvatarSection).avatar._ref });
         return { ...section, avatar: avatarAsset };
       }
       // ProcessStepSection
-      if (section._type === 'processStepSection' && section.asset?._ref) {
-        const assetImage = await getImageAsset({ id: section.asset._ref });
+      if (section._type === 'processStepSection' && (section as ProcessStepSection).asset?._ref) {
+        const assetImage = await getImageAsset({ id: (section as ProcessStepSection).asset._ref });
         return { ...section, asset: assetImage };
       }
-      // TwoColumnSection
-      if (section._type === 'twoColumnSection') {
-        let leftAsset = section.leftAsset;
-        let rightAsset = section.rightAsset;
-        if (leftAsset?._ref) leftAsset = await getImageAsset({ id: leftAsset._ref });
-        if (rightAsset?._ref) rightAsset = await getImageAsset({ id: rightAsset._ref });
-        return { ...section, leftAsset, rightAsset };
-      }
-      // IconSection
-      if (section._type === 'iconSection' && section.icon?._ref) {
-        const iconAsset = await getSvgAsset({ id: section.icon._ref });
-        return { ...section, icon: iconAsset };
-      }
-      // VideoSection
-      if (section._type === 'videoSection' && section.video?._ref) {
-        const videoAsset = await getVideoAsset({ id: section.video._ref });
-        return { ...section, video: videoAsset };
-      }
-      // RelatedSection (cover images for related items)
-      if (section._type === 'relatedSection' && Array.isArray(section.items)) {
-        const items = await Promise.all(
-          section.items.map(async (item: any) => {
-            if (item.coverImage?._ref) {
-              const coverImage = await getImageAsset({ id: item.coverImage._ref });
-              return { ...item, coverImage };
-            }
-            return item;
-          })
-        );
-        return { ...section, items };
-      }
-      // Add more section types as needed...
       return section;
     })
   );
@@ -169,7 +159,7 @@ export default async function PortfolioPage(props: { params: Promise<{ slug: str
       </header>
 
       <div className="space-y-8">
-        {sectionsWithAssets.map((section: any) => (
+        {sectionsWithAssets.map((section) => (
           <PortfolioSectionRenderer key={section._key} section={section} />
         ))}
       </div>

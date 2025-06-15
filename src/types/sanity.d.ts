@@ -1,136 +1,194 @@
+import { PortableTextBlock } from '@portabletext/types'
+
 export interface LocaleString {
-  en?: string;
-  [key: string]: string | undefined;
+  _type: 'localeString'
+  en: string
 }
 
-export interface LocaleBlockContent {
-  en?: any[];
-  [key: string]: any[] | undefined;
+export interface SanityReference {
+  _type: 'reference'
+  _ref: string
 }
 
-export interface AssetReference {
-  _ref: string;
-  _type: 'reference';
+export interface SanityImage {
+  _type: 'image'
+  asset: SanityReference
 }
 
+export interface SanityDocument {
+  _id: string
+  _type: string
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+}
+
+export interface PageSection {
+  _key: string
+  _type: string
+}
+
+export interface ImageSection extends PageSection {
+  _type: 'imageSection'
+  image: SanityReference
+  title?: LocaleString
+  caption?: LocaleString
+  altText?: LocaleString
+  description?: LocaleString
+  linkUrl?: string
+  size?: string
+  aspectRatio?: string
+  width?: string
+  height?: string
+  maxWidth?: string
+  fullBleed?: boolean
+  alignment?: string
+  objectFit?: string
+  showCaption?: boolean
+  advanced?: {
+    marginTop?: string
+    marginBottom?: string
+    padding?: string
+    borderRadius?: string
+    boxShadow?: string
+    backgroundColor?: string
+    overlayColor?: string
+    overlayOpacity?: number
+    hoverEffect?: string
+    hideOnMobile?: boolean
+    hideOnDesktop?: boolean
+  }
+}
+
+export interface TextSection extends PageSection {
+  _type: 'textSection'
+  content: PortableTextBlock[]
+}
+
+export interface TwoColumnSection extends PageSection {
+  _type: 'twoColumnSection'
+  leftContent: PortableTextBlock[]
+  rightContent: PortableTextBlock[]
+  leftAsset?: SanityReference
+  rightAsset?: SanityReference
+}
+
+export interface VideoSection extends PageSection {
+  _type: 'videoSection'
+  video: SanityReference
+  title?: LocaleString
+  altText?: LocaleString
+  autoplay?: boolean
+  loop?: boolean
+  controls?: boolean
+  muted?: boolean
+}
+
+export interface GallerySection extends PageSection {
+  _type: 'gallerySection'
+  images: SanityReference[]
+  showCaption?: boolean
+  altCaption?: LocaleString
+  layout?: 'grid' | 'carousel' | 'stacked'
+}
+
+export interface FaqSection extends PageSection {
+  _type: 'faqSection'
+  faqs: Array<{
+    _key: string
+    question: LocaleString
+    answer: PortableTextBlock[]
+  }>
+}
+
+export interface AvatarSection extends PageSection {
+  _type: 'avatarSection'
+  avatar: SanityReference
+  label?: LocaleString
+}
+
+export interface ProcessStepSection extends PageSection {
+  _type: 'processStepSection'
+  asset: SanityReference
+  heading: LocaleString
+  description: PortableTextBlock[]
+}
+
+export interface ProjectMeta extends SanityDocument {
+  _type: 'projectMeta'
+  title: LocaleString
+  subhead?: LocaleString
+  slug: { current: string }
+  colorTheme?: string
+  locked?: boolean
+  coverAsset?: SanityReference
+  externalLink?: string
+  featured?: boolean
+  categories?: Array<{ _id: string; title: LocaleString }>
+  tags?: Array<{ _id: string; title: LocaleString }>
+  sections: Array<
+    | ImageSection
+    | TextSection
+    | TwoColumnSection
+    | VideoSection
+    | GallerySection
+    | FaqSection
+    | AvatarSection
+    | ProcessStepSection
+  >
+}
+
+export interface PageMeta extends SanityDocument {
+  _type: 'pageMeta'
+  title: LocaleString
+  subhead?: LocaleString
+  slug: { current: string }
+  publishedAt: string
+  locked?: boolean
+  coverAsset?: SanityReference
+  gallery?: SanityReference[]
+  order?: number
+  colorTheme?: string
+  seo?: {
+    title?: LocaleString
+    description?: LocaleString
+    keywords?: string[]
+  }
+  sections: Array<
+    | ImageSection
+    | TextSection
+    | TwoColumnSection
+    | VideoSection
+    | GallerySection
+    | FaqSection
+    | AvatarSection
+    | ProcessStepSection
+  >
+}
+
+// Asset types
 export interface ImageAsset {
-  _id: string;
-  url: string;
-  title?: LocaleString;
-  altText?: LocaleString;
-  description?: LocaleString;
-}
-
-export interface SvgAsset {
-  _id: string;
-  svgData: string;
-  color?: string;
+  _id: string
+  _type: 'assetPhoto'
+  url: string
+  title?: LocaleString
+  description?: LocaleString
+  caption?: LocaleString
 }
 
 export interface VideoAsset {
-  _id: string;
-  url: string;
-  poster?: string;
+  _id: string
+  _type: 'assetVideo'
+  url: string
+  title?: LocaleString
+  description?: LocaleString
 }
 
-export interface BaseSection {
-  _key: string;
-  _type: string;
-}
-
-export interface ImageSection extends BaseSection {
-  _type: 'imageSection';
-  image?: ImageAsset;
-  altText?: LocaleString;
-  caption?: LocaleString;
-  description?: LocaleString;
-  linkUrl?: string;
-  size?: string;
-  aspectRatio?: string;
-  width?: string;
-  height?: string;
-  maxWidth?: string;
-  fullBleed?: boolean;
-  alignment?: string;
-  objectFit?: string;
-  showCaption?: boolean;
-  advanced?: {
-    marginTop?: string;
-    marginBottom?: string;
-    padding?: string;
-    borderRadius?: string;
-    boxShadow?: string;
-    backgroundColor?: string;
-    overlayColor?: string;
-    overlayOpacity?: number;
-    hoverEffect?: string;
-    hideOnMobile?: boolean;
-    hideOnDesktop?: boolean;
-  };
-}
-
-export interface GallerySection extends BaseSection {
-  _type: 'gallerySection';
-  images?: ImageAsset[];
-  showCaption?: boolean;
-  altCaption?: LocaleString;
-  layout?: 'grid' | 'carousel' | 'stacked';
-}
-
-export interface FaqSection extends BaseSection {
-  _type: 'faqSection';
-  faqs?: Array<{
-    _key: string;
-    question: LocaleString;
-    answer: LocaleBlockContent;
-  }>;
-}
-
-export interface QuoteSection extends BaseSection {
-  _type: 'quoteSection';
-  quote: LocaleString;
-  attribution?: LocaleString;
-}
-
-export interface ProcessStepSection extends BaseSection {
-  _type: 'processStepSection';
-  title?: LocaleString;
-  description?: LocaleString;
-  asset?: ImageAsset;
-  steps?: Array<{
-    _key: string;
-    date?: string;
-    description?: LocaleString;
-  }>;
-}
-
-export interface TwoColumnSection extends BaseSection {
-  _type: 'twoColumnSection';
-  leftContent?: LocaleBlockContent;
-  rightContent?: LocaleBlockContent;
-  leftAsset?: ImageAsset;
-  rightAsset?: ImageAsset;
-}
-
-export interface CalloutSection extends BaseSection {
-  _type: 'calloutSection';
-  content: LocaleBlockContent;
-  style?: string;
-}
-
-export interface DividerSection extends BaseSection {
-  _type: 'dividerSection';
-  style?: string;
-  size?: string;
-  color?: string;
-}
-
-export type Section = 
-  | ImageSection 
-  | GallerySection 
-  | FaqSection 
-  | QuoteSection 
-  | ProcessStepSection 
-  | TwoColumnSection 
-  | CalloutSection 
-  | DividerSection; 
+export interface SvgAsset {
+  _id: string
+  _type: 'assetSVG'
+  svgData: string
+  title?: LocaleString
+  description?: LocaleString
+  color?: string
+} 
