@@ -8,16 +8,34 @@ import ProcessStepSection from './ProcessStepSection';
 import TwoColumnSection from './TwoColumnSection';
 import CalloutSection from './CalloutSection';
 import DividerSection from './DividerSection';
+import TextSection from './TextSection';
+import ListSection from './ListSection';
+import InsetSection from './InsetSection';
+import VideoSection from './VideoSection';
+import TimelineSection from './TimelineSection';
+import ButtonRowSection from './ButtonRowSection';
+import RelatedSection from './RelatedSection';
+import IconSection from './IconSection';
+import AvatarSection from './AvatarSection';
 
 const sectionComponentMap: Record<string, React.ComponentType<any>> = {
+  textSection: TextSection,
+  twoColumnSection: TwoColumnSection,
+  quoteSection: QuoteSection,
+  faqSection: FaqSection,
+  listSection: ListSection,
+  insetSection: InsetSection,
   imageSection: ImageSection,
   gallerySection: GallerySection,
-  faqSection: FaqSection,
-  quoteSection: QuoteSection,
+  videoSection: VideoSection,
   processStepSection: ProcessStepSection,
-  twoColumnSection: TwoColumnSection,
-  calloutSection: CalloutSection,
+  timelineSection: TimelineSection,
   dividerSection: DividerSection,
+  calloutSection: CalloutSection,
+  buttonRowSection: ButtonRowSection,
+  relatedSection: RelatedSection,
+  iconSection: IconSection,
+  avatarSection: AvatarSection,
 };
 
 interface PortfolioSectionRendererProps {
