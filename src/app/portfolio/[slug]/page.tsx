@@ -1,5 +1,3 @@
-"use server";
-
 import { client } from '@/_lib/sanity';
 import { notFound, redirect } from 'next/navigation';
 import PortfolioSectionRenderer from '@/app/_components/_content/PortfolioSectionRenderer';
