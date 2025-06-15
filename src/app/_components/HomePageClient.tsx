@@ -28,7 +28,7 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
       <div className="opacity-70 text-xs">Last Github Commit</div>
       {commitMessage && (
         <div className="text-xs font-mono" style={{ color: '#8f4d89' }}>
-          {commitMessage.slice(0, 20)}
+          {commitMessage.length > 30 ? `${commitMessage.slice(0, 30)}...` : commitMessage}
         </div>
       )}
       <div>{commitTime ? since : "..."}</div>
@@ -38,9 +38,9 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
 
 export default function HomePageClient({ commitTime, commitMessage }: { commitTime: string | null, commitMessage?: string | null }) {
   return (
-    <main className="relative w-screen h-screen overflow-hidden">
+    <main className="relative w-screen h-screen overflow-hidden bg-black">
       {/* Base Layer - DotGrid */}
-      <div className="absolute inset-0 bg-black">
+      <div className="absolute inset-0 bg-black" style={{ overflow: 'hidden' }}>
         <DotGrid
           dotSize={2}
           gap={12}
@@ -52,6 +52,7 @@ export default function HomePageClient({ commitTime, commitMessage }: { commitTi
           resistance={750}
           returnDuration={1.5}
           style={{ width: "100%", height: "100%" }}
+          touchSupport={true}
         />
       </div>
 
@@ -59,7 +60,7 @@ export default function HomePageClient({ commitTime, commitMessage }: { commitTi
       <div className="absolute inset-0 grid place-items-center">
         <div className="flex flex-col items-center">
           {/* Under Construction Text */}
-          <div className="w-screen max-w-[900px] flex items-center justify-center">
+          <div className="w-screen max-w-[900px] flex items-center justify-center px-4">
             <TextPressure
               text="UNDER CONSTRUCTION"
               fontFamily="Compressa VF"
