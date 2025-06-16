@@ -19,7 +19,7 @@ const about = {
       name: 'sections',
       title: 'Flexible Content Sections',
       type: 'array',
-      of: pageSections,
+      of: [{ type: 'reference', to: [{ type: 'section' }] }],
       description: 'Add, remove, and drag to order content sections for this about page.'
     }
   ],

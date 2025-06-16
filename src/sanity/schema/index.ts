@@ -15,6 +15,7 @@ import project from './documents/project'
 import route from './documents/route'
 import settings from './documents/settings'
 import tag from './documents/tag'
+import section from './documents/section'
 
 // Object Schemas
 import blockContent from './objects/blockContent'
@@ -38,6 +39,7 @@ export const schemaTypes = [
   route,
   settings,
   tag,
+  section,
 
   // Assets
   photo,

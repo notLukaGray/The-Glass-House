@@ -68,7 +68,7 @@ const blog = {
       name: 'sections',
       title: 'Blog Sections',
       type: 'array',
-      of: pageSections,
+      of: [{ type: 'reference', to: [{ type: 'section' }] }],
       description: 'Add, remove, and drag to order content sections for this blog post.'
     }
   ]

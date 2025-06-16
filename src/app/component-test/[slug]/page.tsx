@@ -6,45 +6,51 @@ import { getSvgAsset } from '@/handlers/svgHandler';
 import { getVideoAsset } from '@/handlers/videoHandler';
 import React from 'react';
 
+export const revalidate = 0;
+
 async function getTestPage(slug: string) {
   const query = `*[_type == "pageMeta" && slug.current == $slug][0]{
     _id,
     title,
     subhead,
-    sections[]{
-      ...,
-      image,
-      video,
-      icon,
-      avatar
+    sections[]->{
+      _id,
+      order,
+      content[] {
+        ...,
+        image,
+        video,
+        icon,
+        avatar
+      }
     }
   }`;
   return await client.fetch(query, { slug });
 }
 
-async function resolveSectionAssets(section: any) {
+async function resolveSectionAssets(sectionObj: any) {
   // ImageSection
-  if (section._type === 'imageSection' && section.image?._ref) {
-    const imageAsset = await getImageAsset({ id: section.image._ref });
-    return { ...section, image: imageAsset };
+  if (sectionObj._type === 'imageSection' && sectionObj.image?._ref) {
+    const imageAsset = await getImageAsset({ id: sectionObj.image._ref });
+    return { ...sectionObj, image: imageAsset };
   }
   // AvatarSection
-  if (section._type === 'avatarSection' && section.avatar?._ref) {
-    const avatarAsset = await getImageAsset({ id: section.avatar._ref });
-    return { ...section, avatar: avatarAsset };
+  if (sectionObj._type === 'avatarSection' && sectionObj.avatar?._ref) {
+    const avatarAsset = await getImageAsset({ id: sectionObj.avatar._ref });
+    return { ...sectionObj, avatar: avatarAsset };
   }
   // IconSection
-  if (section._type === 'iconSection' && section.icon?._ref) {
-    const iconAsset = await getSvgAsset({ id: section.icon._ref });
-    return { ...section, icon: iconAsset };
+  if (sectionObj._type === 'iconSection' && sectionObj.icon?._ref) {
+    const iconAsset = await getSvgAsset({ id: sectionObj.icon._ref });
+    return { ...sectionObj, icon: iconAsset };
   }
   // VideoSection
-  if (section._type === 'videoSection' && section.video?._ref) {
-    const videoAsset = await getVideoAsset({ id: section.video._ref });
-    return { ...section, video: videoAsset };
+  if (sectionObj._type === 'videoSection' && sectionObj.video?._ref) {
+    const videoAsset = await getVideoAsset({ id: sectionObj.video._ref });
+    return { ...sectionObj, video: videoAsset };
   }
   // Add more section types as needed...
-  return section;
+  return sectionObj;
 }
 
 export default async function ComponentTestPage(props: { params: Promise<{ slug: string }> }) {
@@ -53,25 +59,29 @@ export default async function ComponentTestPage(props: { params: Promise<{ slug:
   if (!page) {
     notFound();
   }
-  // Resolve all asset references in sections
+  // Flatten all section objects from all referenced sections
+  const allSectionObjs = (page.sections || []).flatMap((section: any) => section.content || []);
+  if (!allSectionObjs.length) {
+    return null;
+  }
+  // Resolve all asset references in section objects
   const sectionsWithAssets = await Promise.all(
-    (page.sections || []).map(resolveSectionAssets)
+    allSectionObjs.map(resolveSectionAssets)
   );
+  if (!sectionsWithAssets.length) {
+    return null;
+  }
   return (
-    <main className="max-w-2xl mx-auto py-12 space-y-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">Sanity Component Test</h1>
-      <h2 className="text-xl font-semibold mb-4">{page.title?.en || 'Untitled Page'}</h2>
-      {sectionsWithAssets.length ? (
-        sectionsWithAssets.map((section: any) => {
+    <div className="w-screen min-h-screen bg-black p-0 m-0">
+      <main className="py-12 space-y-12">
+        {sectionsWithAssets.map((section: any) => {
           const SectionComponent = portfolioSectionComponentMap[section._type as keyof typeof portfolioSectionComponentMap];
           if (!SectionComponent) return (
             <div key={section._key} className="p-4 border border-red-300 bg-red-50">Unknown section type: {section._type}</div>
           );
-          return <SectionComponent key={section._key} {...section} />;
-        })
-      ) : (
-        <div className="text-gray-500">No sections found.</div>
-      )}
-    </main>
+          return <SectionComponent key={section._key} {...section} size={section.size} />;
+        })}
+      </main>
+    </div>
   );
 } 

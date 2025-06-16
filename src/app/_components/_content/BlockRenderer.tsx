@@ -1,29 +1,12 @@
 import React from 'react';
-
-interface Block {
-  _key: string;
-  _type: string;
-  children?: { _key: string; _type: string; marks: string[]; text: string }[];
-  markDefs?: any[];
-  style?: string;
-}
+import { PortableText } from '@portabletext/react';
 
 interface BlockRendererProps {
-  blocks: Block[];
+  blocks: any[];
 }
 
 const BlockRenderer: React.FC<BlockRendererProps> = ({ blocks }) => {
-  return (
-    <div>
-      {blocks.map(block => (
-        <div key={block._key} className={block.style || 'normal'}>
-          {block.children?.map(child => (
-            <span key={child._key}>{child.text}</span>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <PortableText value={blocks} />;
 };
 
 export default BlockRenderer; 

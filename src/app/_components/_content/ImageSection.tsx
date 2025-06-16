@@ -6,12 +6,13 @@ interface ImageSectionProps {
   image: {
     url: string;
     caption?: { en?: string };
-    altText?: { en?: string };
+    altCaption?: { en?: string };
+    altDescription?: { en?: string };
     description?: { en?: string };
   } | null;
-  altText?: { en?: string };
+  altCaption?: { en?: string };
+  altDescription?: { en?: string };
   caption?: { en?: string };
-  description?: { en?: string };
   linkUrl?: string;
   size?: string;
   aspectRatio?: string;
@@ -36,6 +37,13 @@ interface ImageSectionProps {
     hideOnMobile?: boolean;
     hideOnDesktop?: boolean;
   };
+  // Accept any extra props (for flattening)
+  [key: string]: any;
+}
+
+// Utility to sanitize strings (remove invisible/non-printable characters)
+function sanitizeString(str: string | undefined): string | undefined {
+  return typeof str === 'string' ? str.replace(/[\u200B-\u200D\uFEFF\u202A-\u202E\u2060-\u206F\u00A0\u180E\u2000-\u200A]/g, '').trim() : str;
 }
 
 function getSizeClass(size?: string) {
@@ -63,6 +71,10 @@ function getBoxShadowClass(boxShadow?: string) {
     case 'md': return 'shadow-md';
     case 'lg': return 'shadow-lg';
     case 'xl': return 'shadow-xl';
+    case '2xl': return 'shadow-2xl';
+    case '3xl': return 'shadow-3xl';
+    case '4xl': return 'shadow-4xl';
+    case '5xl': return 'shadow-5xl';
     default: return '';
   }
 }
@@ -100,90 +112,157 @@ function getAspectRatioClass(aspectRatio?: string) {
   }
 }
 
-const ImageSection: React.FC<ImageSectionProps> = ({
-  image,
-  altText,
-  caption,
-  description,
-  linkUrl,
-  size,
-  aspectRatio,
-  width,
-  height,
-  maxWidth,
-  fullBleed,
-  alignment,
-  objectFit,
-  showCaption,
-  advanced,
-}) => {
-  // Responsive visibility
-  let visibilityClass = '';
-  if (advanced?.hideOnMobile) visibilityClass += ' hidden sm:block';
-  if (advanced?.hideOnDesktop) visibilityClass += ' block sm:hidden';
-
-  // Compose style
-  const style: React.CSSProperties = {
-    width: width || undefined,
-    height: height || undefined,
-    maxWidth: maxWidth || undefined,
-    marginTop: advanced?.marginTop,
-    marginBottom: advanced?.marginBottom,
-    padding: advanced?.padding,
-    backgroundColor: advanced?.backgroundColor,
-    borderRadius: advanced?.borderRadius,
-    position: advanced?.overlayColor ? 'relative' : undefined,
+const ImageSection: React.FC<ImageSectionProps> = (props) => {
+  // Flatten nested fields (effects, meta, positioning, positioningAdvanced) into top-level props
+  const {
+    effects = {},
+    meta = {},
+    positioning = {},
+    positioningAdvanced = {},
+    advanced = {},
+    ...rest
+  } = props;
+  const flatProps = {
+    ...rest,
+    ...effects,
+    ...meta,
+    ...positioning,
+    ...positioningAdvanced,
+    ...advanced,
   };
 
-  // Overlay style
-  const overlayStyle: React.CSSProperties = advanced?.overlayColor
+  // Sanitize all relevant string props
+  const image = flatProps.image && {
+    ...flatProps.image,
+    caption: flatProps.image.caption ? { en: sanitizeString(flatProps.image.caption.en) } : undefined,
+    altCaption: flatProps.image.altCaption ? { en: sanitizeString(flatProps.image.altCaption.en) } : undefined,
+    altDescription: flatProps.image.altDescription ? { en: sanitizeString(flatProps.image.altDescription.en) } : undefined,
+    description: flatProps.image.description ? { en: sanitizeString(flatProps.image.description.en) } : undefined,
+  };
+  const altCaption = flatProps.altCaption ? { en: sanitizeString(flatProps.altCaption.en) } : undefined;
+  const altDescription = flatProps.altDescription ? { en: sanitizeString(flatProps.altDescription.en) } : undefined;
+  const caption = flatProps.caption ? { en: sanitizeString(flatProps.caption.en) } : undefined;
+  const linkUrl = sanitizeString(flatProps.linkUrl);
+  const size = sanitizeString(flatProps.size);
+  const aspectRatio = sanitizeString(flatProps.aspectRatio);
+  const width = sanitizeString(flatProps.width);
+  const height = sanitizeString(flatProps.height);
+  const maxWidth = sanitizeString(flatProps.maxWidth);
+  const alignment = sanitizeString(flatProps.alignment);
+  const objectFit = sanitizeString(flatProps.objectFit);
+  const showCaption = flatProps.showCaption;
+  const adv = {
+    ...flatProps,
+    marginTop: sanitizeString(flatProps.marginTop),
+    marginBottom: sanitizeString(flatProps.marginBottom),
+    padding: sanitizeString(flatProps.padding),
+    borderRadius: sanitizeString(flatProps.borderRadius),
+    boxShadow: sanitizeString(flatProps.boxShadow),
+    backgroundColor: sanitizeString(flatProps.backgroundColor),
+    overlayColor: sanitizeString(flatProps.overlayColor),
+    hoverEffect: sanitizeString(flatProps.hoverEffect),
+    overlayOpacity: flatProps.overlayOpacity,
+    hideOnMobile: flatProps.hideOnMobile,
+    hideOnDesktop: flatProps.hideOnDesktop,
+  };
+
+  // Responsive visibility
+  let visibilityClass = '';
+  if (adv.hideOnMobile) visibilityClass += ' hidden sm:block';
+  if (adv.hideOnDesktop) visibilityClass += ' block sm:hidden';
+
+  // --- Alignment logic ---
+  let alignmentClass = '';
+  let flexJustify = '';
+  if (!flatProps.fullBleed) {
+    if (alignment === 'center') flexJustify = 'justify-center';
+    if (alignment === 'right') flexJustify = 'justify-end';
+    if (alignment === 'left') flexJustify = 'justify-start';
+  }
+
+  // --- Container style and classes ---
+  const containerStyle: React.CSSProperties = {
+    width: width || (flatProps.fullBleed ? '100vw' : undefined),
+    height: height || undefined,
+    maxWidth: width ? undefined : maxWidth || undefined,
+    marginTop: adv.marginTop,
+    marginBottom: adv.marginBottom,
+    padding: adv.padding,
+    backgroundColor: adv.backgroundColor,
+    borderRadius: adv.borderRadius,
+    position: adv.overlayColor ? 'relative' : undefined,
+    overflow: 'visible',
+  };
+
+  // Size class (if no explicit width)
+  const sizeClass = !width && !flatProps.fullBleed ? getSizeClass(size) : '';
+
+  // --- Aspect ratio logic ---
+  const aspectRatioClass = getAspectRatioClass(aspectRatio);
+  const shouldUseAspectRatio = !!aspectRatioClass;
+
+  // --- Overlay style ---
+  const overlayStyle: React.CSSProperties = adv.overlayColor
     ? {
-        backgroundColor: advanced.overlayColor,
-        opacity: advanced.overlayOpacity ?? 0.5,
+        backgroundColor: adv.overlayColor,
+        opacity: adv.overlayOpacity ?? 0.5,
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        borderRadius: style.borderRadius,
+        borderRadius: adv.borderRadius,
       }
     : {};
 
-  // Compose image class
+  // --- Shared overlay/image classes for border radius and hover effects ---
+  const sharedOverlayClasses = [
+    getBorderRadiusClass(adv.borderRadius),
+    adv.hoverEffect === 'zoom' ? 'transition-transform duration-300 group-hover:scale-105' : '',
+    adv.hoverEffect === 'colorShift' ? 'group-hover:brightness-75' : '',
+    adv.hoverEffect === 'blur' ? 'group-hover:blur-sm' : '',
+  ].filter(Boolean).join(' ');
+
+  // --- Image class ---
   const imgClass = [
     'w-full h-full',
-    getSizeClass(size),
-    getAlignmentClass(alignment),
-    getBoxShadowClass(advanced?.boxShadow),
-    getBorderRadiusClass(advanced?.borderRadius),
-    getObjectFitClass(objectFit),
-    fullBleed ? 'w-full' : '',
-    advanced?.hoverEffect === 'zoom' ? 'transition-transform duration-300 hover:scale-105' : '',
-    advanced?.hoverEffect === 'shadow' ? 'hover:shadow-lg' : '',
-    advanced?.hoverEffect === 'colorShift' ? 'hover:brightness-75' : '',
-    advanced?.hoverEffect === 'blur' ? 'hover:blur-sm' : '',
+    getBoxShadowClass(adv.boxShadow),
+    shouldUseAspectRatio ? (objectFit ? getObjectFitClass(objectFit) : 'object-cover') : getObjectFitClass(objectFit),
+    adv.hoverEffect === 'zoom' ? 'transition-transform duration-300 group-hover:scale-105' : '',
+    adv.hoverEffect === 'colorShift' ? 'group-hover:brightness-75' : '',
+    adv.hoverEffect === 'blur' ? 'group-hover:blur-sm' : '',
     visibilityClass,
-  ].join(' ');
+  ].filter(Boolean).join(' ');
 
-  // Prefer asset's fields, fallback to section overrides
-  const finalCaption = image?.caption?.en || caption?.en;
-  const finalAlt = image?.altText?.en || altText?.en || '';
-  const finalDescription = image?.description?.en || description?.en;
+  // Prefer asset's fields, but overwrite with section overrides if present
+  const finalCaption = altCaption?.en || image?.altCaption?.en || caption?.en || image?.caption?.en;
+  const finalAlt = altDescription?.en || image?.altDescription?.en || image?.description?.en || '';
+  const finalDescription = altDescription?.en || image?.altDescription?.en || image?.description?.en;
 
-  // Image element with overlay and aspect ratio
-  const imgElement = image?.url ? (
-    <div className={[getAspectRatioClass(aspectRatio), 'relative w-full'].join(' ')} style={{ ...style }}>
-      <img
-        src={image.url}
-        alt={finalAlt}
-        className={imgClass}
-        style={{ borderRadius: style.borderRadius }}
-      />
-      {advanced?.overlayColor && <div style={overlayStyle} />}
-    </div>
-  ) : null;
+  // --- Render image with aspect ratio or fixed dimensions ---
+  let imgElement = null;
+  if (shouldUseAspectRatio) {
+    imgElement = (
+      <div className={`relative group ${aspectRatioClass} ${sizeClass}`}>
+        <img src={image?.url} alt={finalAlt} className={imgClass} />
+        {adv.overlayColor && (
+          <div style={overlayStyle} className={sharedOverlayClasses} />
+        )}
+      </div>
+    );
+  } else {
+    imgElement = (
+      <div className={`relative group ${sizeClass}`}>
+        <img src={image?.url} alt={finalAlt} className={imgClass} />
+        {adv.overlayColor && (
+          <div style={overlayStyle} className={sharedOverlayClasses} />
+        )}
+      </div>
+    );
+  }
 
+  // --- Link wrapper ---
   const content = linkUrl ? (
     <a href={linkUrl} target="_blank" rel="noopener noreferrer">
       {imgElement}
@@ -192,9 +271,10 @@ const ImageSection: React.FC<ImageSectionProps> = ({
     imgElement
   );
 
+  // --- Outer container ---
   return (
-    <div className={`my-4 ${fullBleed ? 'w-full' : 'max-w-2xl mx-auto'}`} style={{ backgroundColor: advanced?.backgroundColor }}>
-      <section>
+    <div className={`flex ${flexJustify} ${visibilityClass}`} style={containerStyle}>
+      <section style={{ width: width || (!flatProps.fullBleed && size ? undefined : '100%') }}>
         {content}
         {(showCaption || finalCaption) && (
           <p className="text-sm text-gray-500 mt-2">{finalCaption}</p>
