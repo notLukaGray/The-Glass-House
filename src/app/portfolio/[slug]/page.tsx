@@ -16,7 +16,7 @@ import type {
   ImageAsset,
   VideoAsset,
   SvgAsset
-} from '@/types/sanity';
+} from '@/_lib/sanity';
 
 export const revalidate = 0;
 
