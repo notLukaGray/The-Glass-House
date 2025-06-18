@@ -24,19 +24,10 @@ const sanitizeSanityResponse = (data: any): any => {
 };
 
 // Create the base Sanity client
-const getSanityEnv = (key: string) => {
-  if (typeof window !== 'undefined') {
-    // Client-side: use NEXT_PUBLIC_ variables
-    return process.env[`NEXT_PUBLIC_${key}`] || '';
-  }
-  // Server-side: use regular variables
-  return process.env[key] || '';
-};
-
 const baseClient = createClient({
-  projectId: getSanityEnv('SANITY_PROJECT_ID'),
-  dataset: getSanityEnv('SANITY_DATASET'),
-  apiVersion: getSanityEnv('SANITY_API_VERSION'),
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID || '',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET || '',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || process.env.SANITY_API_VERSION || '',
   useCdn: process.env.NODE_ENV === 'production',
   perspective: 'published',
   stega: {

@@ -8,9 +8,9 @@ const getSanityEnv = (key: string) => {
 };
 
 const client = createClient({
-  projectId: getSanityEnv('SANITY_PROJECT_ID'),
-  dataset: getSanityEnv('SANITY_DATASET'),
-  apiVersion: getSanityEnv('SANITY_API_VERSION') || '2023-05-03',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID || '',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET || '',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || process.env.SANITY_API_VERSION || '2023-05-03',
   useCdn: true,
 });
 
