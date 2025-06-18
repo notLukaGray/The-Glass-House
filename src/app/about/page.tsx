@@ -1,5 +1,5 @@
-import { client } from '@/_lib/sanity';
-import { sectionComponentMap, iconKeyMap } from '@/handlers/componentHandler';
+import { client } from '@/_lib/handlers/sanity';
+import { sectionComponentMap, iconKeyMap } from '@/_lib/handlers/componentHandler';
 import type { ReactElement } from 'react';
 
 export default async function AboutPage(): Promise<ReactElement> {

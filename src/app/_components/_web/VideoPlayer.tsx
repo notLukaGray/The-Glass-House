@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { VideoAsset, getVideoSources } from "@/handlers/videoHandler";
+import { VideoAsset, getVideoSources } from "@/_lib/handlers/videoHandler";
 
 interface VideoPlayerProps {
   asset: VideoAsset;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { getImageAsset } from '@/handlers/imageHandler';
+import { getImageAsset } from '@/_lib/handlers/imageHandler';
 
 interface RelatedSectionProps {
   heading: { en?: string };

@@ -1,4 +1,4 @@
-import { client } from '@/_lib/sanity';
+import { client } from '@/_lib/handlers/sanity';
 
 export interface VideoAsset {
   _id: string;

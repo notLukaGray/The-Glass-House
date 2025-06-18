@@ -1,6 +1,6 @@
 import React from 'react';
 import BlockRenderer from './BlockRenderer';
-import { getColoredSvg } from '@/handlers/svgHandler';
+import { getColoredSvg } from '@/_lib/handlers/svgHandler';
 
 interface CalloutSectionProps {
   title: { en: string };

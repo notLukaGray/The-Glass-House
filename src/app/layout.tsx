@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { SettingsProvider } from "@/app/_components/_providers/SettingsProvider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "portfolio - luka gray",
-  description: "portfolio website",
+  title: "Portfolio",
+  description: "My portfolio website",
 };
 
 export default function RootLayout({
@@ -13,7 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
+      </body>
     </html>
   );
 }

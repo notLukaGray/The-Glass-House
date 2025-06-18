@@ -5,7 +5,6 @@ const nextConfig = {
     SANITY_PROJECT_ID: process.env.SANITY_PROJECT_ID,
     SANITY_DATASET: process.env.SANITY_DATASET,
     SANITY_API_VERSION: process.env.SANITY_API_VERSION,
-    SANITY_TOKEN: process.env.SANITY_TOKEN,
   },
   images: {
     remotePatterns: [
@@ -16,6 +15,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   webpack(config) {
     config.module.rules.push({
@@ -25,11 +27,14 @@ const nextConfig = {
     return config;
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
   },
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
 }
 
 export default nextConfig 

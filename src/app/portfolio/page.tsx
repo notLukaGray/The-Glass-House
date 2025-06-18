@@ -1,6 +1,6 @@
-import { client } from '@/_lib/sanity';
+import { client } from '@/_lib/handlers/sanity';
 import Link from 'next/link';
-import { getImageAsset } from '@/handlers/imageHandler';
+import { getImageAsset } from '@/_lib/handlers/imageHandler';
 
 export const revalidate = 60; // cache for 60 seconds
 

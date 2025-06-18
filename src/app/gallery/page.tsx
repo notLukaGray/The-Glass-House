@@ -1,5 +1,5 @@
-import { getSvgAssets, getColoredSvg } from '@/handlers/svgHandler';
-import { getVideoAsset } from '@/handlers/videoHandler';
+import { getSvgAssets, getColoredSvg } from '@/_lib/handlers/svgHandler';
+import { getVideoAsset } from '@/_lib/handlers/videoHandler';
 import VideoPlayer from '@/app/_components/_web/VideoPlayer';
 
 export default async function TestPage() {

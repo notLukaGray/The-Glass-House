@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { PortableText, PortableTextComponents, PortableTextComponentProps } from '@portabletext/react';
-import { getImageAsset } from '@/handlers/imageHandler';
-import { getSvgAsset } from '@/handlers/svgHandler';
-import { getVideoAsset } from '@/handlers/videoHandler';
-import { getSocialAsset } from '@/handlers/socialHandler';
+import { getImageAsset } from '@/_lib/handlers/imageHandler';
+import { getSvgAsset } from '@/_lib/handlers/svgHandler';
+import { getVideoAsset } from '@/_lib/handlers/videoHandler';
+import { getSocialAsset } from '@/_lib/handlers/socialHandler';
+import { useSettings } from '@/app/_components/_providers/SettingsProvider';
 
 // Add type definitions for block content
 interface BlockContent {
@@ -28,6 +29,8 @@ interface TextSectionProps {
     backgroundColor?: string;
     borderRadius?: string;
     boxShadow?: string;
+    textColor?: string;
+    fontFamily?: string;
   };
   positioningAdvanced?: {
     margin?: string;
@@ -193,6 +196,8 @@ async function resolveAssets(blocks: any[]): Promise<ResolvedAsset[]> {
 }
 
 const TextSection: React.FC<TextSectionProps> = (props) => {
+  const { settings, currentTheme } = useSettings();
+  
   // Debug log for textAlign and all props
   console.log('TextSection textAlign:', props.textAlign, props);
 
@@ -252,14 +257,27 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   if (flatProps.hideOnMobile) visibilityClass += ' hidden sm:block';
   if (flatProps.hideOnDesktop) visibilityClass += ' block sm:hidden';
 
+  // Get theme-aware styles
+  const getThemeStyles = () => {
+    if (!settings?.theme) return {};
+    
+    const themeColors = settings.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].colors;
+    const typography = settings.theme.typography;
+    
+    return {
+      color: flatProps.textColor || themeColors.text,
+      backgroundColor: flatProps.backgroundColor || themeColors.background,
+      fontFamily: flatProps.fontFamily || typography.bodyFont,
+    };
+  };
+
   // --- Container style and classes ---
   const containerStyle: React.CSSProperties = {
     width: width || (flatProps.fullBleed ? '100vw' : undefined),
     maxWidth: width ? undefined : maxWidth || undefined,
     margin: margin,
     padding: padding,
-    backgroundColor: backgroundColor,
-    borderRadius: borderRadius,
+    ...getThemeStyles(),
   };
 
   // Size class (if no explicit width)
@@ -276,20 +294,34 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   // --- Section-wide text alignment for all blocks ---
   const blockComponents: PortableTextComponents = {
     block: {
-      normal: ({ children }: PortableTextComponentProps<BlockContent>) => <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</p>,
-      h1: ({ children }: PortableTextComponentProps<BlockContent>) => <h1 className={`text-4xl font-bold mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h1>,
-      h2: ({ children }: PortableTextComponentProps<BlockContent>) => <h2 className={`text-3xl font-bold mb-3 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h2>,
-      h3: ({ children }: PortableTextComponentProps<BlockContent>) => <h3 className={`text-2xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h3>,
-      h4: ({ children }: PortableTextComponentProps<BlockContent>) => <h4 className={`text-xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h4>,
-      blockquote: ({ children }: PortableTextComponentProps<BlockContent>) => <blockquote className={`border-l-4 border-gray-300 pl-4 italic ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</blockquote>,
-      default: ({ children }: PortableTextComponentProps<BlockContent>) => <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</p>,
+      normal: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</p>
+      ),
+      h1: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <h1 className={`text-4xl font-bold mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h1>
+      ),
+      h2: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <h2 className={`text-3xl font-bold mb-3 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h2>
+      ),
+      h3: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <h3 className={`text-2xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h3>
+      ),
+      h4: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <h4 className={`text-xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</h4>
+      ),
+      blockquote: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <blockquote className={`border-l-4 pl-4 italic ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</blockquote>
+      ),
+      default: ({ children }: PortableTextComponentProps<BlockContent>) => (
+        <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign)}`}>{children}</p>
+      ),
     },
     marks: components.marks,
     types: components.types,
   };
 
   return (
-    <div className={`flex ${flatProps.fullBleed ? 'w-full' : ''} ${visibilityClass}`} style={containerStyle}>
+    <div className={`flex ${flatProps.fullBleed ? 'w-full' : ''} ${visibilityClass} transition-colors duration-300`} style={containerStyle}>
       <section className={`${sizeClass} ${sharedClasses}`} style={{ width: width || (!flatProps.fullBleed && size ? undefined : '100%') }}>
         <PortableText value={resolvedContent} components={blockComponents} />
       </section>
@@ -297,4 +329,4 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   );
 };
 
-export default TextSection; 
+export default TextSection;

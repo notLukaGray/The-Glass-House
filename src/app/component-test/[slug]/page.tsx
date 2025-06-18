@@ -1,10 +1,46 @@
-import { client } from '@/_lib/sanity';
-import { portfolioSectionComponentMap } from '@/handlers/componentHandler';
+import { client } from '@/_lib/handlers/sanity';
+import { portfolioSectionComponentMap } from '@/_lib/handlers/componentHandler';
 import { notFound } from 'next/navigation';
-import { getImageAsset } from '@/handlers/imageHandler';
-import { getSvgAsset } from '@/handlers/svgHandler';
-import { getVideoAsset } from '@/handlers/videoHandler';
-import React from 'react';
+import { getImageAsset, type ImageAsset } from '@/_lib/handlers/imageHandler';
+import { getSvgAsset, type SvgAsset } from '@/_lib/handlers/svgHandler';
+import { getVideoAsset, type VideoAsset } from '@/_lib/handlers/videoHandler';
+import React, { Suspense } from 'react';
+import { SettingsProvider } from '@/app/_components/_providers/SettingsProvider';
+import LoadingSkeleton from '@/app/_components/_ui/LoadingSkeleton';
+import PortfolioSectionRenderer from '@/app/_components/_content/PortfolioSectionRenderer';
+
+interface PageMeta {
+  _id: string;
+  title?: { en: string };
+  subhead?: { en: string };
+  sections?: Array<{
+    _id: string;
+    order: number;
+    content: Array<Section>;
+  }>;
+}
+
+interface Section {
+  _key: string;
+  _type: string;
+  image?: { _ref: string };
+  video?: { _ref: string };
+  icon?: { _ref: string };
+  avatar?: { _ref: string };
+  size?: string;
+  [key: string]: any;
+}
+
+interface ResolvedSection {
+  _key: string;
+  _type: string;
+  image?: ImageAsset | null;
+  video?: VideoAsset | null;
+  icon?: SvgAsset | null;
+  avatar?: ImageAsset | null;
+  size?: string;
+  [key: string]: any;
+}
 
 export const revalidate = 0;
 
@@ -25,63 +61,73 @@ async function getTestPage(slug: string) {
       }
     }
   }`;
-  return await client.fetch(query, { slug });
+  return await client.fetch(query, { slug }) as PageMeta;
 }
 
-async function resolveSectionAssets(sectionObj: any) {
-  // ImageSection
+async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSection> {
+  const baseSection = { ...sectionObj };
+  delete baseSection.image;
+  delete baseSection.video;
+  delete baseSection.icon;
+  delete baseSection.avatar;
+
   if (sectionObj._type === 'imageSection' && sectionObj.image?._ref) {
     const imageAsset = await getImageAsset({ id: sectionObj.image._ref });
-    return { ...sectionObj, image: imageAsset };
+    return { ...baseSection, image: imageAsset } as ResolvedSection;
   }
-  // AvatarSection
   if (sectionObj._type === 'avatarSection' && sectionObj.avatar?._ref) {
     const avatarAsset = await getImageAsset({ id: sectionObj.avatar._ref });
-    return { ...sectionObj, avatar: avatarAsset };
+    return { ...baseSection, avatar: avatarAsset } as ResolvedSection;
   }
-  // IconSection
   if (sectionObj._type === 'iconSection' && sectionObj.icon?._ref) {
     const iconAsset = await getSvgAsset({ id: sectionObj.icon._ref });
-    return { ...sectionObj, icon: iconAsset };
+    return { ...baseSection, icon: iconAsset } as ResolvedSection;
   }
-  // VideoSection
   if (sectionObj._type === 'videoSection' && sectionObj.video?._ref) {
     const videoAsset = await getVideoAsset({ id: sectionObj.video._ref });
-    return { ...sectionObj, video: videoAsset };
+    return { ...baseSection, video: videoAsset } as ResolvedSection;
   }
-  // Add more section types as needed...
-  return sectionObj;
+  return baseSection as ResolvedSection;
+}
+
+async function PageContent({ sections }: { sections: ResolvedSection[] }) {
+  return (
+    <main className="py-12 space-y-12" style={{ color: 'var(--color-text)' }}>
+      {sections.map((section) => (
+        <PortfolioSectionRenderer key={section._key} section={section} />
+      ))}
+    </main>
+  );
 }
 
 export default async function ComponentTestPage(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
   const page = await getTestPage(slug);
+  
   if (!page) {
     notFound();
   }
-  // Flatten all section objects from all referenced sections
-  const allSectionObjs = (page.sections || []).flatMap((section: any) => section.content || []);
+
+  const allSectionObjs = (page.sections || []).flatMap((section) => section.content || []);
   if (!allSectionObjs.length) {
     return null;
   }
-  // Resolve all asset references in section objects
+
   const sectionsWithAssets = await Promise.all(
     allSectionObjs.map(resolveSectionAssets)
   );
+
   if (!sectionsWithAssets.length) {
     return null;
   }
+
   return (
-    <div className="w-screen min-h-screen bg-black p-0 m-0">
-      <main className="py-12 space-y-12">
-        {sectionsWithAssets.map((section: any) => {
-          const SectionComponent = portfolioSectionComponentMap[section._type as keyof typeof portfolioSectionComponentMap];
-          if (!SectionComponent) return (
-            <div key={section._key} className="p-4 border border-red-300 bg-red-50">Unknown section type: {section._type}</div>
-          );
-          return <SectionComponent key={section._key} {...section} size={section.size} />;
-        })}
-      </main>
-    </div>
+    <SettingsProvider>
+      <div className="w-screen min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--color-background)' }}>
+        <Suspense fallback={<LoadingSkeleton type="gallery" />}>
+          <PageContent sections={sectionsWithAssets} />
+        </Suspense>
+      </div>
+    </SettingsProvider>
   );
 } 

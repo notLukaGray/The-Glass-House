@@ -1,4 +1,5 @@
 import { Rule } from '@sanity/types'
+import React from 'react'
 
 const imageSection = {
   name: 'imageSection',
@@ -9,12 +10,7 @@ const imageSection = {
       name: 'image',
       title: 'Image',
       type: 'reference',
-      to: [
-        { type: 'assetPhoto' },
-        { type: 'assetSVG' },
-        { type: 'assetVideo' },
-        { type: 'asset3d' }
-      ],
+      to: [{ type: 'assetPhoto' }],
       validation: (rule: Rule) => rule.required(),
       description: 'Select an image asset to display.'
     },
@@ -24,11 +20,61 @@ const imageSection = {
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'altDescription', title: 'Alt Description', type: 'localeString', description: 'Overrides the asset description. Used for the image alt attribute (accessibility). Example: "A panoramic view of a mountain range at sunset."' },
-        { name: 'altCaption', title: 'Alt Caption', type: 'localeString', description: 'Overrides the asset caption. Shown below the image. Example: "A beautiful sunset over the mountains."' },
-        { name: 'linkUrl', title: 'Link URL', type: 'string', description: 'Optional. Make the image a link. Example: "https://example.com"' },
-        { name: 'hideOnMobile', title: 'Hide on Mobile', type: 'boolean', description: 'Hide this image on mobile screens.' },
-        { name: 'hideOnDesktop', title: 'Hide on Desktop', type: 'boolean', description: 'Hide this image on desktop screens.' }
+        { 
+          name: 'titleDisplayMode', 
+          title: 'Title Display Mode', 
+          type: 'string',
+          options: {
+            list: [
+              { title: "Don't Show Title", value: 'none' },
+              { title: 'Below Image', value: 'below' },
+              { title: 'Overlay - Top', value: 'overlay-top' },
+              { title: 'Overlay - Bottom', value: 'overlay-bottom' },
+              { title: 'Overlay - Center', value: 'overlay-center' },
+              { title: 'Show on Hover (Centered)', value: 'hover' }
+            ]
+          },
+          initialValue: 'below',
+          description: 'How to display the image title'
+        },
+        { 
+          name: 'showCaption', 
+          title: 'Show Caption', 
+          type: 'boolean',
+          initialValue: true,
+          description: 'Whether to display the image caption',
+          hidden: ({ parent }: { parent: any }) => parent?.titleDisplayMode === 'none'
+        },
+        { 
+          name: 'altDescription', 
+          title: 'Alt Description', 
+          type: 'localeString', 
+          description: 'Overrides the asset description. Used for the image alt attribute (accessibility). Example: "A panoramic view of a mountain range at sunset."' 
+        },
+        { 
+          name: 'altCaption', 
+          title: 'Alt Caption', 
+          type: 'localeString', 
+          description: 'Overrides the asset caption. Shown below the image. Example: "A beautiful sunset over the mountains."' 
+        },
+        { 
+          name: 'linkUrl', 
+          title: 'Link URL', 
+          type: 'string', 
+          description: 'Optional. Make the image a link. Example: "https://example.com"' 
+        },
+        { 
+          name: 'hideOnMobile', 
+          title: 'Hide on Mobile', 
+          type: 'boolean', 
+          description: 'Hide this image on mobile screens.' 
+        },
+        { 
+          name: 'hideOnDesktop', 
+          title: 'Hide on Desktop', 
+          type: 'boolean', 
+          description: 'Hide this image on desktop screens.' 
+        }
       ]
     },
     {
@@ -87,14 +133,20 @@ const imageSection = {
   ],
   preview: {
     select: {
-      image: 'image',
-      title: 'title',
+      title: 'image.title.en',
+      media: 'image.url'
     },
-    prepare({ image, title }: { image?: any; title?: any }) {
-      let displayTitle = title || (image && image._ref) || 'Untitled';
+    prepare({ title, media }: { title?: string; media?: string }) {
       return {
-        title: `Component: Image Section | Title: ${displayTitle}`,
-      };
+        title: title || 'Untitled Image',
+        media: media
+          ? React.createElement('img', {
+              src: media,
+              alt: title || 'Image preview',
+              style: { width: '100%', height: '100%', objectFit: 'cover' }
+            })
+          : undefined
+      }
     }
   }
 }

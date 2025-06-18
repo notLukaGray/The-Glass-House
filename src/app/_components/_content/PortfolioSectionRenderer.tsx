@@ -1,5 +1,5 @@
 import React from 'react';
-import { portfolioSectionComponentMap } from '@/handlers/componentHandler';
+import { portfolioSectionComponentMap } from '@/_lib/handlers/componentHandler';
 
 interface Section {
   _key: string;

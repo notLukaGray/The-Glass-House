@@ -10,12 +10,7 @@ const avatarSection = {
       name: 'avatar',
       title: 'Avatar',
       type: 'reference',
-      to: [
-        { type: 'assetPhoto' },
-        { type: 'assetSVG' },
-        { type: 'assetVideo' },
-        { type: 'asset3d' }
-      ],
+      to: [{ type: 'assetPhoto' }],
       validation: (rule: Rule) => rule.required()
     },
     { name: 'label', title: 'Label', type: 'localeString' }
@@ -23,17 +18,19 @@ const avatarSection = {
   preview: {
     select: {
       label: 'label',
-      avatar: 'avatar'
+      media: 'avatar.url'
     },
-    prepare({ label, avatar }: { label?: any; avatar?: any }) {
-      let displayTitle = (label && label.en) || label || 'Untitled';
+    prepare({ label, media }: { label?: any; media?: string }) {
       return {
-        title: `Component: Avatar Section | Title: ${displayTitle}`,
-        media: avatar && avatar.svgData ? React.createElement('div', {
-          style: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' },
-          dangerouslySetInnerHTML: { __html: `<div style=\"width:100%;height:100%;display:flex;align-items:center;justify-content:center;\">${avatar.svgData}</div>` }
-        }) : undefined
-      };
+        title: label?.en || 'Avatar Section',
+        media: media
+          ? React.createElement('img', {
+              src: media,
+              alt: label?.en || 'Avatar preview',
+              style: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }
+            })
+          : undefined
+      }
     }
   }
 }

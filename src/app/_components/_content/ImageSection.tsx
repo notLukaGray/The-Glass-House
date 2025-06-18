@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useSettings } from '@/app/_components/_providers/SettingsProvider';
 
 interface ImageSectionProps {
   image: {
@@ -9,6 +10,7 @@ interface ImageSectionProps {
     altCaption?: { en?: string };
     altDescription?: { en?: string };
     description?: { en?: string };
+    title?: { en?: string };
   } | null;
   altCaption?: { en?: string };
   altDescription?: { en?: string };
@@ -23,6 +25,19 @@ interface ImageSectionProps {
   alignment?: string;
   objectFit?: string;
   showCaption?: boolean;
+  titleDisplayMode?: 'none' | 'below' | 'overlay-top' | 'overlay-bottom' | 'overlay-center' | 'hover';
+  // Theme
+  theme?: {
+    overlayColor?: string;
+    overlayOpacity?: number;
+    textColor?: string;
+    captionColor?: string;
+    spacing?: {
+      title?: string;
+      caption?: string;
+      padding?: string;
+    };
+  };
   // Advanced
   advanced?: {
     marginTop?: string;
@@ -113,6 +128,8 @@ function getAspectRatioClass(aspectRatio?: string) {
 }
 
 const ImageSection: React.FC<ImageSectionProps> = (props) => {
+  const { settings, currentTheme } = useSettings();
+  
   // Flatten nested fields (effects, meta, positioning, positioningAdvanced) into top-level props
   const {
     effects = {},
@@ -138,6 +155,7 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     altCaption: flatProps.image.altCaption ? { en: sanitizeString(flatProps.image.altCaption.en) } : undefined,
     altDescription: flatProps.image.altDescription ? { en: sanitizeString(flatProps.image.altDescription.en) } : undefined,
     description: flatProps.image.description ? { en: sanitizeString(flatProps.image.description.en) } : undefined,
+    title: flatProps.image.title ? { en: sanitizeString(flatProps.image.title.en) } : undefined,
   };
   const altCaption = flatProps.altCaption ? { en: sanitizeString(flatProps.altCaption.en) } : undefined;
   const altDescription = flatProps.altDescription ? { en: sanitizeString(flatProps.altDescription.en) } : undefined;
@@ -160,8 +178,8 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     boxShadow: sanitizeString(flatProps.boxShadow),
     backgroundColor: sanitizeString(flatProps.backgroundColor),
     overlayColor: sanitizeString(flatProps.overlayColor),
-    hoverEffect: sanitizeString(flatProps.hoverEffect),
     overlayOpacity: flatProps.overlayOpacity,
+    hoverEffect: sanitizeString(flatProps.hoverEffect),
     hideOnMobile: flatProps.hideOnMobile,
     hideOnDesktop: flatProps.hideOnDesktop,
   };
@@ -180,6 +198,19 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     if (alignment === 'left') flexJustify = 'justify-start';
   }
 
+  // Get theme-aware styles
+  const getThemeStyles = () => {
+    if (!settings?.theme) return {};
+    
+    const themeColors = settings.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].colors;
+    const themeOverlays = settings.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].overlays;
+    
+    return {
+      color: flatProps.textColor || themeColors.text,
+      backgroundColor: flatProps.backgroundColor || themeColors.background,
+    };
+  };
+
   // --- Container style and classes ---
   const containerStyle: React.CSSProperties = {
     width: width || (flatProps.fullBleed ? '100vw' : undefined),
@@ -188,10 +219,10 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     marginTop: adv.marginTop,
     marginBottom: adv.marginBottom,
     padding: adv.padding,
-    backgroundColor: adv.backgroundColor,
-    borderRadius: adv.borderRadius,
+    backgroundColor: adv.backgroundColor || settings?.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].colors.background,
     position: adv.overlayColor ? 'relative' : undefined,
     overflow: 'visible',
+    ...getThemeStyles(),
   };
 
   // Size class (if no explicit width)
@@ -202,19 +233,21 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
   const shouldUseAspectRatio = !!aspectRatioClass;
 
   // --- Overlay style ---
-  const overlayStyle: React.CSSProperties = adv.overlayColor
-    ? {
-        backgroundColor: adv.overlayColor,
-        opacity: adv.overlayOpacity ?? 0.5,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        borderRadius: adv.borderRadius,
-      }
-    : {};
+  const getOverlayStyle = (mode?: string): React.CSSProperties => {
+    const themeColors = settings?.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].colors;
+    const themeOverlays = settings?.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].overlays;
+    
+    return {
+      backgroundColor: flatProps.theme?.overlayColor || themeOverlays?.color || themeColors?.primary || '#000000',
+      opacity: flatProps.theme?.overlayOpacity ?? themeOverlays?.opacity ?? 0.3,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+    };
+  };
 
   // --- Shared overlay/image classes for border radius and hover effects ---
   const sharedOverlayClasses = [
@@ -222,6 +255,7 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     adv.hoverEffect === 'zoom' ? 'transition-transform duration-300 group-hover:scale-105' : '',
     adv.hoverEffect === 'colorShift' ? 'group-hover:brightness-75' : '',
     adv.hoverEffect === 'blur' ? 'group-hover:blur-sm' : '',
+    'transition-colors duration-300',
   ].filter(Boolean).join(' ');
 
   // --- Image class ---
@@ -229,42 +263,80 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     'w-full h-full',
     getBoxShadowClass(adv.boxShadow),
     shouldUseAspectRatio ? (objectFit ? getObjectFitClass(objectFit) : 'object-cover') : getObjectFitClass(objectFit),
-    adv.hoverEffect === 'zoom' ? 'transition-transform duration-300 group-hover:scale-105' : '',
-    adv.hoverEffect === 'colorShift' ? 'group-hover:brightness-75' : '',
-    adv.hoverEffect === 'blur' ? 'group-hover:blur-sm' : '',
     visibilityClass,
+    'transition-colors duration-300',
   ].filter(Boolean).join(' ');
 
   // Prefer asset's fields, but overwrite with section overrides if present
-  const finalCaption = altCaption?.en || image?.altCaption?.en || caption?.en || image?.caption?.en;
+  const finalCaption = showCaption ? (altCaption?.en || image?.altCaption?.en || caption?.en || image?.caption?.en) : undefined;
   const finalAlt = altDescription?.en || image?.altDescription?.en || image?.description?.en || '';
-  const finalDescription = altDescription?.en || image?.altDescription?.en || image?.description?.en;
+  const finalDescription = showCaption ? (altDescription?.en || image?.altDescription?.en || image?.description?.en) : undefined;
+  const finalTitle = image?.title?.en || '';
+
+  // Get title display classes based on mode
+  const getTitleDisplayClasses = (mode?: string) => {
+    const baseClasses = 'text-white'; // Default, can be overridden by theme
+    const spacing = flatProps.theme?.spacing?.title || 'mt-2';
+    const padding = flatProps.theme?.spacing?.padding || 'p-4';
+
+    switch (mode) {
+      case 'overlay-top':
+        return `absolute top-0 left-0 right-0 ${padding} ${baseClasses}`;
+      case 'overlay-bottom':
+        return `absolute bottom-0 left-0 right-0 ${padding} ${baseClasses}`;
+      case 'overlay-center':
+        return `absolute inset-0 flex flex-col items-center justify-center ${padding} ${baseClasses}`;
+      case 'hover':
+        return `absolute inset-0 flex flex-col items-center justify-center ${padding} ${baseClasses} opacity-0 group-hover:opacity-100 transition-opacity duration-300`;
+      case 'below':
+        return `${spacing} text-lg font-medium ${baseClasses}`;
+      default:
+        return baseClasses;
+    }
+  };
 
   // --- Render image with aspect ratio or fixed dimensions ---
+  const renderImageContent = () => (
+    <>
+      <img src={image?.url} alt={finalAlt} className={imgClass} />
+      {flatProps.titleDisplayMode !== 'none' && finalTitle && (
+        <div className={getTitleDisplayClasses(flatProps.titleDisplayMode)}>
+          {(flatProps.titleDisplayMode?.includes('overlay') || flatProps.titleDisplayMode === 'hover') && (
+            <div 
+              style={getOverlayStyle(flatProps.titleDisplayMode)}
+            />
+          )}
+          <div className="relative z-10">
+            {finalTitle}
+            {finalCaption && (
+              <p className={`text-xs ${flatProps.theme?.captionColor || 'text-white'} ${flatProps.theme?.spacing?.caption || 'mt-1'}`}>
+                {finalCaption}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
   let imgElement = null;
   if (shouldUseAspectRatio) {
     imgElement = (
-      <div className={`relative group ${aspectRatioClass} ${sizeClass}`}>
-        <img src={image?.url} alt={finalAlt} className={imgClass} />
-        {adv.overlayColor && (
-          <div style={overlayStyle} className={sharedOverlayClasses} />
-        )}
+      <div className={`relative group ${aspectRatioClass} ${sizeClass} ${sharedOverlayClasses}`}>
+        {renderImageContent()}
       </div>
     );
   } else {
     imgElement = (
-      <div className={`relative group ${sizeClass}`}>
-        <img src={image?.url} alt={finalAlt} className={imgClass} />
-        {adv.overlayColor && (
-          <div style={overlayStyle} className={sharedOverlayClasses} />
-        )}
+      <div className={`relative group ${sizeClass} ${sharedOverlayClasses}`}>
+        {renderImageContent()}
       </div>
     );
   }
 
   // --- Link wrapper ---
   const content = linkUrl ? (
-    <a href={linkUrl} target="_blank" rel="noopener noreferrer">
+    <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="block">
       {imgElement}
     </a>
   ) : (
@@ -273,15 +345,9 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
 
   // --- Outer container ---
   return (
-    <div className={`flex ${flexJustify} ${visibilityClass}`} style={containerStyle}>
+    <div className={`flex ${flexJustify} ${visibilityClass} transition-colors duration-300`} style={containerStyle}>
       <section style={{ width: width || (!flatProps.fullBleed && size ? undefined : '100%') }}>
         {content}
-        {(showCaption || finalCaption) && (
-          <p className="text-sm text-gray-500 mt-2">{finalCaption}</p>
-        )}
-        {finalDescription && (
-          <p className="text-xs text-gray-400 mt-1">{finalDescription}</p>
-        )}
       </section>
     </div>
   );

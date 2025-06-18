@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { getColoredSvg } from "@/handlers/svgHandler";
+import { getColoredSvg } from "@/_lib/handlers/svgHandler";
 
 export interface SkillItem {
   _key: string;

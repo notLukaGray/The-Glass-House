@@ -1,3 +1,5 @@
+import React from 'react'
+
 const twoColumnSection = {
   name: 'twoColumnSection',
   title: 'Two Column Section',
@@ -8,36 +10,44 @@ const twoColumnSection = {
       name: 'leftAsset',
       title: 'Left Asset',
       type: 'reference',
-      to: [
-        { type: 'assetPhoto' },
-        { type: 'assetSVG' },
-        { type: 'assetVideo' },
-        { type: 'asset3d' }
-      ]
+      to: [{ type: 'assetPhoto' }]
     },
     { name: 'rightContent', title: 'Right Content', type: 'blockContent' },
     {
       name: 'rightAsset',
       title: 'Right Asset',
       type: 'reference',
-      to: [
-        { type: 'assetPhoto' },
-        { type: 'assetSVG' },
-        { type: 'assetVideo' },
-        { type: 'asset3d' }
-      ]
+      to: [{ type: 'assetPhoto' }]
     }
   ],
   preview: {
     select: {
       leftContent: 'leftContent',
       rightContent: 'rightContent',
+      leftMedia: 'leftAsset.url',
+      rightMedia: 'rightAsset.url'
     },
-    prepare({ leftContent, rightContent }: { leftContent?: any; rightContent?: any }) {
-      let displayTitle = (leftContent && leftContent[0] && leftContent[0].children && leftContent[0].children[0] && leftContent[0].children[0].text) || (rightContent && rightContent[0] && rightContent[0].children && rightContent[0].children[0] && rightContent[0].children[0].text) || 'Untitled';
+    prepare({ leftContent, rightContent, leftMedia, rightMedia }: { leftContent?: any; rightContent?: any; leftMedia?: string; rightMedia?: string }) {
+      const title = (leftContent && leftContent[0]?.children?.[0]?.text) || 
+                   (rightContent && rightContent[0]?.children?.[0]?.text) || 
+                   'Two Column Section';
+      
       return {
-        title: `Component: Two Column Section | Title: ${displayTitle}`,
-      };
+        title,
+        media: leftMedia 
+          ? React.createElement('img', {
+              src: leftMedia,
+              alt: title,
+              style: { width: '100%', height: '100%', objectFit: 'cover' }
+            })
+          : rightMedia
+          ? React.createElement('img', {
+              src: rightMedia,
+              alt: title,
+              style: { width: '100%', height: '100%', objectFit: 'cover' }
+            })
+          : undefined
+      }
     }
   }
 }

@@ -1,3 +1,5 @@
+import React from 'react'
+
 const processStepSection = {
   name: 'processStepSection',
   title: 'Process Step Section',
@@ -9,23 +11,25 @@ const processStepSection = {
       name: 'asset',
       title: 'Asset',
       type: 'reference',
-      to: [
-        { type: 'assetPhoto' },
-        { type: 'assetSVG' },
-        { type: 'assetVideo' },
-        { type: 'asset3d' }
-      ]
+      to: [{ type: 'assetPhoto' }]
     }
   ],
   preview: {
     select: {
       heading: 'heading',
+      media: 'asset.url'
     },
-    prepare({ heading }: { heading?: any }) {
-      let displayTitle = (heading && heading.en) || heading || 'Untitled';
+    prepare({ heading, media }: { heading?: any; media?: string }) {
       return {
-        title: `Component: Process Step Section | Title: ${displayTitle}`,
-      };
+        title: heading?.en || 'Process Step',
+        media: media
+          ? React.createElement('img', {
+              src: media,
+              alt: heading?.en || 'Process step preview',
+              style: { width: '100%', height: '100%', objectFit: 'cover' }
+            })
+          : undefined
+      }
     }
   }
 }

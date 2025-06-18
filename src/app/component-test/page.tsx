@@ -1,5 +1,5 @@
-import { client } from '@/_lib/sanity';
-import { portfolioSectionComponentMap } from '@/handlers/componentHandler';
+import { client } from '@/_lib/handlers/sanity';
+import { portfolioSectionComponentMap } from '@/_lib/handlers/componentHandler';
 import React from 'react';
 
 async function getTestPage() {

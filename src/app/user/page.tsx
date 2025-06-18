@@ -1,6 +1,6 @@
 import { PortableText } from '@portabletext/react';
-import { getImageAsset } from '@/handlers/imageHandler';
-import { client } from '@/_lib/sanity';
+import { getImageAsset } from '@/_lib/handlers/imageHandler';
+import { client } from '@/_lib/handlers/sanity';
 
 export default async function UserPage() {
   // Batch fetch user, social links, and SVG icons in one GROQ query
