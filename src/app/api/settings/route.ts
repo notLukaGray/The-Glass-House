@@ -140,6 +140,10 @@ export async function GET(request: NextRequest) {
       }`;
     } else {
       query = `*[_type == "siteSettings"][0] {
+        "basicInfo": {
+          "title": basicInfo.title,
+          "description": basicInfo.description
+        },
         "theme": {
           "defaultMode": theme.defaultMode,
           "lightMode": {
