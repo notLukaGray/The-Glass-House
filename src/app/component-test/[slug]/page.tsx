@@ -1,13 +1,12 @@
-import { client } from '@/_lib/handlers/sanity';
-import { portfolioSectionComponentMap } from '@/_lib/handlers/componentHandler';
 import { notFound } from 'next/navigation';
-import { getImageAsset, type ImageAsset } from '@/_lib/handlers/imageHandler';
-import { getSvgAsset, type SvgAsset } from '@/_lib/handlers/svgHandler';
-import { getVideoAsset, type VideoAsset } from '@/_lib/handlers/videoHandler';
+import { getImageAsset, type ImageAsset } from '@/lib/handlers/clientHandlers';
+import { getSvgAsset, type SvgAsset } from '@/lib/handlers/clientHandlers';
+import { getVideoAsset, type VideoAsset } from '@/lib/handlers/clientHandlers';
 import React, { Suspense } from 'react';
-import { SettingsProvider } from '@/app/_components/_providers/SettingsProvider';
-import LoadingSkeleton from '@/app/_components/_ui/LoadingSkeleton';
-import PortfolioSectionRenderer from '@/app/_components/_content/PortfolioSectionRenderer';
+import { SettingsProvider } from '@/components/providers/SettingsProvider';
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
+import ComponentTestPageContentClient from '@/components/content/ComponentTestPageContentClient';
+import PerformanceMonitorComponent from '@/components/ui/PerformanceMonitor';
 
 interface PageMeta {
   _id: string;
@@ -28,7 +27,7 @@ interface Section {
   icon?: { _ref: string };
   avatar?: { _ref: string };
   size?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ResolvedSection {
@@ -39,29 +38,29 @@ interface ResolvedSection {
   icon?: SvgAsset | null;
   avatar?: ImageAsset | null;
   size?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const revalidate = 0;
 
 async function getTestPage(slug: string) {
-  const query = `*[_type == "pageMeta" && slug.current == $slug][0]{
-    _id,
-    title,
-    subhead,
-    sections[]->{
-      _id,
-      order,
-      content[] {
-        ...,
-        image,
-        video,
-        icon,
-        avatar
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/page/${slug}`, {
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
       }
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  }`;
-  return await client.fetch(query, { slug }) as PageMeta;
+    
+    return await response.json() as PageMeta;
+  } catch (error) {
+    console.error('Error fetching test page:', error);
+    return null;
+  }
 }
 
 async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSection> {
@@ -90,16 +89,6 @@ async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSectio
   return baseSection as ResolvedSection;
 }
 
-async function PageContent({ sections }: { sections: ResolvedSection[] }) {
-  return (
-    <main className="py-12 space-y-12" style={{ color: 'var(--color-text)' }}>
-      {sections.map((section) => (
-        <PortfolioSectionRenderer key={section._key} section={section} />
-      ))}
-    </main>
-  );
-}
-
 export default async function ComponentTestPage(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
   const page = await getTestPage(slug);
@@ -122,12 +111,15 @@ export default async function ComponentTestPage(props: { params: Promise<{ slug:
   }
 
   return (
-    <SettingsProvider>
-      <div className="w-screen min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--color-background)' }}>
-        <Suspense fallback={<LoadingSkeleton type="gallery" />}>
-          <PageContent sections={sectionsWithAssets} />
-        </Suspense>
-      </div>
-    </SettingsProvider>
+    <>
+      <PerformanceMonitorComponent />
+      <SettingsProvider>
+        <div className="w-screen min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--color-background)' }}>
+          <Suspense fallback={<LoadingSkeleton type="gallery" />}>
+            <ComponentTestPageContentClient sections={sectionsWithAssets} />
+          </Suspense>
+        </div>
+      </SettingsProvider>
+    </>
   );
 } 

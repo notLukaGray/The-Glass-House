@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import ImageSection from '../../_components/_content/ImageSection';
+import ImageSection from '../../../components/content/ImageSection';
 
 const TestImageSection = () => {
   // Test image data
@@ -26,10 +26,10 @@ const TestImageSection = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Size Variations</h2>
         <div className="space-y-4">
-          <div><div className="font-mono text-xs mb-1">size="small"</div><ImageSection image={testImage} size="small" /></div>
-          <div><div className="font-mono text-xs mb-1">size="medium"</div><ImageSection image={testImage} size="medium" /></div>
-          <div><div className="font-mono text-xs mb-1">size="large"</div><ImageSection image={testImage} size="large" /></div>
-          <div><div className="font-mono text-xs mb-1">size="full"</div><ImageSection image={testImage} size="full" /></div>
+          <div><div className="font-mono text-xs mb-1">size=&quot;small&quot;</div><ImageSection image={testImage} size="small" /></div>
+          <div><div className="font-mono text-xs mb-1">size=&quot;medium&quot;</div><ImageSection image={testImage} size="medium" /></div>
+          <div><div className="font-mono text-xs mb-1">size=&quot;large&quot;</div><ImageSection image={testImage} size="large" /></div>
+          <div><div className="font-mono text-xs mb-1">size=&quot;full&quot;</div><ImageSection image={testImage} size="full" /></div>
         </div>
       </section>
 
@@ -37,9 +37,9 @@ const TestImageSection = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Alignment Tests</h2>
         <div className="space-y-4">
-          <div><div className="font-mono text-xs mb-1">alignment="left"</div><ImageSection image={testImage} alignment="left" width="300px" /></div>
-          <div><div className="font-mono text-xs mb-1">alignment="center"</div><ImageSection image={testImage} alignment="center" width="300px" /></div>
-          <div><div className="font-mono text-xs mb-1">alignment="right"</div><ImageSection image={testImage} alignment="right" width="300px" /></div>
+          <div><div className="font-mono text-xs mb-1">alignment=&quot;left&quot;</div><ImageSection image={testImage} alignment="left" width="300px" /></div>
+          <div><div className="font-mono text-xs mb-1">alignment=&quot;center&quot;</div><ImageSection image={testImage} alignment="center" width="300px" /></div>
+          <div><div className="font-mono text-xs mb-1">alignment=&quot;right&quot;</div><ImageSection image={testImage} alignment="right" width="300px" /></div>
         </div>
       </section>
 
@@ -47,10 +47,10 @@ const TestImageSection = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Aspect Ratio Tests</h2>
         <div className="grid grid-cols-2 gap-4">
-          <div><div className="font-mono text-xs mb-1">aspectRatio="16:9"</div><ImageSection image={testImage} aspectRatio="16:9" /></div>
-          <div><div className="font-mono text-xs mb-1">aspectRatio="4:3"</div><ImageSection image={testImage} aspectRatio="4:3" /></div>
-          <div><div className="font-mono text-xs mb-1">aspectRatio="1:1"</div><ImageSection image={testImage} aspectRatio="1:1" /></div>
-          <div><div className="font-mono text-xs mb-1">aspectRatio="3:4"</div><ImageSection image={testImage} aspectRatio="3:4" /></div>
+          <div><div className="font-mono text-xs mb-1">aspectRatio=&quot;16:9&quot;</div><ImageSection image={testImage} aspectRatio="16:9" /></div>
+          <div><div className="font-mono text-xs mb-1">aspectRatio=&quot;4:3&quot;</div><ImageSection image={testImage} aspectRatio="4:3" /></div>
+          <div><div className="font-mono text-xs mb-1">aspectRatio=&quot;1:1&quot;</div><ImageSection image={testImage} aspectRatio="1:1" /></div>
+          <div><div className="font-mono text-xs mb-1">aspectRatio=&quot;3:4&quot;</div><ImageSection image={testImage} aspectRatio="3:4" /></div>
         </div>
       </section>
 
@@ -58,10 +58,10 @@ const TestImageSection = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Object Fit Tests</h2>
         <div className="space-y-4">
-          <div><div className="font-mono text-xs mb-1">objectFit="cover"</div><ImageSection image={testImage} objectFit="cover" width="300px" height="150px" /></div>
-          <div><div className="font-mono text-xs mb-1">objectFit="contain"</div><ImageSection image={testImage} objectFit="contain" width="300px" height="150px" /></div>
-          <div><div className="font-mono text-xs mb-1">objectFit="fill"</div><ImageSection image={testImage} objectFit="fill" width="300px" height="150px" /></div>
-          <div><div className="font-mono text-xs mb-1">objectFit="scale-down"</div><ImageSection image={testImage} objectFit="scale-down" width="300px" height="150px" /></div>
+          <div><div className="font-mono text-xs mb-1">objectFit=&quot;cover&quot;</div><ImageSection image={testImage} objectFit="cover" width="300px" height="150px" /></div>
+          <div><div className="font-mono text-xs mb-1">objectFit=&quot;contain&quot;</div><ImageSection image={testImage} objectFit="contain" width="300px" height="150px" /></div>
+          <div><div className="font-mono text-xs mb-1">objectFit=&quot;fill&quot;</div><ImageSection image={testImage} objectFit="fill" width="300px" height="150px" /></div>
+          <div><div className="font-mono text-xs mb-1">objectFit=&quot;scale-down&quot;</div><ImageSection image={testImage} objectFit="scale-down" width="300px" height="150px" /></div>
         </div>
       </section>
 
@@ -77,9 +77,9 @@ const TestImageSection = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Advanced Features</h2>
         <div className="space-y-4">
-          <div><div className="font-mono text-xs mb-1">advanced: borderRadius="lg"</div><ImageSection image={testImage} advanced={{ borderRadius: 'lg' }} /></div>
-          <div><div className="font-mono text-xs mb-1">advanced: overlayColor="#000", overlayOpacity=0.3</div><ImageSection image={testImage} advanced={{ overlayColor: '#000000', overlayOpacity: 0.3 }} /></div>
-          <div><div className="font-mono text-xs mb-1">advanced: hoverEffect="zoom"</div><ImageSection image={testImage} advanced={{ hoverEffect: 'zoom' }} /></div>
+          <div><div className="font-mono text-xs mb-1">advanced: borderRadius=&quot;lg&quot;</div><ImageSection image={testImage} advanced={{ borderRadius: 'lg' }} /></div>
+          <div><div className="font-mono text-xs mb-1">advanced: overlayColor=&quot;#000&quot;, overlayOpacity=0.3</div><ImageSection image={testImage} advanced={{ overlayColor: '#000000', overlayOpacity: 0.3 }} /></div>
+          <div><div className="font-mono text-xs mb-1">advanced: hoverEffect=&quot;zoom&quot;</div><ImageSection image={testImage} advanced={{ hoverEffect: 'zoom' }} /></div>
         </div>
       </section>
 

@@ -1,13 +1,12 @@
-import { client } from '@/_lib/handlers/sanity';
-import { notFound, redirect } from 'next/navigation';
-import PortfolioSectionRenderer from '@/app/_components/_content/PortfolioSectionRenderer';
-import { getImageAsset, type ImageAsset } from '@/_lib/handlers/imageHandler';
-import { getSvgAsset, type SvgAsset } from '@/_lib/handlers/svgHandler';
-import { getVideoAsset, type VideoAsset } from '@/_lib/handlers/videoHandler';
+import { redirect } from 'next/navigation';
+import Image from 'next/image';
+import PortfolioSectionRenderer from '@/components/content/PortfolioSectionRenderer';
+import { getImageAsset, type ImageAsset } from '@/lib/handlers/clientHandlers';
+import { getVideoAsset, type VideoAsset } from '@/lib/handlers/clientHandlers';
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "@/lib/authOptions";
 import { Suspense } from 'react';
-import LoadingSkeleton from '@/app/_components/_ui/LoadingSkeleton';
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 
 interface ProjectMeta {
   _id: string;
@@ -26,16 +25,16 @@ interface ProjectMeta {
 interface Section {
   _key: string;
   _type: string;
-  content?: any[];
-  leftContent?: any[];
-  rightContent?: any[];
+  content?: unknown[];
+  leftContent?: unknown[];
+  rightContent?: unknown[];
   leftAsset?: { _ref: string };
   rightAsset?: { _ref: string };
   quote?: string;
   attribution?: string;
   faqs?: Array<{ _key: string; question: string; answer: string }>;
   title?: { en: string };
-  items?: any[];
+  items?: unknown[];
   icon?: { _ref: string };
   label?: string;
   style?: string;
@@ -56,7 +55,10 @@ interface Section {
   backgroundColor?: string;
   buttons?: Array<{ _key: string; label: string; icon?: string; style: string; url: string }>;
   avatar?: { _ref: string };
+  [key: string]: unknown;
 }
+
+export type { ResolvedSection };
 
 interface ResolvedSection extends Omit<Section, 'image' | 'images' | 'video' | 'avatar' | 'asset'> {
   image?: ImageAsset | null;
@@ -64,73 +66,40 @@ interface ResolvedSection extends Omit<Section, 'image' | 'images' | 'video' | '
   video?: VideoAsset | null;
   avatar?: ImageAsset | null;
   asset?: ImageAsset | null;
+  [key: string]: unknown;
 }
 
 export const revalidate = 0;
 
-// TODO: Add authentication gate for locked portfolios
-// This will be implemented later to protect locked portfolio pages
-
 async function getPortfolio(slug: string): Promise<ProjectMeta | null> {
-  const query = `*[_type == "projectMeta" && slug.current == $slug][0]{
-    _id,
-    title,
-    subhead,
-    colorTheme,
-    locked,
-    coverAsset,
-    externalLink,
-    featured,
-    categories[]->,
-    tags[]->,
-    sections[]{
-      _key,
-      _type,
-      content,
-      leftContent,
-      rightContent,
-      leftAsset,
-      rightAsset,
-      quote,
-      attribution,
-      faqs[]{ _key, question, answer },
-      title,
-      items,
-      icon,
-      label,
-      style,
-      image,
-      fullBleed,
-      showCaption,
-      images,
-      layout,
-      video,
-      autoplay,
-      loop,
-      asset,
-      heading,
-      description,
-      steps[]{ _key, date, description },
-      color,
-      size,
-      backgroundColor,
-      buttons[]{ _key, label, icon, style, url },
-      heading,
-      items,
-      avatar
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/portfolio/${slug}`, {
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  }`;
-
-  return await client.fetch(query, { slug });
+    
+    return await response.json() as ProjectMeta;
+  } catch (error) {
+    console.error('Error fetching portfolio:', error);
+    return null;
+  }
 }
 
 async function PortfolioHeader({ portfolio, coverImage }: { portfolio: ProjectMeta, coverImage: ImageAsset | null }) {
   return (
     <header className="mb-8">
       {coverImage && (
-        <img
+        <Image
           src={coverImage.url}
           alt={coverImage.title?.en || portfolio.title?.en || 'Cover Image'}
+          width={1200}
+          height={400}
           className="w-full max-h-96 object-cover rounded-lg mb-4"
         />
       )}
@@ -145,9 +114,13 @@ async function PortfolioHeader({ portfolio, coverImage }: { portfolio: ProjectMe
 async function PortfolioContent({ sections }: { sections: ResolvedSection[] }) {
   return (
     <div className="space-y-8">
-      {sections.map((section) => (
-        <PortfolioSectionRenderer key={section._key} section={section} />
-      ))}
+      {sections.map((section, idx) => {
+        const key =
+          (typeof section._key === 'string' && section._key) ||
+          (typeof section._id === 'string' && section._id) ||
+          idx;
+        return <PortfolioSectionRenderer key={key} section={section} />;
+      })}
     </div>
   );
 }
