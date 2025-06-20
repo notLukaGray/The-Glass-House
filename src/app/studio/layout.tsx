@@ -4,8 +4,14 @@ export default function StudioLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
+    <div style={{ 
+      margin: 0, 
+      padding: 0, 
+      width: '100vw', 
+      height: '100vh',
+      overflow: 'hidden'
+    }}>
+      {children}
+    </div>
   )
 } 
