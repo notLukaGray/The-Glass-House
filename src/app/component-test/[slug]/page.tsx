@@ -1,23 +1,13 @@
 import { notFound } from 'next/navigation';
-import { getImageAsset, type ImageAsset } from '@/lib/handlers/clientHandlers';
-import { getSvgAsset, type SvgAsset } from '@/lib/handlers/clientHandlers';
-import { getVideoAsset, type VideoAsset } from '@/lib/handlers/clientHandlers';
+import { getImageAssetServer, type ImageAsset } from '@/_lib/handlers/serverHandlers';
+import { getSvgAssetServer, type SvgAsset } from '@/_lib/handlers/serverHandlers';
+import { getVideoAssetServer, type VideoAsset } from '@/_lib/handlers/serverHandlers';
 import React, { Suspense } from 'react';
 import { SettingsProvider } from '@/components/providers/SettingsProvider';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import ComponentTestPageContentClient from '@/components/content/ComponentTestPageContentClient';
 import PerformanceMonitorComponent from '@/components/ui/PerformanceMonitor';
-
-interface PageMeta {
-  _id: string;
-  title?: { en: string };
-  subhead?: { en: string };
-  sections?: Array<{
-    _id: string;
-    order: number;
-    content: Array<Section>;
-  }>;
-}
+import { getPageContentServer } from '@/_lib/data/pageContent';
 
 interface Section {
   _key: string;
@@ -43,26 +33,6 @@ interface ResolvedSection {
 
 export const revalidate = 0;
 
-async function getTestPage(slug: string) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/page/${slug}`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json() as PageMeta;
-  } catch (error) {
-    console.error('Error fetching test page:', error);
-    return null;
-  }
-}
-
 async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSection> {
   const baseSection = { ...sectionObj };
   delete baseSection.image;
@@ -71,19 +41,19 @@ async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSectio
   delete baseSection.avatar;
 
   if (sectionObj._type === 'imageSection' && sectionObj.image?._ref) {
-    const imageAsset = await getImageAsset({ id: sectionObj.image._ref });
+    const imageAsset = await getImageAssetServer({ id: sectionObj.image._ref });
     return { ...baseSection, image: imageAsset } as ResolvedSection;
   }
   if (sectionObj._type === 'avatarSection' && sectionObj.avatar?._ref) {
-    const avatarAsset = await getImageAsset({ id: sectionObj.avatar._ref });
+    const avatarAsset = await getImageAssetServer({ id: sectionObj.avatar._ref });
     return { ...baseSection, avatar: avatarAsset } as ResolvedSection;
   }
   if (sectionObj._type === 'iconSection' && sectionObj.icon?._ref) {
-    const iconAsset = await getSvgAsset({ id: sectionObj.icon._ref });
+    const iconAsset = await getSvgAssetServer({ id: sectionObj.icon._ref });
     return { ...baseSection, icon: iconAsset } as ResolvedSection;
   }
   if (sectionObj._type === 'videoSection' && sectionObj.video?._ref) {
-    const videoAsset = await getVideoAsset({ id: sectionObj.video._ref });
+    const videoAsset = await getVideoAssetServer({ id: sectionObj.video._ref });
     return { ...baseSection, video: videoAsset } as ResolvedSection;
   }
   return baseSection as ResolvedSection;
@@ -91,7 +61,7 @@ async function resolveSectionAssets(sectionObj: Section): Promise<ResolvedSectio
 
 export default async function ComponentTestPage(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
-  const page = await getTestPage(slug);
+  const page = await getPageContentServer(slug);
   
   if (!page) {
     notFound();

@@ -3,11 +3,21 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import TextPressure from "@/components/features/TextPressure";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useSettings } from "@/components/providers/SettingsProvider";
 
 const DotGrid = dynamic(() => import("@/components/features/DotGrid"), { ssr: false });
 
 function TimerClient({ commitTime, commitMessage }: { commitTime: string | null, commitMessage?: string | null }) {
+  const { settings, currentTheme } = useSettings();
   const [since, setSince] = React.useState<string>("");
+  
+  // Get theme colors
+  const themeColors = currentTheme === 'dark' ? settings?.theme.darkMode.colors : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.secondary || 'rgba(0, 0, 0, 0.8)';
+  const textColor = themeColors?.text || '#FFFFFF';
+  const accentColor = themeColors?.accent || '#8f4d89';
+  
   React.useEffect(() => {
     if (!commitTime) return;
     const commitDate = new Date(commitTime);
@@ -23,11 +33,19 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [commitTime]);
+  
   return (
-    <div className="fixed top-[75%] left-1/2 -translate-x-1/2 bg-black px-6 py-3 rounded border border-white/10 font-mono text-white text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px]">
+    <div 
+      className="fixed top-[75%] left-1/2 -translate-x-1/2 px-6 py-3 rounded border font-mono text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px] backdrop-blur-sm"
+      style={{ 
+        backgroundColor, 
+        color: textColor,
+        borderColor: `${textColor}20`
+      }}
+    >
       <div className="opacity-70 text-xs">Last Github Commit</div>
       {commitMessage && (
-        <div className="text-xs font-mono" style={{ color: '#8f4d89' }}>
+        <div className="text-xs font-mono" style={{ color: accentColor }}>
           {commitMessage.length > 30 ? `${commitMessage.slice(0, 30)}...` : commitMessage}
         </div>
       )}
@@ -37,15 +55,26 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
 }
 
 export default function HomePageClient({ commitTime, commitMessage }: { commitTime: string | null, commitMessage?: string | null }) {
+  const { settings, currentTheme } = useSettings();
+  
+  // Get theme colors
+  const themeColors = currentTheme === 'dark' ? settings?.theme.darkMode.colors : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.background || '#000000';
+  const textColor = themeColors?.text || '#FFFFFF';
+  const accentColor = themeColors?.accent || '#ff00ea';
+  
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-black">
+    <main className="relative w-screen h-screen overflow-hidden" style={{ backgroundColor }}>
+      {/* Theme Toggle */}
+      <ThemeToggle />
+      
       {/* Base Layer - DotGrid */}
-      <div className="absolute inset-0 bg-black" style={{ overflow: 'hidden' }}>
+      <div className="absolute inset-0" style={{ backgroundColor, overflow: 'hidden' }}>
         <DotGrid
           dotSize={2}
           gap={12}
-          baseColor="#24061e"
-          activeColor="#ff00ea"
+          baseColor={themeColors?.secondary || "#24061e"}
+          activeColor={accentColor}
           proximity={120}
           shockRadius={250}
           shockStrength={5}
@@ -71,12 +100,12 @@ export default function HomePageClient({ commitTime, commitMessage }: { commitTi
               flex={true}
               stroke={true}
               scale={false}
-              textColor="#FFFFFF"
-              strokeColor="#000000"
+              textColor={textColor}
+              strokeColor={backgroundColor}
               minFontSize={100}
             />
           </div>
-          <div className="text-white text-center text-light text-xl tracking-widest uppercase mt-12" style={{ fontFamily: 'Compressa VF' }}>
+          <div className="text-center text-light text-xl tracking-widest uppercase mt-12" style={{ fontFamily: 'Compressa VF', color: textColor }}>
             COME BACK SOON
           </div>
         </div>

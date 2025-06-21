@@ -1,4 +1,5 @@
 import React from 'react';
+import { getDebugDataServer } from '@/_lib/data/debug';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,23 +20,8 @@ interface Page {
   }>;
 }
 
-async function getPages(): Promise<Page[]> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/pages`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json() as Page[];
-  } catch (error) {
-    console.error('Error fetching pages:', error);
-    return [];
-  }
-}
-
 export default async function DebugPage() {
-  const pages = await getPages();
+  const pages = await getDebugDataServer();
 
   return (
     <main className="max-w-4xl mx-auto py-12 px-4">
@@ -48,7 +34,7 @@ export default async function DebugPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {pages.map((page) => (
+          {pages.map((page: Page) => (
             <div key={page._id} className="border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">
                 {page.title?.en || 'Untitled Page'}
@@ -64,7 +50,7 @@ export default async function DebugPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Sections ({page.sections.length}):</h3>
                   <div className="space-y-2">
-                    {page.sections.map((section) => (
+                    {page.sections.map((section: { _id: string; title?: string; order?: number; content?: Array<{ _key: string; _type: string }> }) => (
                       <div key={section._id} className="ml-4 p-3 bg-gray-50 rounded">
                         <p className="font-medium">{section.title || section._id}</p>
                         <p className="text-sm text-gray-600">Order: {section.order || 'No order'}</p>
@@ -72,7 +58,7 @@ export default async function DebugPage() {
                           <div className="mt-2">
                             <p className="text-sm font-medium">Content ({section.content.length} items):</p>
                             <ul className="ml-4 text-sm text-gray-600">
-                              {section.content.map((item) => (
+                              {section.content.map((item: { _key: string; _type: string }) => (
                                 <li key={item._key}>• {item._type}</li>
                               ))}
                             </ul>

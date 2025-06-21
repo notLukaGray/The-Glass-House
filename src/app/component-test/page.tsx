@@ -2,26 +2,12 @@ import React from 'react';
 import Link from 'next/link';
 import PerformanceTest from '@/components/ui/PerformanceTest';
 import PerformanceMonitorComponent from '@/components/ui/PerformanceMonitor';
+import { getPagesServer } from '@/_lib/data/pages';
 
 export const dynamic = 'force-dynamic';
 
-async function getAllPages() {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/pages`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching pages:', error);
-    return [];
-  }
-}
-
 export default async function ComponentTestPage() {
-  const allPages = await getAllPages();
+  const allPages = await getPagesServer();
   
   return (
     <>

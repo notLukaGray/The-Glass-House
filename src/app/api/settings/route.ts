@@ -11,7 +11,7 @@ import {
 const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID || '',
   dataset: process.env.SANITY_DATASET || '',
-  apiVersion: process.env.SANITY_API_VERSION || '2023-05-03',
+  apiVersion: process.env.SANITY_API_VERSION || '',
   useCdn: true,
 });
 
@@ -114,6 +114,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'runtime';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+    console.log(`[Settings API] Fetching settings with type: ${type}`);
 
     let query: string;
     
@@ -122,27 +125,50 @@ export async function GET(request: NextRequest) {
         "basicInfo": {
           "title": basicInfo.title,
           "description": basicInfo.description,
-          "favicon": basicInfo.favicon,
-          "logo": basicInfo.logo
+          "favicon": {
+            "_ref": basicInfo.favicon._ref,
+            "_type": "reference",
+            "url": basicInfo.favicon->url
+          },
+          "logo": {
+            "_ref": basicInfo.logo._ref,
+            "_type": "reference",
+            "url": basicInfo.logo->svgData
+          }
         },
         "theme": {
           "defaultMode": theme.defaultMode,
           "typography": {
             "headingFont": theme.typography.headingFont,
-            "bodyFont": theme.typography.bodyFont
+            "bodyFont": theme.typography.bodyFont,
+            "customFonts": theme.typography.customFonts
           }
         },
         "seo": {
           "metaTitle": seo.metaTitle,
           "metaDescription": seo.metaDescription,
-          "ogImage": seo.ogImage
+          "ogImage": {
+            "_ref": seo.ogImage._ref,
+            "_type": "reference",
+            "url": seo.ogImage->url
+          }
         }
       }`;
     } else {
       query = `*[_type == "siteSettings"][0] {
         "basicInfo": {
           "title": basicInfo.title,
-          "description": basicInfo.description
+          "description": basicInfo.description,
+          "favicon": {
+            "_ref": basicInfo.favicon._ref,
+            "_type": "reference",
+            "url": basicInfo.favicon->url
+          },
+          "logo": {
+            "_ref": basicInfo.logo._ref,
+            "_type": "reference",
+            "url": basicInfo.logo->svgData
+          }
         },
         "theme": {
           "defaultMode": theme.defaultMode,
@@ -156,11 +182,36 @@ export async function GET(request: NextRequest) {
           },
           "typography": theme.typography,
           "spacing": theme.spacing
+        },
+        "seo": {
+          "metaTitle": seo.metaTitle,
+          "metaDescription": seo.metaDescription,
+          "ogImage": {
+            "_ref": seo.ogImage._ref,
+            "_type": "reference",
+            "url": seo.ogImage->url
+          }
         }
       }`;
     }
 
+    console.log(`[Settings API] Executing Sanity query...`);
     const data: SanitySettingsResponse = await client.fetch(query);
+    
+    if (!data) {
+      console.warn('[Settings API] No settings found in Sanity, returning defaults');
+      return NextResponse.json(DEFAULT_SETTINGS);
+    }
+    
+    console.log(`[Settings API] Settings fetched successfully:`, {
+      hasBasicInfo: !!data.basicInfo,
+      hasTheme: !!data.theme,
+      hasSeo: !!data.seo,
+      faviconRef: data.basicInfo?.favicon?._ref,
+      logoRef: data.basicInfo?.logo?._ref,
+      ogImageRef: data.seo?.ogImage?._ref
+    });
+    
     const validation = validateSettings(data);
     
     if (!validation.isValid) {
@@ -170,9 +221,16 @@ export async function GET(request: NextRequest) {
 
     const settings = mergeWithDefaults(data);
     
-    return NextResponse.json(settings);
+    // Add base URL to the response for client-side use
+    const responseWithBaseUrl = {
+      ...settings,
+      _baseUrl: baseUrl
+    };
+    
+    console.log(`[Settings API] Returning settings with base URL: ${baseUrl}`);
+    return NextResponse.json(responseWithBaseUrl);
   } catch (error) {
-    console.error('Failed to fetch settings:', error);
+    console.error('[Settings API] Failed to fetch settings:', error);
     return NextResponse.json(DEFAULT_SETTINGS);
   }
 } 

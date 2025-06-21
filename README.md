@@ -36,6 +36,7 @@ A modern, modular portfolio and content management system built with **Next.js 1
      SANITY_TOKEN=your-sanity-token
      NEXTAUTH_SECRET=your-random-secret
      AUTH_USERS=[{"id":1,"name":"Admin","username":"admin","password":"adminpass","role":"admin"}]
+     NEXT_PUBLIC_BASE_URL=http://localhost:3000
      ```
 4. **Run the dev server:**
    ```sh
@@ -53,6 +54,7 @@ A modern, modular portfolio and content management system built with **Next.js 1
 ## Deployment
 - Deploy to Vercel, Netlify, or your own server.
 - Make sure to set all environment variables in your deployment platform.
+- For production, set `NEXT_PUBLIC_BASE_URL` to your actual domain (e.g., `https://yourdomain.com`).
 
 ## License
 MIT (or your preferred license)

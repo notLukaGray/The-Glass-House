@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { getRuntimeSettings, clearSettingsCache, getCacheStatus } from '@/lib/sanity/handlers/settings';
+import { getSettingsClient } from '@/_lib/data/settings';
 import { 
   SiteSettings, 
   SettingsContextType, 
@@ -66,11 +66,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     root.style.setProperty('--color-text', modeSettings.colors.text);
     
     // Apply typography
-    if (themeSettings.typography.headingFont !== 'system') {
+    if (themeSettings.typography.headingFont === 'CompressaPRO-GX.woff2') {
+      root.style.setProperty('--font-heading', 'CompressaPRO, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+    } else if (themeSettings.typography.headingFont !== 'system') {
       root.style.setProperty('--font-heading', themeSettings.typography.headingFont);
+    } else {
+      root.style.setProperty('--font-heading', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
     }
-    if (themeSettings.typography.bodyFont !== 'system') {
+    
+    if (themeSettings.typography.bodyFont === 'CompressaPRO-GX.woff2') {
+      root.style.setProperty('--font-body', 'CompressaPRO, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+    } else if (themeSettings.typography.bodyFont !== 'system') {
       root.style.setProperty('--font-body', themeSettings.typography.bodyFont);
+    } else {
+      root.style.setProperty('--font-body', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
     }
     
     // Apply spacing scale
@@ -88,8 +97,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsLoading(true);
         setError(null);
         
-        const data = await getRuntimeSettings();
+        console.log('[SettingsProvider] Fetching settings...');
+        
+        // Wait for component to be mounted before fetching
+        if (!mounted) {
+          console.log('[SettingsProvider] Component not mounted yet, skipping fetch');
+          return;
+        }
+        
+        const data = await getSettingsClient();
+        
         if (data) {
+          console.log('[SettingsProvider] Settings loaded successfully');
           setSettings(data);
           
           // Initialize theme immediately after settings are loaded
@@ -98,12 +117,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           
           // Apply initial theme
           applyThemeToCSS(initialTheme, data.theme);
+        } else {
+          console.warn('[SettingsProvider] No settings data received, using defaults');
+          setSettings(DEFAULT_SETTINGS);
+          const initialTheme = initializeTheme(DEFAULT_SETTINGS.theme.defaultMode);
+          setCurrentTheme(initialTheme);
+          applyThemeToCSS(initialTheme, DEFAULT_SETTINGS.theme);
         }
       } catch (err) {
-        console.error('Failed to fetch settings:', err);
+        console.error('[SettingsProvider] Failed to fetch settings:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch settings'));
         
         // Fallback to default settings
+        console.log('[SettingsProvider] Using default settings as fallback');
         setSettings(DEFAULT_SETTINGS);
         const initialTheme = initializeTheme(DEFAULT_SETTINGS.theme.defaultMode);
         setCurrentTheme(initialTheme);
@@ -113,8 +139,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     };
 
-    fetchSettings();
-  }, [initializeTheme, applyThemeToCSS]);
+    // Only fetch if component is mounted
+    if (mounted) {
+      fetchSettings();
+    }
+  }, [mounted, initializeTheme, applyThemeToCSS]);
 
   // Listen for system preference changes
   useEffect(() => {
@@ -161,10 +190,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Development helpers
   if (process.env.NODE_ENV === 'development' && mounted) {
-    // Expose cache status to window for debugging
+    // Expose debug info to window for debugging
     ((window as unknown) as Record<string, unknown>).__SETTINGS_DEBUG__ = {
-      getCacheStatus,
-      clearCache: clearSettingsCache,
       currentSettings: settings,
       currentTheme,
     };

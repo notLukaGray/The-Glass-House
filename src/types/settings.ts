@@ -46,20 +46,21 @@ export interface ThemeSettings {
 export interface BasicInfo {
   title: { _type: 'localeString'; en: string };
   description: { _type: 'localeString'; en: string };
-  favicon: { _type: 'reference'; _ref: string };
-  logo: { _type: 'reference'; _ref: string };
+  favicon: { _type: 'reference'; _ref: string; url?: string };
+  logo: { _type: 'reference'; _ref: string; url?: string };
 }
 
 export interface SeoSettings {
   metaTitle: { _type: 'localeString'; en: string };
   metaDescription: { _type: 'localeString'; en: string };
-  ogImage: { _type: 'reference'; _ref: string };
+  ogImage: { _type: 'reference'; _ref: string; url?: string };
 }
 
 export interface SiteSettings {
   basicInfo: BasicInfo;
   theme: ThemeSettings;
   seo: SeoSettings;
+  _baseUrl?: string;
 }
 
 // Sanity Response Types
@@ -77,8 +78,8 @@ export interface SanitySettingsResponse {
   basicInfo?: {
     title?: SanityLocaleString;
     description?: SanityLocaleString;
-    favicon?: SanityReference;
-    logo?: SanityReference;
+    favicon?: SanityReference & { url?: string };
+    logo?: SanityReference & { url?: string };
   };
   theme?: {
     defaultMode?: 'light' | 'dark' | 'system';
@@ -96,7 +97,7 @@ export interface SanitySettingsResponse {
   seo?: {
     metaTitle?: SanityLocaleString;
     metaDescription?: SanityLocaleString;
-    ogImage?: SanityReference;
+    ogImage?: SanityReference & { url?: string };
   };
 }
 

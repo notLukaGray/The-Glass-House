@@ -1,36 +1,10 @@
 import { Suspense, lazy } from 'react';
+import { getPortfoliosServer } from '@/_lib/data/portfolio';
 
 // Lazy load the PortfolioCard component
 const PortfolioCard = lazy(() => import('@/components/ui/PortfolioCard'));
 
 export const dynamic = 'force-dynamic';
-
-interface PortfolioPreview {
-  _id: string;
-  title: { en: string };
-  subhead: { en: string };
-  slug: { current: string };
-  coverAsset: { _ref: string };
-  featured: boolean;
-  locked: boolean;
-  categories: Array<{ _id: string; title: { en: string } }>;
-  tags: Array<{ _id: string; title: { en: string } }>;
-}
-
-async function getPortfolios() {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/portfolios`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json() as PortfolioPreview[];
-  } catch (error) {
-    console.error('Error fetching portfolios:', error);
-    return [];
-  }
-}
 
 // Loading fallback for portfolio cards
 const PortfolioCardSkeleton = () => (
@@ -48,7 +22,7 @@ const PortfolioCardSkeleton = () => (
 );
 
 export default async function PortfolioListPage() {
-  const portfolios = await getPortfolios();
+  const portfolios = await getPortfoliosServer();
 
   return (
     <main className="container mx-auto px-4 py-8">

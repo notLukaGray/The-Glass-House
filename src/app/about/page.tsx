@@ -1,23 +1,18 @@
 import React from 'react';
 import { sectionComponentMap } from '@/lib/handlers/componentHandler';
 import type { ReactElement } from 'react';
+import { getAboutDataServer } from '@/_lib/data/about';
 
 export default async function AboutPage(): Promise<ReactElement> {
-  // Fetch about data from API route
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/about`, {
-    cache: 'no-store'
-  });
+  const aboutData = await getAboutDataServer();
   
-  if (!response.ok) {
+  if (!aboutData) {
     return (
-      <main className="min-h-screen p-8 bg-white text-black max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">About</h1>
-        <p className="text-red-600 text-center">Failed to load about data.</p>
+      <main className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl text-red-600">Failed to load about data.</h1>
       </main>
     );
   }
-  
-  const aboutData = await response.json();
 
   // No more post-fetch SVG resolution needed
   const sectionsWithSvg = aboutData.sections || [];

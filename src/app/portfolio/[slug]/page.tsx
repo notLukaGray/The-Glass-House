@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import PortfolioSectionRenderer from '@/components/content/PortfolioSectionRenderer';
-import { getImageAsset, type ImageAsset } from '@/lib/handlers/clientHandlers';
-import { getVideoAsset, type VideoAsset } from '@/lib/handlers/clientHandlers';
+import { getImageAssetServer, type ImageAsset } from '@/_lib/handlers/serverHandlers';
+import { getVideoAssetServer, type VideoAsset } from '@/_lib/handlers/serverHandlers';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { Suspense } from 'react';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
+import { getPortfolioServer } from '@/_lib/data/portfolio';
 
 interface ProjectMeta {
   _id: string;
@@ -71,26 +72,6 @@ interface ResolvedSection extends Omit<Section, 'image' | 'images' | 'video' | '
 
 export const revalidate = 0;
 
-async function getPortfolio(slug: string): Promise<ProjectMeta | null> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/content/portfolio/${slug}`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json() as ProjectMeta;
-  } catch (error) {
-    console.error('Error fetching portfolio:', error);
-    return null;
-  }
-}
-
 async function PortfolioHeader({ portfolio, coverImage }: { portfolio: ProjectMeta, coverImage: ImageAsset | null }) {
   return (
     <header className="mb-8">
@@ -127,7 +108,7 @@ async function PortfolioContent({ sections }: { sections: ResolvedSection[] }) {
 
 export default async function PortfolioPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const portfolio = await getPortfolio(slug);
+  const portfolio = await getPortfolioServer(slug);
 
   // Show empty state if portfolio or sections are missing
   if (!portfolio || !portfolio.sections) {
@@ -152,34 +133,34 @@ export default async function PortfolioPage({ params }: { params: Promise<{ slug
   // Resolve cover image asset if present
   let coverImage: ImageAsset | null = null;
   if (portfolio.coverAsset?._ref) {
-    coverImage = await getImageAsset({ id: portfolio.coverAsset._ref });
+    coverImage = await getImageAssetServer({ id: portfolio.coverAsset._ref });
   }
 
   // Resolve all asset references in sections
   const sectionsWithAssets = await Promise.all(
     (portfolio.sections ?? []).map(async (section) => {
       if (section._type === 'imageSection' && section.image?._ref) {
-        const imageAsset = await getImageAsset({ id: section.image._ref });
+        const imageAsset = await getImageAssetServer({ id: section.image._ref });
         return { ...section, image: imageAsset } as ResolvedSection;
       }
       if (section._type === 'gallerySection' && Array.isArray(section.images)) {
         const images = await Promise.all(
           section.images.map(async (img) =>
-            img?._ref ? await getImageAsset({ id: img._ref }) : null
+            img?._ref ? await getImageAssetServer({ id: img._ref }) : null
           )
         );
         return { ...section, images } as ResolvedSection;
       }
       if (section._type === 'videoSection' && section.video?._ref) {
-        const videoAsset = await getVideoAsset({ id: section.video._ref });
+        const videoAsset = await getVideoAssetServer({ id: section.video._ref });
         return { ...section, video: videoAsset } as ResolvedSection;
       }
       if (section._type === 'avatarSection' && section.avatar?._ref) {
-        const avatarAsset = await getImageAsset({ id: section.avatar._ref });
+        const avatarAsset = await getImageAssetServer({ id: section.avatar._ref });
         return { ...section, avatar: avatarAsset } as ResolvedSection;
       }
       if (section._type === 'processStepSection' && section.asset?._ref) {
-        const assetImage = await getImageAsset({ id: section.asset._ref });
+        const assetImage = await getImageAssetServer({ id: section.asset._ref });
         return { ...section, asset: assetImage } as ResolvedSection;
       }
       return section as ResolvedSection;
