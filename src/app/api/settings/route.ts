@@ -4,54 +4,10 @@ import {
   SiteSettings,
   SanitySettingsResponse,
   DEFAULT_SETTINGS,
-  SettingsValidationResult,
 } from "@/types/settings";
-
-/**
- * Validates the settings data fetched from Sanity.
- * Ensures that critical fields are present and properly structured.
- * Returns both errors (which prevent the settings from being used)
- * and warnings (which are logged but don't block the response).
- *
- * @param {SanitySettingsResponse} data - The raw data from Sanity.
- * @returns {SettingsValidationResult} Validation result with errors and warnings.
- */
-function validateSettings(
-  data: SanitySettingsResponse,
-): SettingsValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  // Critical validation - these will cause the API to return defaults
-  if (!data.basicInfo?.title?.en) {
-    errors.push("Site title is required");
-  }
-
-  if (!data.theme?.lightMode?.colors) {
-    errors.push("Light mode colors are incomplete");
-  }
-
-  if (data.theme?.darkMode?.colors) {
-    const colors = data.theme.darkMode.colors;
-    if (!colors.primary || !colors.background || !colors.text) {
-      errors.push("Dark mode colors are incomplete");
-    }
-  }
-
-  // Warning validation - these are logged but don't block the response
-  if (!data.seo?.metaTitle?.en) {
-    warnings.push("SEO meta title is missing");
-  }
-  if (!data.seo?.metaDescription?.en) {
-    warnings.push("SEO meta description is missing");
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-    warnings,
-  };
-}
+import { validateSettings, logValidationErrors } from "@/lib/validation/utils";
+import { schemas } from "@/lib/validation/schemas";
+import { z } from "zod";
 
 /**
  * Merges Sanity data with default settings to ensure all required fields are present.
@@ -129,7 +85,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "runtime";
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     let query: string;
 
@@ -212,38 +167,53 @@ export async function GET(request: NextRequest) {
       }`;
     }
 
-    // Use appropriate client based on query type
+    // Use the appropriate client based on the query type
     const client = type === "build" ? sanityClientBuild : sanityClient;
     const data: SanitySettingsResponse = await client.fetch(query);
 
-    if (!data) {
-      console.warn(
-        "[Settings API] No settings found in Sanity, returning defaults",
-      );
-      return NextResponse.json(DEFAULT_SETTINGS);
+    // Validate the data using Zod
+    const validatedData = validateSettings(data);
+
+    if (!validatedData) {
+      // Log validation errors for debugging
+      try {
+        schemas.SiteSettings.parse(data);
+      } catch (error) {
+        if (error instanceof Error) {
+          logValidationErrors("Settings API", error as z.ZodError, data);
+        }
+      }
+
+      console.warn("Settings validation failed, using defaults");
+
+      // Return default settings if validation fails
+      return NextResponse.json(DEFAULT_SETTINGS, {
+        status: 200,
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      });
     }
 
-    // Validate the fetched data
-    const validation = validateSettings(data);
+    // Merge with defaults to ensure all required fields are present
+    const mergedSettings = mergeWithDefaults(data);
 
-    if (!validation.isValid) {
-      console.warn("Settings validation failed:", validation.errors);
-      return NextResponse.json(DEFAULT_SETTINGS);
-    }
-
-    // Merge with defaults to ensure all fields are present
-    const settings = mergeWithDefaults(data);
-
-    // Add the base URL to the response for client-side use
-    const responseWithBaseUrl = {
-      ...settings,
-      _baseUrl: baseUrl,
-    };
-
-    return NextResponse.json(responseWithBaseUrl);
+    return NextResponse.json(mergedSettings, {
+      status: 200,
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   } catch (error) {
     console.error("[Settings API] Failed to fetch settings:", error);
-    // Always return defaults on error to prevent application crashes
-    return NextResponse.json(DEFAULT_SETTINGS);
+
+    // Return default settings on error
+    return NextResponse.json(DEFAULT_SETTINGS, {
+      status: 200,
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   }
 }

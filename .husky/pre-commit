@@ -1,0 +1,3 @@
+#!/bin/sh
+npx git-secrets --scan
+npx lint-staged

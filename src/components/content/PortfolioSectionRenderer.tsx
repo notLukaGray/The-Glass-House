@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { portfolioSectionComponentMap } from "@/lib/handlers/componentHandler";
-import type { ResolvedSection } from "@/app/portfolio/[slug]/page";
+import type { ResolvedSection } from "@/lib/types/portfolio";
 
 interface PortfolioSectionRendererProps {
   section: ResolvedSection;

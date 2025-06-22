@@ -3,7 +3,9 @@ import "./globals.css";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { getSettingsServer } from "@/_lib/data/settings";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+// TODO: Use new API route or shared client for settings fetching if needed.
 
 /**
  * Generates dynamic metadata for the site using settings from Sanity.
@@ -14,11 +16,13 @@ import { getSettingsServer } from "@/_lib/data/settings";
  */
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    // Fetches global site settings from the server-side cache or directly from Sanity.
-    const settings = await getSettingsServer();
+    // Fetch settings from the API route
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const res = await fetch(`${baseUrl}/api/settings?type=build`, {
+      next: { revalidate: 60 },
+    });
+    const settings = await res.json();
 
-    // Fallback metadata if settings can't be fetched.
-    // This prevents build errors and ensures the site is still accessible.
     if (!settings) {
       return {
         title: "Portfolio",
@@ -29,7 +33,6 @@ export async function generateMetadata(): Promise<Metadata> {
     const { title, description } = settings.basicInfo;
     const faviconUrl = settings.basicInfo.favicon?.url;
     const ogImageUrl = settings.seo.ogImage?.url;
-    const baseUrl = settings._baseUrl || process.env.NEXT_PUBLIC_BASE_URL || "";
 
     // Helper function to construct absolute URLs
     const makeAbsoluteUrl = (url: string | undefined) => {
@@ -86,6 +89,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * 1. ErrorBoundary: Catches any React rendering errors from its children.
  * 2. SessionProviderWrapper: Provides NextAuth session context to the app.
  * 3. SettingsProvider: Fetches and provides global site settings (theme, etc.).
+ * 4. Analytics: Tracks page views and user interactions for insights.
+ * 5. SpeedInsights: Monitors and reports on page performance metrics.
  */
 export default function RootLayout({
   children,
@@ -100,6 +105,8 @@ export default function RootLayout({
             <SettingsProvider>{children}</SettingsProvider>
           </SessionProviderWrapper>
         </ErrorBoundary>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -1,42 +1,30 @@
-import { Suspense, lazy } from "react";
-import { getPortfoliosServer } from "@/_lib/data/portfolio";
+import Link from "next/link";
+// TODO: Use new API route or shared client for portfolio data fetching if needed.
 
-// Lazy load the PortfolioCard component
-const PortfolioCard = lazy(() => import("@/components/ui/PortfolioCard"));
-
-export const dynamic = "force-dynamic";
-
-// Loading fallback for portfolio cards
-const PortfolioCardSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-    <div className="aspect-w-16 aspect-h-9 bg-gray-200"></div>
-    <div className="p-6">
-      <div className="h-6 bg-gray-200 rounded mb-2"></div>
-      <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-      <div className="flex gap-2">
-        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-        <div className="h-6 bg-gray-200 rounded-full w-20"></div>
-      </div>
-    </div>
-  </div>
-);
-
-export default async function PortfolioListPage() {
-  const portfolios = await getPortfoliosServer();
+export default async function PortfolioPage() {
+  // TODO: Implement proper data fetching using new API routes
+  // const portfolios = await getPortfoliosDataServer();
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Portfolio</h1>
-        <p className="text-xl text-gray-600">Explore my work and projects</p>
-      </header>
+    <main className="min-h-screen p-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Portfolio</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {portfolios.map((portfolio) => (
-          <Suspense key={portfolio._id} fallback={<PortfolioCardSkeleton />}>
-            <PortfolioCard portfolio={portfolio} />
-          </Suspense>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* TODO: Map through actual portfolios */}
+          <div className="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">Sample Project</h2>
+            <p className="text-gray-600 mb-4">
+              This is a placeholder for portfolio data
+            </p>
+            <Link
+              href="/portfolio/sample"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              View Project
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

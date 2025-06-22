@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { getSettingsClient } from "@/_lib/data/settings";
+// import { getSettingsClient } from "@/lib/handlers/sanity";
 import {
   SiteSettings,
   SettingsContextType,
@@ -126,23 +126,28 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       const systemFontFallback =
         'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      setFontVariable(
-        "--font-heading",
-        themeSettings.typography.headingFont,
-        systemFontFallback,
-      );
-      setFontVariable(
-        "--font-body",
-        themeSettings.typography.bodyFont,
-        systemFontFallback,
-      );
+
+      if (themeSettings.typography) {
+        setFontVariable(
+          "--font-heading",
+          themeSettings.typography.headingFont || "system",
+          systemFontFallback,
+        );
+        setFontVariable(
+          "--font-body",
+          themeSettings.typography.bodyFont || "system",
+          systemFontFallback,
+        );
+      }
 
       // Set spacing variables
-      Object.entries(themeSettings.spacing.spacingScale).forEach(
-        ([key, value]) => {
-          root.style.setProperty(`--spacing-${key}`, value);
-        },
-      );
+      if (themeSettings.spacing?.spacingScale) {
+        Object.entries(themeSettings.spacing.spacingScale).forEach(
+          ([key, value]) => {
+            root.style.setProperty(`--spacing-${key}`, value);
+          },
+        );
+      }
     },
     [],
   );
@@ -155,13 +160,23 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsLoading(true);
         setError(null);
 
-        const data = await getSettingsClient();
+        // Fetch settings from the API route
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseUrl}/api/settings`);
 
-        if (data) {
-          setSettings(data);
-          const initialTheme = initializeTheme(data.theme.defaultMode);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch settings: ${res.status}`);
+        }
+
+        const fetchedSettings = await res.json();
+
+        if (fetchedSettings) {
+          setSettings(fetchedSettings);
+          const initialTheme = initializeTheme(
+            fetchedSettings.theme.defaultMode,
+          );
           setCurrentTheme(initialTheme);
-          applyThemeToCSS(initialTheme, data.theme);
+          applyThemeToCSS(initialTheme, fetchedSettings.theme);
         } else {
           // Fallback to default settings if fetching fails or returns no data.
           setSettings(DEFAULT_SETTINGS);

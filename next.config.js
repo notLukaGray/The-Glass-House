@@ -20,23 +20,26 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: ["@sanity/ui", "framer-motion", "gsap"],
+  },
 };
 
-// Auto-map private Sanity env vars to NEXT_PUBLIC_ for Studio
-if (
-  process.env.SANITY_PROJECT_ID &&
-  !process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-) {
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = process.env.SANITY_PROJECT_ID;
-}
-if (process.env.SANITY_DATASET && !process.env.NEXT_PUBLIC_SANITY_DATASET) {
-  process.env.NEXT_PUBLIC_SANITY_DATASET = process.env.SANITY_DATASET;
-}
-if (
-  process.env.SANITY_API_VERSION &&
-  !process.env.NEXT_PUBLIC_SANITY_API_VERSION
-) {
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION = process.env.SANITY_API_VERSION;
-}
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
-module.exports = nextConfig;
+const withBundleAnalyzerConfig = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+// Auto-map private Sanity env vars to NEXT_PUBLIC_ for Studio
+const sanityEnvVars = Object.keys(process.env)
+  .filter((key) => key.startsWith("SANITY_STUDIO_"))
+  .reduce((obj, key) => {
+    obj[`NEXT_PUBLIC_${key}`] = process.env[key];
+    return obj;
+  }, {});
+
+// Merge with existing env vars
+Object.assign(process.env, sanityEnvVars);
+
+export default withBundleAnalyzerConfig(nextConfig);

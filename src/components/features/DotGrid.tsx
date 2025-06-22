@@ -1,8 +1,21 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
-import { gsap } from "gsap";
-import { InertiaPlugin } from "gsap/InertiaPlugin";
 import "./DotGrid.css";
-gsap.registerPlugin(InertiaPlugin);
+
+// Lazy load GSAP to reduce initial bundle size
+let gsap: typeof import("gsap").gsap | null = null;
+let InertiaPlugin: typeof import("gsap/InertiaPlugin").InertiaPlugin | null =
+  null;
+
+const loadGSAP = async () => {
+  if (!gsap) {
+    const gsapModule = await import("gsap");
+    const inertiaModule = await import("gsap/InertiaPlugin");
+    gsap = gsapModule.gsap;
+    InertiaPlugin = inertiaModule.InertiaPlugin;
+    gsap.registerPlugin(InertiaPlugin);
+  }
+  return { gsap, InertiaPlugin };
+};
 
 const throttle = (func: (e: MouseEvent) => void, limit: number) => {
   let lastCall = 0;
@@ -210,7 +223,9 @@ const DotGrid: React.FC<DotGridProps> = ({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const onMove = (e: MouseEvent) => {
+    const onMove = async (e: MouseEvent) => {
+      const { gsap: gsapInstance } = await loadGSAP();
+
       const now = performance.now();
       const pr = pointerRef.current;
       const dt = pr.lastTime ? now - pr.lastTime : 16;
@@ -242,13 +257,13 @@ const DotGrid: React.FC<DotGridProps> = ({
         const dist = Math.hypot(dot.cx - pr.x, dot.cy - pr.y);
         if (speed > speedTrigger && dist < proximity && !dot._inertiaApplied) {
           dot._inertiaApplied = true;
-          gsap.killTweensOf(dot);
+          gsapInstance.killTweensOf(dot);
           const pushX = dot.cx - pr.x + vx * 0.005;
           const pushY = dot.cy - pr.y + vy * 0.005;
-          gsap.to(dot, {
+          gsapInstance.to(dot, {
             inertia: { xOffset: pushX, yOffset: pushY, resistance },
             onComplete: () => {
-              gsap.to(dot, {
+              gsapInstance.to(dot, {
                 xOffset: 0,
                 yOffset: 0,
                 duration: returnDuration,
@@ -261,7 +276,9 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     };
 
-    const onClick = (e: MouseEvent) => {
+    const onClick = async (e: MouseEvent) => {
+      const { gsap: gsapInstance } = await loadGSAP();
+
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -271,14 +288,14 @@ const DotGrid: React.FC<DotGridProps> = ({
         const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
         if (dist < shockRadius && !dot._inertiaApplied) {
           dot._inertiaApplied = true;
-          gsap.killTweensOf(dot);
+          gsapInstance.killTweensOf(dot);
           const falloff = Math.max(0, 1 - dist / shockRadius);
           const pushX = (dot.cx - cx) * shockStrength * falloff;
           const pushY = (dot.cy - cy) * shockStrength * falloff;
-          gsap.to(dot, {
+          gsapInstance.to(dot, {
             inertia: { xOffset: pushX, yOffset: pushY, resistance },
             onComplete: () => {
-              gsap.to(dot, {
+              gsapInstance.to(dot, {
                 xOffset: 0,
                 yOffset: 0,
                 duration: returnDuration,
