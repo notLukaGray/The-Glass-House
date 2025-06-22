@@ -12,15 +12,23 @@ const AboutSkills: React.FC<AboutSkillsProps> = ({ items }) => {
     <section>
       <h2 className="text-xl font-bold mb-4">Skills</h2>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {items.map(item => (
-          <li key={item._key} className="bg-gray-100 rounded-lg p-4 flex gap-4 items-center">
+        {items.map((item) => (
+          <li
+            key={item._key}
+            className="bg-gray-100 rounded-lg p-4 flex gap-4 items-center"
+          >
             {/* SVG Icon (future-proof) */}
-            {item.icon && 'svgData' in item.icon ? (
+            {item.icon && "svgData" in item.icon ? (
               <div
                 className="w-8 h-8 flex items-center justify-center"
-                dangerouslySetInnerHTML={{ __html: getColoredSvg(item.icon.svgData, item.icon.color || "222") }}
+                dangerouslySetInnerHTML={{
+                  __html: getColoredSvg(
+                    item.icon.svgData,
+                    item.icon.color || "222",
+                  ),
+                }}
               />
-            ) : item.icon && '_ref' in item.icon ? (
+            ) : item.icon && "_ref" in item.icon ? (
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                 <span className="text-xs text-gray-500">{item.icon._ref}</span>
               </div>
@@ -36,4 +44,4 @@ const AboutSkills: React.FC<AboutSkillsProps> = ({ items }) => {
   );
 };
 
-export default AboutSkills; 
+export default AboutSkills;

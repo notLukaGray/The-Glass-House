@@ -1,4 +1,4 @@
-import { client } from '@/lib/handlers/sanity';
+import { client } from "@/lib/handlers/sanity";
 
 export interface SocialAsset {
   _id: string;
@@ -8,7 +8,7 @@ export interface SocialAsset {
   _rev: string;
   name: string;
   url: string;
-  icon?: { _ref: string; _type: 'reference' };
+  icon?: { _ref: string; _type: "reference" };
 }
 
 export interface SocialAssetQuery {
@@ -17,9 +17,11 @@ export interface SocialAssetQuery {
   type?: string; // e.g., 'website', 'assetSocial', etc.
 }
 
-export async function getSocialAsset(query: SocialAssetQuery): Promise<SocialAsset | null> {
+export async function getSocialAsset(
+  query: SocialAssetQuery,
+): Promise<SocialAsset | null> {
   const { id, type } = query;
-  let groqQuery = `*[_type == "${type || 'website'}"`;
+  let groqQuery = `*[_type == "${type || "website"}"`;
   if (id) {
     groqQuery += ` && _id == "${id}"`;
   }
@@ -28,16 +30,18 @@ export async function getSocialAsset(query: SocialAssetQuery): Promise<SocialAss
     const asset = await client.fetch<SocialAsset>(groqQuery);
     return asset || null;
   } catch (error) {
-    console.error('Error fetching social asset:', error);
+    console.error("Error fetching social asset:", error);
     return null;
   }
 }
 
-export async function getSocialAssets(query: SocialAssetQuery): Promise<SocialAsset[]> {
+export async function getSocialAssets(
+  query: SocialAssetQuery,
+): Promise<SocialAsset[]> {
   const { ids, type } = query;
-  let groqQuery = `*[_type == "${type || 'website'}"`;
+  let groqQuery = `*[_type == "${type || "website"}"`;
   if (ids && ids.length > 0) {
-    const idList = ids.map(id => `\"${id}\"`).join(', ');
+    const idList = ids.map((id) => `\"${id}\"`).join(", ");
     groqQuery += ` && _id in [${idList}]`;
   }
   groqQuery += `] | order(_createdAt asc)`;
@@ -45,7 +49,7 @@ export async function getSocialAssets(query: SocialAssetQuery): Promise<SocialAs
     const assets = await client.fetch<SocialAsset[]>(groqQuery);
     return assets || [];
   } catch (error) {
-    console.error('Error fetching social assets:', error);
+    console.error("Error fetching social assets:", error);
     return [];
   }
-} 
+}

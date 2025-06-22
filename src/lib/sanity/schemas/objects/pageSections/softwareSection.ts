@@ -1,46 +1,56 @@
-import { Rule } from '@sanity/types';
+import { Rule } from "@sanity/types";
 
 const softwareSection = {
-  name: 'softwareSection',
-  title: 'Software Section',
-  type: 'object',
+  name: "softwareSection",
+  title: "Software Section",
+  type: "object",
   fields: [
     {
-      name: 'items',
-      title: 'Software',
-      type: 'array',
+      name: "items",
+      title: "Software",
+      type: "array",
       of: [
         {
-          type: 'object',
+          type: "object",
           fields: [
-            { name: 'name', title: 'Software Name', type: 'localeString', validation: (rule: Rule) => rule.required() },
-            { name: 'icon', title: 'Icon', type: 'reference', to: [{ type: 'assetSVG' }] }
+            {
+              name: "name",
+              title: "Software Name",
+              type: "localeString",
+              validation: (rule: Rule) => rule.required(),
+            },
+            {
+              name: "icon",
+              title: "Icon",
+              type: "reference",
+              to: [{ type: "assetSVG" }],
+            },
           ],
           preview: {
             select: {
-              name: 'name'
+              name: "name",
             },
             prepare({ name }: { name?: { en?: string } }) {
-              const displayTitle = (name && name.en) || name || 'Untitled';
+              const displayTitle = (name && name.en) || name || "Untitled";
               return {
-                title: displayTitle
+                title: displayTitle,
               };
-            }
-          }
-        }
-      ]
-    }
+            },
+          },
+        },
+      ],
+    },
   ],
   preview: {
     select: {
-      items: 'items'
+      items: "items",
     },
     prepare() {
       return {
-        title: 'Software Section Component'
+        title: "Software Section Component",
       };
-    }
-  }
-}
+    },
+  },
+};
 
-export default softwareSection; 
+export default softwareSection;

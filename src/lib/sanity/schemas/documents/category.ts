@@ -1,13 +1,18 @@
-import { Rule } from '@sanity/types'
+import { Rule } from "@sanity/types";
 
 const category = {
-  name: 'category',
-  title: 'Category',
-  type: 'document',
+  name: "category",
+  title: "Category",
+  type: "document",
   fields: [
-    { name: 'title', title: 'Title', type: 'localeString', validation: (rule: Rule) => rule.required() },
-    { name: 'description', title: 'Description', type: 'localeString' }
-  ]
-}
+    {
+      name: "title",
+      title: "Title",
+      type: "localeString",
+      validation: (rule: Rule) => rule.required(),
+    },
+    { name: "description", title: "Description", type: "localeString" },
+  ],
+};
 
-export default category; 
+export default category;

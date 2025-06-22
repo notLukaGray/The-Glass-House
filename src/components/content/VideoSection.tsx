@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
-import VideoPlayer from '../ui/VideoPlayer';
-import { VideoAsset } from '@/lib/handlers/clientHandlers';
+import React from "react";
+import VideoPlayer from "../ui/VideoPlayer";
+import { VideoAsset } from "@/lib/handlers/clientHandlers";
 
 interface VideoSectionProps {
   video: VideoAsset;
@@ -21,7 +21,13 @@ interface VideoSectionProps {
   fullBleed?: boolean;
   alignment?: string;
   objectFit?: string;
-  titleDisplayMode?: 'none' | 'below' | 'overlay-top' | 'overlay-bottom' | 'overlay-center' | 'hover';
+  titleDisplayMode?:
+    | "none"
+    | "below"
+    | "overlay-top"
+    | "overlay-bottom"
+    | "overlay-center"
+    | "hover";
   // Theme
   theme?: {
     overlayColor?: string;
@@ -64,4 +70,4 @@ const VideoSection: React.FC<VideoSectionProps> = ({ video, showCaption }) => {
   );
 };
 
-export default VideoSection; 
+export default VideoSection;

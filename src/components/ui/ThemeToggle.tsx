@@ -1,6 +1,6 @@
 "use client";
 
-import { useSettings } from '@/components/providers/SettingsProvider';
+import { useSettings } from "@/components/providers/SettingsProvider";
 
 export const ThemeToggle: React.FC = () => {
   const { currentTheme, toggleTheme } = useSettings();
@@ -9,9 +9,9 @@ export const ThemeToggle: React.FC = () => {
     <button
       onClick={toggleTheme}
       className="fixed top-4 right-4 z-50 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200"
-      aria-label={`Switch to ${currentTheme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={`Switch to ${currentTheme === "light" ? "dark" : "light"} mode`}
     >
-      {currentTheme === 'light' ? (
+      {currentTheme === "light" ? (
         <svg
           className="w-5 h-5"
           fill="none"
@@ -44,4 +44,4 @@ export const ThemeToggle: React.FC = () => {
       )}
     </button>
   );
-}; 
+};

@@ -185,8 +185,8 @@ const DotGrid: React.FC<DotGridProps> = ({
     buildGrid();
     let ro: ResizeObserver | null = null;
     let hasResizeListener = false;
-    
-    if (typeof window !== 'undefined') {
+
+    if (typeof window !== "undefined") {
       if ("ResizeObserver" in window) {
         ro = new ResizeObserver(buildGrid);
         if (wrapperRef.current) {
@@ -197,18 +197,18 @@ const DotGrid: React.FC<DotGridProps> = ({
         hasResizeListener = true;
       }
     }
-    
+
     return () => {
       if (ro) {
         ro.disconnect();
-      } else if (hasResizeListener && typeof window !== 'undefined') {
+      } else if (hasResizeListener && typeof window !== "undefined") {
         (window as Window).removeEventListener("resize", buildGrid);
       }
     };
   }, [buildGrid]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const onMove = (e: MouseEvent) => {
       const now = performance.now();
@@ -318,4 +318,4 @@ const DotGrid: React.FC<DotGridProps> = ({
   );
 };
 
-export default DotGrid; 
+export default DotGrid;

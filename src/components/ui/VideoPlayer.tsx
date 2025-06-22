@@ -8,7 +8,10 @@ interface VideoPlayerProps {
   className?: string;
 }
 
-export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps) {
+export default function VideoPlayer({
+  asset,
+  className = "",
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const volumeRef = useRef<HTMLInputElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -20,13 +23,17 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
   const [showPoster, setShowPoster] = useState(true);
   const sources = getVideoSources(asset);
   // Find 2K (1080p) as default if available
-  const default2k = sources.find(s => s.quality === '1080p');
-  const [currentQuality, setCurrentQuality] = useState(default2k ? default2k.quality : (sources[0]?.quality || ""));
-  const [sourceUrl, setSourceUrl] = useState<string>(default2k ? default2k.src : (sources[0]?.src || ""));
+  const default2k = sources.find((s) => s.quality === "1080p");
+  const [currentQuality, setCurrentQuality] = useState(
+    default2k ? default2k.quality : sources[0]?.quality || "",
+  );
+  const [sourceUrl, setSourceUrl] = useState<string>(
+    default2k ? default2k.src : sources[0]?.src || "",
+  );
 
   useEffect(() => {
     if (sources.length > 0) {
-      const default2k = sources.find(s => s.quality === '1080p');
+      const default2k = sources.find((s) => s.quality === "1080p");
       setCurrentQuality(default2k ? default2k.quality : sources[0].quality);
       setSourceUrl(default2k ? default2k.src : sources[0].src);
     }
@@ -101,7 +108,7 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
   };
 
   const handleQualityChange = (quality: string) => {
-    const source = sources.find(s => s.quality === quality);
+    const source = sources.find((s) => s.quality === quality);
     if (source) {
       const video = videoRef.current;
       const wasPlaying = video && !video.paused;
@@ -118,9 +125,9 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
           if (wasPlaying) {
             video.play();
           }
-          video.removeEventListener('loadedmetadata', onLoadedMetadata);
+          video.removeEventListener("loadedmetadata", onLoadedMetadata);
         };
-        video.addEventListener('loadedmetadata', onLoadedMetadata);
+        video.addEventListener("loadedmetadata", onLoadedMetadata);
       }
     }
     setShowQualityMenu(false);
@@ -145,15 +152,44 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
       {/* Controls */}
       <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 flex items-center gap-4 rounded-b-lg z-10">
         {/* Play/Pause */}
-        <button onClick={togglePlay} className="text-white focus:outline-none" aria-label={isPlaying ? "Pause" : "Play"}>
+        <button
+          onClick={togglePlay}
+          className="text-white focus:outline-none"
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
           {isPlaying ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5,3 19,12 5,21"/></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="5,3 19,12 5,21" />
+            </svg>
           )}
         </button>
         {/* Seek Bar */}
-        <span className="text-white text-xs w-10 text-right">{formatTime(currentTime)}</span>
+        <span className="text-white text-xs w-10 text-right">
+          {formatTime(currentTime)}
+        </span>
         <input
           type="range"
           min={0}
@@ -167,11 +203,38 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
         />
         <span className="text-white text-xs w-10">{formatTime(duration)}</span>
         {/* Volume */}
-        <button onClick={toggleMute} className="text-white focus:outline-none" aria-label={isMuted ? "Unmute" : "Mute"}>
+        <button
+          onClick={toggleMute}
+          className="text-white focus:outline-none"
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
           {isMuted || volume === 0 ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1,1 23,23" /><path d="M9 9v6h4l5 5V4l-5 5H9z" /></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="1,1 23,23" />
+              <path d="M9 9v6h4l5 5V4l-5 5H9z" />
+            </svg>
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="9 9 9 15 13 15 18 20 18 4 13 9 9 9" /></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="9 9 9 15 13 15 18 20 18 4 13 9 9 9" />
+            </svg>
           )}
         </button>
         <input
@@ -194,15 +257,27 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
               aria-label="Quality"
             >
               {currentQuality}
-              <svg className="inline ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <svg
+                className="inline ml-1 w-3 h-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </button>
             {showQualityMenu && (
               <div className="absolute bottom-full left-0 mb-2 bg-black/90 rounded shadow-lg py-2 min-w-[80px] z-20">
-                {sources.map(s => (
+                {sources.map((s) => (
                   <button
                     key={s.quality}
                     onClick={() => handleQualityChange(s.quality)}
-                    className={`w-full px-4 py-1 text-left text-xs hover:bg-white/10 ${currentQuality === s.quality ? 'text-white' : 'text-gray-400'}`}
+                    className={`w-full px-4 py-1 text-left text-xs hover:bg-white/10 ${currentQuality === s.quality ? "text-white" : "text-gray-400"}`}
                   >
                     {s.quality}
                   </button>
@@ -215,4 +290,3 @@ export default function VideoPlayer({ asset, className = "" }: VideoPlayerProps)
     </div>
   );
 }
-

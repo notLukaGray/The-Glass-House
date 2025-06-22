@@ -1,10 +1,20 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { PortableText, PortableTextComponents } from '@portabletext/react';
-import Image from 'next/image';
-import { useSettings } from '@/components/providers/SettingsProvider';
-import { getImageAsset, getSvgAsset, getVideoAsset, getSocialAsset } from '@/lib/handlers/clientHandlers';
-import { BlockContent, Positioning, Effects, PositioningAdvanced } from '@/types/content';
+import React, { useEffect, useState } from "react";
+import { PortableText, PortableTextComponents } from "@portabletext/react";
+import Image from "next/image";
+import { useSettings } from "@/components/providers/SettingsProvider";
+import {
+  getImageAsset,
+  getSvgAsset,
+  getVideoAsset,
+  getSocialAsset,
+} from "@/lib/handlers/clientHandlers";
+import {
+  BlockContent,
+  Positioning,
+  Effects,
+  PositioningAdvanced,
+} from "@/types/content";
 
 interface TextSectionProps {
   content: BlockContent[];
@@ -18,97 +28,138 @@ interface TextSectionProps {
 
 // Utility to sanitize strings (remove invisible/non-printable characters)
 function sanitizeString(str: string | undefined): string | undefined {
-  return typeof str === 'string' ? str.replace(/[\u200B-\u200D\uFEFF\u202A-\u202E\u2060-\u206F\u00A0\u180E\u2000-\u200A]/g, '').trim() : str;
+  return typeof str === "string"
+    ? str
+        .replace(
+          /[\u200B-\u200D\uFEFF\u202A-\u202E\u2060-\u206F\u00A0\u180E\u2000-\u200A]/g,
+          "",
+        )
+        .trim()
+    : str;
 }
 
 function getSizeClass(size?: string) {
   switch (size) {
-    case 'small': return 'max-w-xs';
-    case 'medium': return 'max-w-md';
-    case 'large': return 'max-w-lg';
-    case 'full': return 'w-full';
-    default: return '';
+    case "small":
+      return "max-w-xs";
+    case "medium":
+      return "max-w-md";
+    case "large":
+      return "max-w-lg";
+    case "full":
+      return "w-full";
+    default:
+      return "";
   }
 }
 
 function getBlockAlignmentClass(alignment?: string) {
   switch (alignment) {
-    case 'left': return 'mx-0';
-    case 'center': return 'mx-auto';
-    case 'right': return 'ml-auto';
-    default: return '';
+    case "left":
+      return "mx-0";
+    case "center":
+      return "mx-auto";
+    case "right":
+      return "ml-auto";
+    default:
+      return "";
   }
 }
 
 function getBoxShadowClass(boxShadow?: string) {
   switch (boxShadow) {
-    case 'sm': return 'shadow-sm';
-    case 'md': return 'shadow-md';
-    case 'lg': return 'shadow-lg';
-    case 'xl': return 'shadow-xl';
-    case '2xl': return 'shadow-2xl';
-    case '3xl': return 'shadow-3xl';
-    case '4xl': return 'shadow-4xl';
-    case '5xl': return 'shadow-5xl';
-    default: return '';
+    case "sm":
+      return "shadow-sm";
+    case "md":
+      return "shadow-md";
+    case "lg":
+      return "shadow-lg";
+    case "xl":
+      return "shadow-xl";
+    case "2xl":
+      return "shadow-2xl";
+    case "3xl":
+      return "shadow-3xl";
+    case "4xl":
+      return "shadow-4xl";
+    case "5xl":
+      return "shadow-5xl";
+    default:
+      return "";
   }
 }
 
 function getBorderRadiusClass(borderRadius?: string) {
   switch (borderRadius) {
-    case 'sm': return 'rounded-sm';
-    case 'md': return 'rounded-md';
-    case 'lg': return 'rounded-lg';
-    case 'xl': return 'rounded-xl';
-    case 'full': return 'rounded-full';
-    default: return '';
+    case "sm":
+      return "rounded-sm";
+    case "md":
+      return "rounded-md";
+    case "lg":
+      return "rounded-lg";
+    case "xl":
+      return "rounded-xl";
+    case "full":
+      return "rounded-full";
+    default:
+      return "";
   }
 }
 
 function getTextAlignClass(textAlign?: string) {
   switch (textAlign) {
-    case 'center': return 'text-center';
-    case 'right': return 'text-right';
-    case 'justify': return 'text-justify';
-    default: return 'text-left';
+    case "center":
+      return "text-center";
+    case "right":
+      return "text-right";
+    case "justify":
+      return "text-justify";
+    default:
+      return "text-left";
   }
 }
 
 // Pre-resolve assets before rendering
 async function resolveAssets(blocks: BlockContent[]): Promise<BlockContent[]> {
   if (!blocks || !Array.isArray(blocks) || blocks.length === 0) return [];
-  
+
   const resolvedBlocks = await Promise.all(
-    blocks.map(async block => {
-      if (block._type === 'asset' && typeof block._ref === 'string') {
+    blocks.map(async (block) => {
+      if (block._type === "asset" && typeof block._ref === "string") {
         try {
           const imageAsset = await getImageAsset({ id: block._ref });
-          if (imageAsset) return { ...block, ...imageAsset, _resolvedType: 'image' };
-          
+          if (imageAsset)
+            return { ...block, ...imageAsset, _resolvedType: "image" };
+
           const svgAsset = await getSvgAsset({ id: block._ref });
-          if (svgAsset) return { ...block, ...svgAsset, _resolvedType: 'svg' };
-          
+          if (svgAsset) return { ...block, ...svgAsset, _resolvedType: "svg" };
+
           const videoAsset = await getVideoAsset({ id: block._ref });
-          if (videoAsset) return { ...block, ...videoAsset, _resolvedType: 'video' };
-          
-          const socialAsset = await getSocialAsset({ id: block._ref, type: 'website' });
-          if (socialAsset) return { ...block, ...socialAsset, _resolvedType: 'social' };
+          if (videoAsset)
+            return { ...block, ...videoAsset, _resolvedType: "video" };
+
+          const socialAsset = await getSocialAsset({
+            id: block._ref,
+            type: "website",
+          });
+          if (socialAsset)
+            return { ...block, ...socialAsset, _resolvedType: "social" };
         } catch (error) {
-          console.error('Error resolving asset:', error);
+          console.error("Error resolving asset:", error);
         }
       }
       return block;
-    })
+    }),
   );
-  
+
   return resolvedBlocks;
 }
 
 const TextSection: React.FC<TextSectionProps> = (props) => {
   const { settings, currentTheme } = useSettings();
-  
+
   // Debug log for textAlign and all props
-  console.log('TextSection textAlign:', props.textAlign, props);
+  console.log("TextSection textAlign:", props.textAlign, props);
 
   // Flatten nested fields into top-level props
   const {
@@ -129,19 +180,23 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadContent = async () => {
-      if (!props.content || !Array.isArray(props.content) || props.content.length === 0) {
+      if (
+        !props.content ||
+        !Array.isArray(props.content) ||
+        props.content.length === 0
+      ) {
         if (isMounted) setResolvedContent([]);
         return;
       }
-      
+
       const resolved = await resolveAssets(props.content);
       if (isMounted) setResolvedContent(resolved);
     };
-    
+
     loadContent();
-    
+
     return () => {
       isMounted = false;
     };
@@ -161,17 +216,18 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   const sanitizedTextAlign = sanitizeString(textAlign);
 
   // Responsive visibility
-  let visibilityClass = '';
-  if (flatProps.hideOnMobile) visibilityClass += ' hidden sm:block';
-  if (flatProps.hideOnDesktop) visibilityClass += ' block sm:hidden';
+  let visibilityClass = "";
+  if (flatProps.hideOnMobile) visibilityClass += " hidden sm:block";
+  if (flatProps.hideOnDesktop) visibilityClass += " block sm:hidden";
 
   // Get theme-aware styles
   const getThemeStyles = () => {
     if (!settings?.theme) return {};
-    
-    const themeColors = settings.theme[currentTheme === 'dark' ? 'darkMode' : 'lightMode'].colors;
+
+    const themeColors =
+      settings.theme[currentTheme === "dark" ? "darkMode" : "lightMode"].colors;
     const typography = settings.theme.typography;
-    
+
     return {
       color: flatProps.textColor || themeColors.text,
       backgroundColor: flatProps.backgroundColor || themeColors.background,
@@ -181,7 +237,7 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
 
   // --- Container style and classes ---
   const containerStyle: React.CSSProperties = {
-    width: width || (flatProps.fullBleed ? '100vw' : undefined),
+    width: width || (flatProps.fullBleed ? "100vw" : undefined),
     maxWidth: width ? undefined : maxWidth || undefined,
     margin: margin,
     padding: padding,
@@ -189,7 +245,7 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   };
 
   // Size class (if no explicit width)
-  const sizeClass = !width && !flatProps.fullBleed ? getSizeClass(size) : '';
+  const sizeClass = !width && !flatProps.fullBleed ? getSizeClass(size) : "";
 
   // --- Shared classes ---
   const sharedClasses = [
@@ -197,94 +253,159 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
     getBoxShadowClass(boxShadow),
     getBorderRadiusClass(borderRadius),
     visibilityClass,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   // --- Section-wide text alignment for all blocks ---
   const blockComponents: PortableTextComponents = {
     block: {
       normal: ({ children }) => (
-        <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</p>
+        <p
+          className={`mb-4 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </p>
       ),
       h1: ({ children }) => (
-        <h1 className={`text-4xl font-bold mb-4 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</h1>
+        <h1
+          className={`text-4xl font-bold mb-4 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </h1>
       ),
       h2: ({ children }) => (
-        <h2 className={`text-3xl font-bold mb-3 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</h2>
+        <h2
+          className={`text-3xl font-bold mb-3 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </h2>
       ),
       h3: ({ children }) => (
-        <h3 className={`text-2xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</h3>
+        <h3
+          className={`text-2xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </h3>
       ),
       h4: ({ children }) => (
-        <h4 className={`text-xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</h4>
+        <h4
+          className={`text-xl font-bold mb-2 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </h4>
       ),
       blockquote: ({ children }) => (
-        <blockquote className={`border-l-4 pl-4 italic ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</blockquote>
+        <blockquote
+          className={`border-l-4 pl-4 italic ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </blockquote>
       ),
       default: ({ children }) => (
-        <p className={`mb-4 ${getTextAlignClass(sanitizedTextAlign || 'left')}`}>{children}</p>
+        <p
+          className={`mb-4 ${getTextAlignClass(sanitizedTextAlign || "left")}`}
+        >
+          {children}
+        </p>
       ),
     },
     marks: {
       underline: ({ children }) => <u>{children}</u>,
       color: ({ children, value }) => {
-        const hex = value?.color?.hex || '#000';
+        const hex = value?.color?.hex || "#000";
         return <span style={{ color: hex }}>{children}</span>;
       },
     },
     types: {
       asset: ({ value }: { value: unknown }) => {
         if (!value || !(value as { _ref?: string })._ref) return null;
-        const assetValue = value as { _resolvedType?: string; url?: string; description?: { en?: string }; svgData?: string; cdnSdUrl?: string; name?: string };
-        if (assetValue._resolvedType === 'image') {
+        const assetValue = value as {
+          _resolvedType?: string;
+          url?: string;
+          description?: { en?: string };
+          svgData?: string;
+          cdnSdUrl?: string;
+          name?: string;
+        };
+        if (assetValue._resolvedType === "image") {
           return (
-            <Image 
-              src={assetValue.url || ''} 
-              alt={assetValue.description?.en || ''} 
+            <Image
+              src={assetValue.url || ""}
+              alt={assetValue.description?.en || ""}
               width={800}
               height={600}
-              style={{ maxWidth: '100%' }}
+              style={{ maxWidth: "100%" }}
               className="w-full h-auto"
             />
           );
         }
-        if (assetValue._resolvedType === 'svg') {
-          return <span dangerouslySetInnerHTML={{ __html: assetValue.svgData || '' }} />;
+        if (assetValue._resolvedType === "svg") {
+          return (
+            <span
+              dangerouslySetInnerHTML={{ __html: assetValue.svgData || "" }}
+            />
+          );
         }
-        if (assetValue._resolvedType === 'video') {
-          return <video src={assetValue.cdnSdUrl} controls style={{ maxWidth: '100%' }} />;
+        if (assetValue._resolvedType === "video") {
+          return (
+            <video
+              src={assetValue.cdnSdUrl}
+              controls
+              style={{ maxWidth: "100%" }}
+            />
+          );
         }
-        if (assetValue._resolvedType === 'social') {
-          return <a href={assetValue.url} target="_blank" rel="noopener noreferrer">{assetValue.name}</a>;
+        if (assetValue._resolvedType === "social") {
+          return (
+            <a href={assetValue.url} target="_blank" rel="noopener noreferrer">
+              {assetValue.name}
+            </a>
+          );
         }
-        return <span style={{ color: 'red' }}>[Unknown asset type]</span>;
+        return <span style={{ color: "red" }}>[Unknown asset type]</span>;
       },
       assetSVG: ({ value }: { value: { svgData: string } }) => {
         return <span dangerouslySetInnerHTML={{ __html: value.svgData }} />;
       },
-      assetPhoto: ({ value }: { value: { url: string; description?: { en?: string } } }) => {
+      assetPhoto: ({
+        value,
+      }: {
+        value: { url: string; description?: { en?: string } };
+      }) => {
         return (
-          <Image 
-            src={value.url} 
-            alt={value.description?.en || ''} 
+          <Image
+            src={value.url}
+            alt={value.description?.en || ""}
             width={800}
             height={600}
-            style={{ maxWidth: '100%' }}
+            style={{ maxWidth: "100%" }}
             className="w-full h-auto"
           />
         );
       },
       assetVideo: ({ value }: { value: { cdnSdUrl: string } }) => {
-        return <video src={value.cdnSdUrl} controls style={{ maxWidth: '100%' }} />;
+        return (
+          <video src={value.cdnSdUrl} controls style={{ maxWidth: "100%" }} />
+        );
       },
       asset3d: ({ value }: { value: { title?: { en?: string } } }) => {
-        return <span>[3D Asset: {value.title?.en || 'Untitled'}]</span>;
+        return <span>[3D Asset: {value.title?.en || "Untitled"}]</span>;
       },
     },
   };
 
   return (
-    <div className={`flex ${flatProps.fullBleed ? 'w-full' : ''} ${visibilityClass} transition-colors duration-300`} style={containerStyle}>
-      <section className={`${sizeClass} ${sharedClasses}`} style={{ width: width || (!flatProps.fullBleed && size ? undefined : '100%') }}>
+    <div
+      className={`flex ${flatProps.fullBleed ? "w-full" : ""} ${visibilityClass} transition-colors duration-300`}
+      style={containerStyle}
+    >
+      <section
+        className={`${sizeClass} ${sharedClasses}`}
+        style={{
+          width: width || (!flatProps.fullBleed && size ? undefined : "100%"),
+        }}
+      >
         <PortableText value={resolvedContent} components={blockComponents} />
       </section>
     </div>

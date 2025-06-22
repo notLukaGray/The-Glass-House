@@ -1,21 +1,21 @@
-import { client } from '@/lib/handlers/sanity';
+import { client } from "@/lib/handlers/sanity";
 
 export interface ImageAsset {
   _id: string;
-  _type: 'assetPhoto';
+  _type: "assetPhoto";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   title: {
-    _type: 'localeString';
+    _type: "localeString";
     en: string;
   };
   description: {
-    _type: 'localeString';
+    _type: "localeString";
     en: string;
   };
   caption: {
-    _type: 'localeString';
+    _type: "localeString";
     en: string;
   };
   order: number;
@@ -28,7 +28,9 @@ export interface ImageAssetQuery {
   order?: number;
 }
 
-export async function getImageAsset(query: ImageAssetQuery): Promise<ImageAsset | null> {
+export async function getImageAsset(
+  query: ImageAssetQuery,
+): Promise<ImageAsset | null> {
   const { id, title, order } = query;
 
   let groqQuery = `*[_type == "assetPhoto"`;
@@ -49,12 +51,14 @@ export async function getImageAsset(query: ImageAssetQuery): Promise<ImageAsset 
     const asset = await client.fetch<ImageAsset>(groqQuery);
     return asset || null;
   } catch (error) {
-    console.error('Error fetching image asset:', error);
+    console.error("Error fetching image asset:", error);
     return null;
   }
 }
 
-export async function getImageAssets(query?: Partial<ImageAssetQuery>): Promise<ImageAsset[]> {
+export async function getImageAssets(
+  query?: Partial<ImageAssetQuery>,
+): Promise<ImageAsset[]> {
   let groqQuery = `*[_type == "assetPhoto"`;
 
   if (query) {
@@ -74,7 +78,7 @@ export async function getImageAssets(query?: Partial<ImageAssetQuery>): Promise<
     const assets = await client.fetch<ImageAsset[]>(groqQuery);
     return assets || [];
   } catch (error) {
-    console.error('Error fetching image assets:', error);
+    console.error("Error fetching image assets:", error);
     return [];
   }
-} 
+}

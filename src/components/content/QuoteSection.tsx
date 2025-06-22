@@ -1,6 +1,6 @@
-import React from 'react';
-import BlockRenderer from './BlockRenderer';
-import { BlockContent } from '@/types/content';
+import React from "react";
+import BlockRenderer from "./BlockRenderer";
+import { BlockContent } from "@/types/content";
 
 interface QuoteSectionProps {
   quote: BlockContent[];
@@ -16,4 +16,4 @@ const QuoteSection: React.FC<QuoteSectionProps> = ({ quote, attribution }) => {
   );
 };
 
-export default QuoteSection; 
+export default QuoteSection;

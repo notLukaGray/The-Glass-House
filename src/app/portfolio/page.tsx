@@ -1,10 +1,10 @@
-import { Suspense, lazy } from 'react';
-import { getPortfoliosServer } from '@/_lib/data/portfolio';
+import { Suspense, lazy } from "react";
+import { getPortfoliosServer } from "@/_lib/data/portfolio";
 
 // Lazy load the PortfolioCard component
-const PortfolioCard = lazy(() => import('@/components/ui/PortfolioCard'));
+const PortfolioCard = lazy(() => import("@/components/ui/PortfolioCard"));
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 // Loading fallback for portfolio cards
 const PortfolioCardSkeleton = () => (
@@ -40,4 +40,4 @@ export default async function PortfolioListPage() {
       </div>
     </main>
   );
-} 
+}

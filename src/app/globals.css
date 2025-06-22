@@ -6,8 +6,8 @@
 
 /* Custom Font Face */
 @font-face {
-  font-family: 'CompressaPRO';
-  src: url('/fonts/CompressaPRO-GX.woff2') format('woff2');
+  font-family: "CompressaPRO";
+  src: url("/fonts/CompressaPRO-GX.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -17,14 +17,16 @@
   /* Default fallback values */
   --color-primary: #000000;
   --color-secondary: #666666;
-  --color-accent: #3B82F6;
-  --color-background: #FFFFFF;
+  --color-accent: #3b82f6;
+  --color-background: #ffffff;
   --color-text: #000000;
-  
+
   /* Typography */
-  --font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+  --font-heading:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -38,10 +40,17 @@
     background: var(--color-background);
     color: var(--color-text);
     font-family: var(--font-body);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
   }
 }
@@ -50,5 +59,7 @@
   --color-background: var(--color-background);
   --color-foreground: var(--color-text);
   --font-sans: var(--font-body);
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-} 
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
+    monospace;
+}

@@ -1,6 +1,6 @@
-import React, { Suspense } from 'react';
-import { portfolioSectionComponentMap } from '@/lib/handlers/componentHandler';
-import type { ResolvedSection } from '@/app/portfolio/[slug]/page';
+import React, { Suspense } from "react";
+import { portfolioSectionComponentMap } from "@/lib/handlers/componentHandler";
+import type { ResolvedSection } from "@/app/portfolio/[slug]/page";
 
 interface PortfolioSectionRendererProps {
   section: ResolvedSection;
@@ -23,9 +23,13 @@ const SectionErrorFallback: React.FC<{ error?: Error }> = ({ error }) => (
   </div>
 );
 
-const PortfolioSectionRenderer: React.FC<PortfolioSectionRendererProps> = ({ section }) => {
-  const SectionComponent = (portfolioSectionComponentMap as Record<string, React.ComponentType<unknown>>)[String(section._type)];
-  
+const PortfolioSectionRenderer: React.FC<PortfolioSectionRendererProps> = ({
+  section,
+}) => {
+  const SectionComponent = (
+    portfolioSectionComponentMap as Record<string, React.ComponentType<unknown>>
+  )[String(section._type)];
+
   if (!SectionComponent) {
     console.warn(`Unknown section type: ${section._type}`);
     return <SectionErrorFallback />;
@@ -38,4 +42,4 @@ const PortfolioSectionRenderer: React.FC<PortfolioSectionRendererProps> = ({ sec
   );
 };
 
-export default PortfolioSectionRenderer; 
+export default PortfolioSectionRenderer;

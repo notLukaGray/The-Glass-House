@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ListSectionProps {
   title: { en: string };
@@ -18,4 +18,4 @@ const ListSection: React.FC<ListSectionProps> = ({ title, items }) => {
   );
 };
 
-export default ListSection; 
+export default ListSection;

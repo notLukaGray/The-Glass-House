@@ -1,44 +1,56 @@
-import { Rule } from '@sanity/types'
-import React from 'react'
+import { Rule } from "@sanity/types";
+import React from "react";
 
 const about = {
-  name: 'about',
-  title: 'About Page',
-  type: 'document',
+  name: "about",
+  title: "About Page",
+  type: "document",
   fields: [
     {
-      name: 'user',
-      title: 'User',
-      type: 'reference',
-      to: [{ type: 'user' }],
-      validation: (rule: Rule) => rule.required()
+      name: "user",
+      title: "User",
+      type: "reference",
+      to: [{ type: "user" }],
+      validation: (rule: Rule) => rule.required(),
     },
     {
-      name: 'sections',
-      title: 'Flexible Content Sections',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'section' }] }],
-      description: 'Add, remove, and drag to order content sections for this about page.'
-    }
+      name: "sections",
+      title: "Flexible Content Sections",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "section" }] }],
+      description:
+        "Add, remove, and drag to order content sections for this about page.",
+    },
   ],
   preview: {
     select: {
-      userName: 'user.name.en',
-      userAvatar: 'user.avatarUrl'
+      userName: "user.name.en",
+      userAvatar: "user.avatarUrl",
     },
-    prepare({ userName, userAvatar }: { userName?: string; userAvatar?: string }) {
+    prepare({
+      userName,
+      userAvatar,
+    }: {
+      userName?: string;
+      userAvatar?: string;
+    }) {
       return {
-        title: userName || 'About Page',
+        title: userName || "About Page",
         media: userAvatar
-          ? React.createElement('img', {
+          ? React.createElement("img", {
               src: userAvatar,
-              alt: userName || 'Avatar',
-              style: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }
+              alt: userName || "Avatar",
+              style: {
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+              },
             })
-          : undefined
-      }
-    }
-  }
-}
+          : undefined,
+      };
+    },
+  },
+};
 
-export default about; 
+export default about;

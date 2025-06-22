@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 
 interface IconSectionProps {
   icon: { svgData: string } | null;
@@ -8,11 +8,15 @@ interface IconSectionProps {
   description?: { en?: string };
 }
 
-const IconSection: React.FC<IconSectionProps> = ({ icon, heading, description }) => {
+const IconSection: React.FC<IconSectionProps> = ({
+  icon,
+  heading,
+  description,
+}) => {
   return (
     <section className="my-4 flex gap-4 items-start">
       {icon?.svgData && (
-        <div 
+        <div
           className="w-12 h-12"
           dangerouslySetInnerHTML={{ __html: icon.svgData }}
         />
@@ -25,4 +29,4 @@ const IconSection: React.FC<IconSectionProps> = ({ icon, heading, description })
   );
 };
 
-export default IconSection; 
+export default IconSection;

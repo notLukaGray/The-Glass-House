@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 // Performance monitoring utilities
 
@@ -25,19 +25,19 @@ export class PerformanceMonitor {
   startTimer(componentName: string): () => void {
     const startTime = performance.now();
     this.loadStartTimes.set(componentName, startTime);
-    
+
     return () => {
       const endTime = performance.now();
       const loadTime = endTime - startTime;
-      
+
       this.metrics.set(componentName, {
         componentLoadTime: loadTime,
         renderTime: endTime - startTime,
         loadStartTime: startTime,
       });
-      
+
       // Log performance data in development
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.log(`🚀 ${componentName} loaded in ${loadTime.toFixed(2)}ms`);
       }
     };
@@ -47,7 +47,7 @@ export class PerformanceMonitor {
   trackLazyComponent(componentName: string): void {
     const startTime = performance.now();
     this.loadStartTimes.set(componentName, startTime);
-    
+
     // Set initial metric
     this.metrics.set(componentName, {
       componentLoadTime: 0,
@@ -62,26 +62,32 @@ export class PerformanceMonitor {
     if (startTime) {
       const endTime = performance.now();
       const loadTime = endTime - startTime;
-      
+
       this.metrics.set(componentName, {
         componentLoadTime: loadTime,
         renderTime: endTime - startTime,
         loadStartTime: startTime,
       });
-      
+
       // Log performance data in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🚀 ${componentName} lazy loaded in ${loadTime.toFixed(2)}ms`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `🚀 ${componentName} lazy loaded in ${loadTime.toFixed(2)}ms`,
+        );
       }
     }
   }
 
-  getMetrics(componentName?: string): PerformanceMetrics | Map<string, PerformanceMetrics> {
+  getMetrics(
+    componentName?: string,
+  ): PerformanceMetrics | Map<string, PerformanceMetrics> {
     if (componentName) {
-      return this.metrics.get(componentName) || {
-        componentLoadTime: 0,
-        renderTime: 0,
-      };
+      return (
+        this.metrics.get(componentName) || {
+          componentLoadTime: 0,
+          renderTime: 0,
+        }
+      );
     }
     return this.metrics;
   }
@@ -89,8 +95,11 @@ export class PerformanceMonitor {
   getAverageLoadTime(): number {
     const metrics = Array.from(this.metrics.values());
     if (metrics.length === 0) return 0;
-    
-    const totalTime = metrics.reduce((sum, metric) => sum + metric.componentLoadTime, 0);
+
+    const totalTime = metrics.reduce(
+      (sum, metric) => sum + metric.componentLoadTime,
+      0,
+    );
     return totalTime / metrics.length;
   }
 
@@ -103,22 +112,25 @@ export class PerformanceMonitor {
 // React hook for performance monitoring
 export const usePerformanceMonitor = (componentName: string) => {
   const monitor = PerformanceMonitor.getInstance();
-  
+
   React.useEffect(() => {
     const stopTimer = monitor.startTimer(componentName);
-    
+
     return () => {
       stopTimer();
     };
   }, [componentName, monitor]);
-  
+
   return monitor.getMetrics(componentName);
 };
 
 // Enhanced lazy loading with performance tracking
-export const createLazyComponent = (importFn: () => Promise<{ default: React.ComponentType<unknown> }>, componentName: string) => {
+export const createLazyComponent = (
+  importFn: () => Promise<{ default: React.ComponentType<unknown> }>,
+  componentName: string,
+) => {
   const monitor = PerformanceMonitor.getInstance();
-  
+
   return React.lazy(() => {
     monitor.trackLazyComponent(componentName);
     return importFn().then((module) => {
@@ -132,24 +144,24 @@ export const createLazyComponent = (importFn: () => Promise<{ default: React.Com
 export const estimateBundleSize = (componentName: string): number => {
   // This is a rough estimation - in a real app you'd use webpack-bundle-analyzer
   const sizeMap: Record<string, number> = {
-    'TextSection': 45, // ~45KB
-    'ImageSection': 38, // ~38KB
-    'PortfolioCard': 12, // ~12KB
-    'GallerySection': 15, // ~15KB
-    'VideoSection': 8, // ~8KB
-    'default': 5, // ~5KB for small components
+    TextSection: 45, // ~45KB
+    ImageSection: 38, // ~38KB
+    PortfolioCard: 12, // ~12KB
+    GallerySection: 15, // ~15KB
+    VideoSection: 8, // ~8KB
+    default: 5, // ~5KB for small components
   };
-  
+
   return sizeMap[componentName] || sizeMap.default;
 };
 
 // Performance optimization utilities
 export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -158,10 +170,10 @@ export const debounce = <T extends (...args: unknown[]) => unknown>(
 
 export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
-  limit: number
+  limit: number,
 ): ((...args: Parameters<T>) => void) => {
   let inThrottle: boolean;
-  
+
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
@@ -174,14 +186,14 @@ export const throttle = <T extends (...args: unknown[]) => unknown>(
 // Intersection Observer for lazy loading
 export const createIntersectionObserver = (
   callback: IntersectionObserverCallback,
-  options: IntersectionObserverInit = {}
+  options: IntersectionObserverInit = {},
 ): IntersectionObserver => {
   const defaultOptions: IntersectionObserverInit = {
     root: null,
-    rootMargin: '50px',
+    rootMargin: "50px",
     threshold: 0.1,
     ...options,
   };
-  
+
   return new IntersectionObserver(callback, defaultOptions);
-}; 
+};

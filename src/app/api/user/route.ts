@@ -1,17 +1,22 @@
-import { NextResponse } from 'next/server';
-import { createClient } from 'next-sanity';
+import { NextResponse } from "next/server";
+import { sanityClient } from "@/lib/sanity/client";
 
-// Create server-side Sanity client
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || '',
-  dataset: process.env.SANITY_DATASET || '',
-  apiVersion: process.env.SANITY_API_VERSION || '',
-  useCdn: process.env.NODE_ENV === 'production',
-  perspective: 'published',
-});
-
+/**
+ * GET handler for the user API route.
+ *
+ * This endpoint fetches the main user profile data from Sanity, including:
+ * - Basic profile information (name, job title, bio)
+ * - Avatar image with alt text
+ * - Social media links with their associated icons
+ *
+ * The query uses Sanity's reference resolution to fetch related social media
+ * data and icon SVGs in a single request for optimal performance.
+ *
+ * @returns {Promise<NextResponse>} JSON response with user data or error.
+ */
 export async function GET() {
   try {
+    // Fetch user data with resolved references for social links and icons
     const query = `*[_type == "user"][0]{
       _id,
       name,
@@ -28,8 +33,8 @@ export async function GET() {
         }
       }
     }`;
-    
-    const userData = await client.fetch<{
+
+    const userData = await sanityClient.fetch<{
       _id: string;
       name: string;
       email: string;
@@ -40,17 +45,17 @@ export async function GET() {
       };
       [key: string]: unknown;
     }>(query);
-    
+
     if (!userData) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(userData);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch user' },
-      { status: 500 }
+      { error: "Failed to fetch user" },
+      { status: 500 },
     );
   }
-} 
+}

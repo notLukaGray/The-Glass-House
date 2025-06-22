@@ -1,26 +1,30 @@
-import React from 'react';
-import Link from 'next/link';
-import PerformanceTest from '@/components/ui/PerformanceTest';
-import PerformanceMonitorComponent from '@/components/ui/PerformanceMonitor';
-import { getPagesServer } from '@/_lib/data/pages';
+import React from "react";
+import Link from "next/link";
+import PerformanceTest from "@/components/ui/PerformanceTest";
+import PerformanceMonitorComponent from "@/components/ui/PerformanceMonitor";
+import { getPagesServer } from "@/_lib/data/pages";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function ComponentTestPage() {
   const allPages = await getPagesServer();
-  
+
   return (
     <>
       <PerformanceMonitorComponent />
       <main className="max-w-4xl mx-auto py-12 px-4">
-        <h1 className="text-3xl font-bold mb-8 text-center">Component Test & Page Links</h1>
-        
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          Component Test & Page Links
+        </h1>
+
         {/* Performance Test Component */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Performance Test Component</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Performance Test Component
+          </h2>
           <PerformanceTest />
         </div>
-        
+
         {/* Available Pages */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Available Pages</h2>
@@ -37,23 +41,25 @@ export default async function ComponentTestPage() {
                   className="block p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <h3 className="font-semibold text-lg mb-2">
-                    {(page.title as { en?: string })?.en || 'Untitled Page'}
+                    {(page.title as { en?: string })?.en || "Untitled Page"}
                   </h3>
                   <p className="text-sm text-gray-600 mb-2">
-                    Slug: {(page.slug as { current?: string })?.current || 'No slug'}
+                    Slug:{" "}
+                    {(page.slug as { current?: string })?.current || "No slug"}
                   </p>
                   <p className="text-sm text-gray-600 mb-2">
-                    Sections: {Array.isArray(page.sections) ? page.sections.length : 0}
+                    Sections:{" "}
+                    {Array.isArray(page.sections) ? page.sections.length : 0}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {page.locked ? '🔒 Locked' : '✅ Published'}
+                    {page.locked ? "🔒 Locked" : "✅ Published"}
                   </p>
                 </Link>
               ))}
             </div>
           )}
         </div>
-        
+
         <div className="mt-8 p-4 bg-blue-50 rounded-lg">
           <h3 className="font-semibold text-blue-800 mb-2">How to Use:</h3>
           <ul className="text-blue-700 text-sm space-y-1">
@@ -66,4 +72,4 @@ export default async function ComponentTestPage() {
       </main>
     </>
   );
-} 
+}

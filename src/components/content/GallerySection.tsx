@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
+import React from "react";
+import Image from "next/image";
 
 interface GallerySectionProps {
   images: Array<{
@@ -21,7 +21,10 @@ interface GallerySectionProps {
   [key: string]: unknown;
 }
 
-const GallerySection: React.FC<GallerySectionProps> = ({ images, showCaptions }) => {
+const GallerySection: React.FC<GallerySectionProps> = ({
+  images,
+  showCaptions,
+}) => {
   return (
     <section className="my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {images.map((image, index) => (
@@ -44,4 +47,4 @@ const GallerySection: React.FC<GallerySectionProps> = ({ images, showCaptions })
   );
 };
 
-export default GallerySection; 
+export default GallerySection;

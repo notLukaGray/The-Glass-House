@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
+import React from "react";
+import Image from "next/image";
 
 interface AvatarSectionProps {
   avatar: { url: string } | null;
@@ -9,7 +9,11 @@ interface AvatarSectionProps {
   description?: { en?: string };
 }
 
-const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, heading, description }) => {
+const AvatarSection: React.FC<AvatarSectionProps> = ({
+  avatar,
+  heading,
+  description,
+}) => {
   return (
     <section className="my-4 flex gap-4 items-start">
       {avatar?.url && (
@@ -29,4 +33,4 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({ avatar, heading, descript
   );
 };
 
-export default AvatarSection; 
+export default AvatarSection;

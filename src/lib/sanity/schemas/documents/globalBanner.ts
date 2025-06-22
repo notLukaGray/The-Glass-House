@@ -1,14 +1,29 @@
-import { Rule } from '@sanity/types'
+import { Rule } from "@sanity/types";
 
 const globalBanner = {
-  name: 'globalBanner',
-  title: 'Global Banner',
-  type: 'document',
+  name: "globalBanner",
+  title: "Global Banner",
+  type: "document",
   fields: [
-    { name: 'message', title: 'Message', type: 'localeString', validation: (rule: Rule) => rule.required() },
-    { name: 'isActive', title: 'Is Active?', type: 'boolean', initialValue: true },
-    { name: 'style', title: 'Style', type: 'string', description: 'Class or theme token' }
-  ]
-}
+    {
+      name: "message",
+      title: "Message",
+      type: "localeString",
+      validation: (rule: Rule) => rule.required(),
+    },
+    {
+      name: "isActive",
+      title: "Is Active?",
+      type: "boolean",
+      initialValue: true,
+    },
+    {
+      name: "style",
+      title: "Style",
+      type: "string",
+      description: "Class or theme token",
+    },
+  ],
+};
 
-export default globalBanner; 
+export default globalBanner;

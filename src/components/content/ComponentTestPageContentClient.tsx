@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
-import { usePerformanceMonitor } from '@/lib/utils/performance';
-import PortfolioSectionRenderer from './PortfolioSectionRenderer';
+import React from "react";
+import { usePerformanceMonitor } from "@/lib/utils/performance";
+import PortfolioSectionRenderer from "./PortfolioSectionRenderer";
 
 interface ResolvedSection {
   _key: string;
@@ -14,11 +14,13 @@ interface ComponentTestPageContentClientProps {
   sections: ResolvedSection[];
 }
 
-const ComponentTestPageContentClient: React.FC<ComponentTestPageContentClientProps> = ({ sections }) => {
-  usePerformanceMonitor('ComponentTestPageContent');
-  
+const ComponentTestPageContentClient: React.FC<
+  ComponentTestPageContentClientProps
+> = ({ sections }) => {
+  usePerformanceMonitor("ComponentTestPageContent");
+
   return (
-    <main className="py-12 space-y-12" style={{ color: 'var(--color-text)' }}>
+    <main className="py-12 space-y-12" style={{ color: "var(--color-text)" }}>
       {sections.map((section) => (
         <PortfolioSectionRenderer key={section._key} section={section} />
       ))}
@@ -26,4 +28,4 @@ const ComponentTestPageContentClient: React.FC<ComponentTestPageContentClientPro
   );
 };
 
-export default ComponentTestPageContentClient; 
+export default ComponentTestPageContentClient;

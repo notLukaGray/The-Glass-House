@@ -1,47 +1,57 @@
-import { Rule } from '@sanity/types';
+import { Rule } from "@sanity/types";
 
 const skillsSection = {
-  name: 'skillsSection',
-  title: 'Skills Section',
-  type: 'object',
+  name: "skillsSection",
+  title: "Skills Section",
+  type: "object",
   fields: [
     {
-      name: 'items',
-      title: 'Skills',
-      type: 'array',
+      name: "items",
+      title: "Skills",
+      type: "array",
       of: [
         {
-          type: 'object',
+          type: "object",
           fields: [
-            { name: 'name', title: 'Skill Name', type: 'localeString', validation: (rule: Rule) => rule.required() },
-            { name: 'description', title: 'Description', type: 'string' },
-            { name: 'icon', title: 'Icon', type: 'reference', to: [{ type: 'assetSVG' }] }
+            {
+              name: "name",
+              title: "Skill Name",
+              type: "localeString",
+              validation: (rule: Rule) => rule.required(),
+            },
+            { name: "description", title: "Description", type: "string" },
+            {
+              name: "icon",
+              title: "Icon",
+              type: "reference",
+              to: [{ type: "assetSVG" }],
+            },
           ],
           preview: {
             select: {
-              name: 'name'
+              name: "name",
             },
             prepare({ name }: { name?: { en?: string } }) {
-              const displayTitle = (name && name.en) || name || 'Untitled';
+              const displayTitle = (name && name.en) || name || "Untitled";
               return {
-                title: displayTitle
+                title: displayTitle,
               };
-            }
-          }
-        }
-      ]
-    }
+            },
+          },
+        },
+      ],
+    },
   ],
   preview: {
     select: {
-      items: 'items'
+      items: "items",
     },
     prepare() {
       return {
-        title: 'Skills Section Component'
+        title: "Skills Section Component",
       };
-    }
-  }
-}
+    },
+  },
+};
 
-export default skillsSection; 
+export default skillsSection;

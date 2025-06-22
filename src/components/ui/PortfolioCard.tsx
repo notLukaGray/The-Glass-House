@@ -1,9 +1,9 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { getImageAsset } from '@/lib/handlers/clientHandlers';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { getImageAsset } from "@/lib/handlers/clientHandlers";
 
 interface PortfolioPreview {
   _id: string;
@@ -22,17 +22,21 @@ interface PortfolioCardProps {
 }
 
 const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
-  const [coverImage, setCoverImage] = React.useState<{ url: string } | null>(null);
+  const [coverImage, setCoverImage] = React.useState<{ url: string } | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const loadImage = async () => {
       if (portfolio.coverAsset) {
         try {
-          const imageAsset = await getImageAsset({ id: portfolio.coverAsset._ref });
+          const imageAsset = await getImageAsset({
+            id: portfolio.coverAsset._ref,
+          });
           setCoverImage(imageAsset);
         } catch (error) {
-          console.error('Error loading portfolio image:', error);
+          console.error("Error loading portfolio image:", error);
         } finally {
           setIsLoading(false);
         }
@@ -54,7 +58,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
           <div className="w-full h-full flex items-center justify-center bg-gray-200 animate-pulse">
             <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
           </div>
-        ) : coverImage && typeof coverImage.url === 'string' ? (
+        ) : coverImage && typeof coverImage.url === "string" ? (
           <Image
             src={coverImage.url}
             alt={portfolio.title.en}
@@ -68,10 +72,12 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
           </div>
         )}
         {portfolio.locked && (
-          <span className="absolute top-2 right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded shadow">Locked</span>
+          <span className="absolute top-2 right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded shadow">
+            Locked
+          </span>
         )}
       </div>
-      
+
       <div className="p-6">
         <h2 className="text-xl font-semibold mb-2 group-hover:text-blue-600 transition-colors duration-200">
           {portfolio.title.en}
@@ -79,7 +85,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
         {portfolio.subhead && (
           <p className="text-gray-600 mb-4">{portfolio.subhead.en}</p>
         )}
-        
+
         <div className="flex flex-wrap gap-2">
           {portfolio.categories?.map((category) => (
             <span
@@ -95,4 +101,4 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
   );
 };
 
-export default PortfolioCard; 
+export default PortfolioCard;

@@ -1,78 +1,78 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from 'next-sanity';
-import { 
-  SiteSettings, 
-  SanitySettingsResponse, 
+import { NextRequest, NextResponse } from "next/server";
+import { sanityClient, sanityClientBuild } from "@/lib/sanity/client";
+import {
+  SiteSettings,
+  SanitySettingsResponse,
   DEFAULT_SETTINGS,
-  SettingsValidationResult 
-} from '@/types/settings';
-
-// Server-side Sanity client (can use private env vars)
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || '',
-  dataset: process.env.SANITY_DATASET || '',
-  apiVersion: process.env.SANITY_API_VERSION || '',
-  useCdn: true,
-});
+  SettingsValidationResult,
+} from "@/types/settings";
 
 /**
- * Validates settings data and returns validation result
+ * Validates the settings data fetched from Sanity.
+ * Ensures that critical fields are present and properly structured.
+ * Returns both errors (which prevent the settings from being used)
+ * and warnings (which are logged but don't block the response).
+ *
+ * @param {SanitySettingsResponse} data - The raw data from Sanity.
+ * @returns {SettingsValidationResult} Validation result with errors and warnings.
  */
-function validateSettings(data: SanitySettingsResponse): SettingsValidationResult {
+function validateSettings(
+  data: SanitySettingsResponse,
+): SettingsValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Check for required fields
+  // Critical validation - these will cause the API to return defaults
   if (!data.basicInfo?.title?.en) {
-    errors.push('Basic info title is required');
-  }
-  if (!data.basicInfo?.description?.en) {
-    errors.push('Basic info description is required');
+    errors.push("Site title is required");
   }
 
-  // Validate theme colors
-  if (data.theme?.lightMode?.colors) {
-    const colors = data.theme.lightMode.colors;
-    if (!colors.primary || !colors.background || !colors.text) {
-      errors.push('Light mode colors are incomplete');
-    }
+  if (!data.theme?.lightMode?.colors) {
+    errors.push("Light mode colors are incomplete");
   }
 
   if (data.theme?.darkMode?.colors) {
     const colors = data.theme.darkMode.colors;
     if (!colors.primary || !colors.background || !colors.text) {
-      errors.push('Dark mode colors are incomplete');
+      errors.push("Dark mode colors are incomplete");
     }
   }
 
-  // Check for warnings
+  // Warning validation - these are logged but don't block the response
   if (!data.seo?.metaTitle?.en) {
-    warnings.push('SEO meta title is missing');
+    warnings.push("SEO meta title is missing");
   }
   if (!data.seo?.metaDescription?.en) {
-    warnings.push('SEO meta description is missing');
+    warnings.push("SEO meta description is missing");
   }
 
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
 /**
- * Merges Sanity response with default settings
+ * Merges Sanity data with default settings to ensure all required fields are present.
+ * This provides a safety net - if Sanity is missing certain fields, the defaults
+ * will be used instead of causing the application to break.
+ *
+ * @param {SanitySettingsResponse} data - The raw data from Sanity.
+ * @returns {SiteSettings} Complete settings object with defaults merged in.
  */
 function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
   return {
     basicInfo: {
       title: data.basicInfo?.title || DEFAULT_SETTINGS.basicInfo.title,
-      description: data.basicInfo?.description || DEFAULT_SETTINGS.basicInfo.description,
+      description:
+        data.basicInfo?.description || DEFAULT_SETTINGS.basicInfo.description,
       favicon: data.basicInfo?.favicon || DEFAULT_SETTINGS.basicInfo.favicon,
       logo: data.basicInfo?.logo || DEFAULT_SETTINGS.basicInfo.logo,
     },
     theme: {
-      defaultMode: data.theme?.defaultMode || DEFAULT_SETTINGS.theme.defaultMode,
+      defaultMode:
+        data.theme?.defaultMode || DEFAULT_SETTINGS.theme.defaultMode,
       lightMode: {
         colors: {
           ...DEFAULT_SETTINGS.theme.lightMode.colors,
@@ -104,23 +104,38 @@ function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
     },
     seo: {
       metaTitle: data.seo?.metaTitle || DEFAULT_SETTINGS.seo.metaTitle,
-      metaDescription: data.seo?.metaDescription || DEFAULT_SETTINGS.seo.metaDescription,
+      metaDescription:
+        data.seo?.metaDescription || DEFAULT_SETTINGS.seo.metaDescription,
       ogImage: data.seo?.ogImage || DEFAULT_SETTINGS.seo.ogImage,
     },
   };
 }
 
+/**
+ * GET handler for the settings API route.
+ *
+ * This endpoint serves site settings to client-side components. It supports
+ * two different query types:
+ * - "build": Simplified query for build-time metadata generation
+ * - "runtime": Full query for client-side theming and functionality
+ *
+ * The endpoint includes comprehensive error handling and validation to ensure
+ * the application never breaks due to missing or invalid settings data.
+ *
+ * @param {NextRequest} request - The incoming request object.
+ * @returns {Promise<NextResponse>} JSON response with settings or defaults.
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') || 'runtime';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-    console.log(`[Settings API] Fetching settings with type: ${type}`);
+    const type = searchParams.get("type") || "runtime";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     let query: string;
-    
-    if (type === 'build') {
+
+    if (type === "build") {
+      // Simplified query for build-time metadata generation
+      // Only fetches essential fields needed for SEO and basic site info
       query = `*[_type == "siteSettings"][0] {
         "basicInfo": {
           "title": basicInfo.title,
@@ -155,6 +170,8 @@ export async function GET(request: NextRequest) {
         }
       }`;
     } else {
+      // Full query for runtime client-side usage
+      // Includes all theme colors, spacing, and dynamic content
       query = `*[_type == "siteSettings"][0] {
         "basicInfo": {
           "title": basicInfo.title,
@@ -195,42 +212,38 @@ export async function GET(request: NextRequest) {
       }`;
     }
 
-    console.log(`[Settings API] Executing Sanity query...`);
+    // Use appropriate client based on query type
+    const client = type === "build" ? sanityClientBuild : sanityClient;
     const data: SanitySettingsResponse = await client.fetch(query);
-    
+
     if (!data) {
-      console.warn('[Settings API] No settings found in Sanity, returning defaults');
-      return NextResponse.json(DEFAULT_SETTINGS);
-    }
-    
-    console.log(`[Settings API] Settings fetched successfully:`, {
-      hasBasicInfo: !!data.basicInfo,
-      hasTheme: !!data.theme,
-      hasSeo: !!data.seo,
-      faviconRef: data.basicInfo?.favicon?._ref,
-      logoRef: data.basicInfo?.logo?._ref,
-      ogImageRef: data.seo?.ogImage?._ref
-    });
-    
-    const validation = validateSettings(data);
-    
-    if (!validation.isValid) {
-      console.warn('Settings validation failed:', validation.errors);
+      console.warn(
+        "[Settings API] No settings found in Sanity, returning defaults",
+      );
       return NextResponse.json(DEFAULT_SETTINGS);
     }
 
+    // Validate the fetched data
+    const validation = validateSettings(data);
+
+    if (!validation.isValid) {
+      console.warn("Settings validation failed:", validation.errors);
+      return NextResponse.json(DEFAULT_SETTINGS);
+    }
+
+    // Merge with defaults to ensure all fields are present
     const settings = mergeWithDefaults(data);
-    
-    // Add base URL to the response for client-side use
+
+    // Add the base URL to the response for client-side use
     const responseWithBaseUrl = {
       ...settings,
-      _baseUrl: baseUrl
+      _baseUrl: baseUrl,
     };
-    
-    console.log(`[Settings API] Returning settings with base URL: ${baseUrl}`);
+
     return NextResponse.json(responseWithBaseUrl);
   } catch (error) {
-    console.error('[Settings API] Failed to fetch settings:', error);
+    console.error("[Settings API] Failed to fetch settings:", error);
+    // Always return defaults on error to prevent application crashes
     return NextResponse.json(DEFAULT_SETTINGS);
   }
-} 
+}

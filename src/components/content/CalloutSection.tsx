@@ -1,8 +1,8 @@
 "use client";
-import React from 'react';
-import BlockRenderer from './BlockRenderer';
-import { getColoredSvg } from '@/lib/handlers/clientHandlers';
-import { BlockContent, IconAsset } from '@/types/content';
+import React from "react";
+import BlockRenderer from "./BlockRenderer";
+import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { BlockContent, IconAsset } from "@/types/content";
 
 interface CalloutSectionProps {
   title: { en: string };
@@ -11,16 +11,26 @@ interface CalloutSectionProps {
   backgroundColor: string;
 }
 
-const CalloutSection: React.FC<CalloutSectionProps> = ({ title, content, icon, backgroundColor }) => {
+const CalloutSection: React.FC<CalloutSectionProps> = ({
+  title,
+  content,
+  icon,
+  backgroundColor,
+}) => {
   return (
-    <section className="my-4 p-4 rounded-lg" style={{ backgroundColor: `#${backgroundColor}` }}>
+    <section
+      className="my-4 p-4 rounded-lg"
+      style={{ backgroundColor: `#${backgroundColor}` }}
+    >
       <div className="flex items-center mb-2">
-        {icon && 'svgData' in icon ? (
+        {icon && "svgData" in icon ? (
           <div
             className="w-6 h-6 mr-2"
-            dangerouslySetInnerHTML={{ __html: getColoredSvg(icon.svgData, icon.color || "222") }}
+            dangerouslySetInnerHTML={{
+              __html: getColoredSvg(icon.svgData, icon.color || "222"),
+            }}
           />
-        ) : icon && '_ref' in icon ? (
+        ) : icon && "_ref" in icon ? (
           <div className="w-6 h-6 mr-2 bg-gray-200 rounded-full flex items-center justify-center">
             <span className="text-xs text-gray-500">{icon._ref}</span>
           </div>
@@ -32,4 +42,4 @@ const CalloutSection: React.FC<CalloutSectionProps> = ({ title, content, icon, b
   );
 };
 
-export default CalloutSection; 
+export default CalloutSection;

@@ -1,6 +1,6 @@
-import { useSettings } from '@/components/providers/SettingsProvider';
-import { useMemo } from 'react';
-import { ThemeColors } from '@/types/settings';
+import { useSettings } from "@/components/providers/SettingsProvider";
+import { useMemo } from "react";
+import { ThemeColors } from "@/types/settings";
 
 /**
  * Utility hook for common settings operations
@@ -11,7 +11,9 @@ export const useSettingsUtils = () => {
   // Memoized computed values
   const currentThemeSettings = useMemo(() => {
     if (!settings?.theme) return null;
-    return currentTheme === 'dark' ? settings.theme.darkMode : settings.theme.lightMode;
+    return currentTheme === "dark"
+      ? settings.theme.darkMode
+      : settings.theme.lightMode;
   }, [settings?.theme, currentTheme]);
 
   const currentColors = useMemo(() => {
@@ -40,22 +42,24 @@ export const useSettingsUtils = () => {
 
   // Utility functions
   const getColor = (colorKey: keyof ThemeColors) => {
-    return currentColors?.[colorKey] || '';
+    return currentColors?.[colorKey] || "";
   };
 
-  const getSpacing = (spacingKey: keyof NonNullable<typeof spacing>['spacingScale']) => {
-    return spacing?.spacingScale[spacingKey] || '';
+  const getSpacing = (
+    spacingKey: keyof NonNullable<typeof spacing>["spacingScale"],
+  ) => {
+    return spacing?.spacingScale[spacingKey] || "";
   };
 
-  const getFont = (fontType: 'heading' | 'body') => {
-    if (fontType === 'heading') {
-      return typography?.headingFont || 'system';
+  const getFont = (fontType: "heading" | "body") => {
+    if (fontType === "heading") {
+      return typography?.headingFont || "system";
     }
-    return typography?.bodyFont || 'system';
+    return typography?.bodyFont || "system";
   };
 
   const getOverlayColor = () => {
-    return currentOverlays?.color || '';
+    return currentOverlays?.color || "";
   };
 
   const getOverlayOpacity = () => {
@@ -63,11 +67,11 @@ export const useSettingsUtils = () => {
   };
 
   const getTitle = () => {
-    return basicInfo?.title?.en || '';
+    return basicInfo?.title?.en || "";
   };
 
   const getDescription = () => {
-    return basicInfo?.description?.en || '';
+    return basicInfo?.description?.en || "";
   };
 
   const getMetaTitle = () => {
@@ -83,7 +87,7 @@ export const useSettingsUtils = () => {
     isLoading,
     error,
     currentTheme,
-    
+
     // Computed values
     currentThemeSettings,
     currentColors,
@@ -92,7 +96,7 @@ export const useSettingsUtils = () => {
     spacing,
     basicInfo,
     seo,
-    
+
     // Utility functions
     getColor,
     getSpacing,
@@ -103,8 +107,8 @@ export const useSettingsUtils = () => {
     getDescription,
     getMetaTitle,
     getMetaDescription,
-    
+
     // Raw settings
     settings,
   };
-}; 
+};

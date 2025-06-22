@@ -1,13 +1,19 @@
-import { redirect } from 'next/navigation';
-import Image from 'next/image';
-import PortfolioSectionRenderer from '@/components/content/PortfolioSectionRenderer';
-import { getImageAssetServer, type ImageAsset } from '@/_lib/handlers/serverHandlers';
-import { getVideoAssetServer, type VideoAsset } from '@/_lib/handlers/serverHandlers';
+import { redirect } from "next/navigation";
+import Image from "next/image";
+import PortfolioSectionRenderer from "@/components/content/PortfolioSectionRenderer";
+import {
+  getImageAssetServer,
+  type ImageAsset,
+} from "@/_lib/handlers/serverHandlers";
+import {
+  getVideoAssetServer,
+  type VideoAsset,
+} from "@/_lib/handlers/serverHandlers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { Suspense } from 'react';
-import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
-import { getPortfolioServer } from '@/_lib/data/portfolio';
+import { Suspense } from "react";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+import { getPortfolioServer } from "@/_lib/data/portfolio";
 
 interface ProjectMeta {
   _id: string;
@@ -54,14 +60,21 @@ interface Section {
   color?: string;
   size?: string;
   backgroundColor?: string;
-  buttons?: Array<{ _key: string; label: string; icon?: string; style: string; url: string }>;
+  buttons?: Array<{
+    _key: string;
+    label: string;
+    icon?: string;
+    style: string;
+    url: string;
+  }>;
   avatar?: { _ref: string };
   [key: string]: unknown;
 }
 
 export type { ResolvedSection };
 
-interface ResolvedSection extends Omit<Section, 'image' | 'images' | 'video' | 'avatar' | 'asset'> {
+interface ResolvedSection
+  extends Omit<Section, "image" | "images" | "video" | "avatar" | "asset"> {
   image?: ImageAsset | null;
   images?: Array<ImageAsset | null>;
   video?: VideoAsset | null;
@@ -72,13 +85,19 @@ interface ResolvedSection extends Omit<Section, 'image' | 'images' | 'video' | '
 
 export const revalidate = 0;
 
-async function PortfolioHeader({ portfolio, coverImage }: { portfolio: ProjectMeta, coverImage: ImageAsset | null }) {
+async function PortfolioHeader({
+  portfolio,
+  coverImage,
+}: {
+  portfolio: ProjectMeta;
+  coverImage: ImageAsset | null;
+}) {
   return (
     <header className="mb-8">
       {coverImage && (
         <Image
           src={coverImage.url}
-          alt={coverImage.title?.en || portfolio.title?.en || 'Cover Image'}
+          alt={coverImage.title?.en || portfolio.title?.en || "Cover Image"}
           width={1200}
           height={400}
           className="w-full max-h-96 object-cover rounded-lg mb-4"
@@ -97,8 +116,8 @@ async function PortfolioContent({ sections }: { sections: ResolvedSection[] }) {
     <div className="space-y-8">
       {sections.map((section, idx) => {
         const key =
-          (typeof section._key === 'string' && section._key) ||
-          (typeof section._id === 'string' && section._id) ||
+          (typeof section._key === "string" && section._key) ||
+          (typeof section._id === "string" && section._id) ||
           idx;
         return <PortfolioSectionRenderer key={key} section={section} />;
       })}
@@ -106,7 +125,11 @@ async function PortfolioContent({ sections }: { sections: ResolvedSection[] }) {
   );
 }
 
-export default async function PortfolioPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PortfolioPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const portfolio = await getPortfolioServer(slug);
 
@@ -116,7 +139,9 @@ export default async function PortfolioPage({ params }: { params: Promise<{ slug
       <main className="container mx-auto px-4 py-8">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Portfolio Not Found</h1>
-          <p className="text-xl text-gray-600">No portfolio data available for this slug.</p>
+          <p className="text-xl text-gray-600">
+            No portfolio data available for this slug.
+          </p>
         </header>
       </main>
     );
@@ -139,37 +164,49 @@ export default async function PortfolioPage({ params }: { params: Promise<{ slug
   // Resolve all asset references in sections
   const sectionsWithAssets = await Promise.all(
     (portfolio.sections ?? []).map(async (section) => {
-      if (section._type === 'imageSection' && section.image?._ref) {
-        const imageAsset = await getImageAssetServer({ id: section.image._ref });
+      if (section._type === "imageSection" && section.image?._ref) {
+        const imageAsset = await getImageAssetServer({
+          id: section.image._ref,
+        });
         return { ...section, image: imageAsset } as ResolvedSection;
       }
-      if (section._type === 'gallerySection' && Array.isArray(section.images)) {
+      if (section._type === "gallerySection" && Array.isArray(section.images)) {
         const images = await Promise.all(
           section.images.map(async (img) =>
-            img?._ref ? await getImageAssetServer({ id: img._ref }) : null
-          )
+            img?._ref ? await getImageAssetServer({ id: img._ref }) : null,
+          ),
         );
         return { ...section, images } as ResolvedSection;
       }
-      if (section._type === 'videoSection' && section.video?._ref) {
-        const videoAsset = await getVideoAssetServer({ id: section.video._ref });
+      if (section._type === "videoSection" && section.video?._ref) {
+        const videoAsset = await getVideoAssetServer({
+          id: section.video._ref,
+        });
         return { ...section, video: videoAsset } as ResolvedSection;
       }
-      if (section._type === 'avatarSection' && section.avatar?._ref) {
-        const avatarAsset = await getImageAssetServer({ id: section.avatar._ref });
+      if (section._type === "avatarSection" && section.avatar?._ref) {
+        const avatarAsset = await getImageAssetServer({
+          id: section.avatar._ref,
+        });
         return { ...section, avatar: avatarAsset } as ResolvedSection;
       }
-      if (section._type === 'processStepSection' && section.asset?._ref) {
-        const assetImage = await getImageAssetServer({ id: section.asset._ref });
+      if (section._type === "processStepSection" && section.asset?._ref) {
+        const assetImage = await getImageAssetServer({
+          id: section.asset._ref,
+        });
         return { ...section, asset: assetImage } as ResolvedSection;
       }
       return section as ResolvedSection;
-    })
+    }),
   );
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <Suspense fallback={<LoadingSkeleton type="image" className="w-full max-h-96 mb-4" />}>
+      <Suspense
+        fallback={
+          <LoadingSkeleton type="image" className="w-full max-h-96 mb-4" />
+        }
+      >
         <PortfolioHeader portfolio={portfolio} coverImage={coverImage} />
       </Suspense>
 
@@ -178,4 +215,4 @@ export default async function PortfolioPage({ params }: { params: Promise<{ slug
       </Suspense>
     </main>
   );
-} 
+}

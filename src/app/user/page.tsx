@@ -1,7 +1,7 @@
-import { PortableText } from '@portabletext/react';
-import Image from 'next/image';
-import { getImageAssetServer } from '@/_lib/handlers/serverHandlers';
-import { getUserDataServer } from '@/_lib/data/user';
+import { PortableText } from "@portabletext/react";
+import Image from "next/image";
+import { getImageAssetServer } from "@/_lib/handlers/serverHandlers";
+import { getUserDataServer } from "@/_lib/data/user";
 
 export default async function UserPage() {
   const user = await getUserDataServer();
@@ -14,7 +14,9 @@ export default async function UserPage() {
     );
   }
 
-  const avatar = user.avatar?._ref ? await getImageAssetServer({ id: user.avatar._ref }) : null;
+  const avatar = user.avatar?._ref
+    ? await getImageAssetServer({ id: user.avatar._ref })
+    : null;
 
   return (
     <main className="min-h-screen flex items-center justify-center">
@@ -23,18 +25,22 @@ export default async function UserPage() {
           {avatar && (
             <Image
               src={avatar.url}
-              alt={avatar.title?.en || 'User Avatar'}
+              alt={avatar.title?.en || "User Avatar"}
               width={150}
               height={150}
               className="rounded-full mx-auto mb-4"
             />
           )}
           <h1 className="text-3xl font-bold mb-2">
-            {typeof user.name === 'string' ? user.name : user.name?.en || 'User'}
+            {typeof user.name === "string"
+              ? user.name
+              : user.name?.en || "User"}
           </h1>
           {user.jobTitle && (
             <p className="text-xl text-gray-600">
-              {typeof user.jobTitle === 'string' ? user.jobTitle : user.jobTitle?.en}
+              {typeof user.jobTitle === "string"
+                ? user.jobTitle
+                : user.jobTitle?.en}
             </p>
           )}
         </div>
@@ -64,4 +70,4 @@ export default async function UserPage() {
       </div>
     </main>
   );
-} 
+}

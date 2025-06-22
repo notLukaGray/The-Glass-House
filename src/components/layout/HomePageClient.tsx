@@ -6,18 +6,28 @@ import TextPressure from "@/components/features/TextPressure";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useSettings } from "@/components/providers/SettingsProvider";
 
-const DotGrid = dynamic(() => import("@/components/features/DotGrid"), { ssr: false });
+const DotGrid = dynamic(() => import("@/components/features/DotGrid"), {
+  ssr: false,
+});
 
-function TimerClient({ commitTime, commitMessage }: { commitTime: string | null, commitMessage?: string | null }) {
+function TimerClient({
+  commitTime,
+  commitMessage,
+}: {
+  commitTime: string | null;
+  commitMessage?: string | null;
+}) {
   const { settings, currentTheme } = useSettings();
   const [since, setSince] = React.useState<string>("");
-  
-  // Get theme colors
-  const themeColors = currentTheme === 'dark' ? settings?.theme.darkMode.colors : settings?.theme.lightMode.colors;
-  const backgroundColor = themeColors?.secondary || 'rgba(0, 0, 0, 0.8)';
-  const textColor = themeColors?.text || '#FFFFFF';
-  const accentColor = themeColors?.accent || '#8f4d89';
-  
+
+  const themeColors =
+    currentTheme === "dark"
+      ? settings?.theme.darkMode.colors
+      : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.secondary || "rgba(0, 0, 0, 0.8)";
+  const textColor = themeColors?.text || "#FFFFFF";
+  const accentColor = themeColors?.accent || "#8f4d89";
+
   React.useEffect(() => {
     if (!commitTime) return;
     const commitDate = new Date(commitTime);
@@ -33,20 +43,22 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [commitTime]);
-  
+
   return (
-    <div 
+    <div
       className="fixed top-[75%] left-1/2 -translate-x-1/2 px-6 py-3 rounded border font-mono text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px] backdrop-blur-sm"
-      style={{ 
-        backgroundColor, 
+      style={{
+        backgroundColor,
         color: textColor,
-        borderColor: `${textColor}20`
+        borderColor: `${textColor}20`,
       }}
     >
       <div className="opacity-70 text-xs">Last Github Commit</div>
       {commitMessage && (
         <div className="text-xs font-mono" style={{ color: accentColor }}>
-          {commitMessage.length > 30 ? `${commitMessage.slice(0, 30)}...` : commitMessage}
+          {commitMessage.length > 30
+            ? `${commitMessage.slice(0, 30)}...`
+            : commitMessage}
         </div>
       )}
       <div>{commitTime ? since : "..."}</div>
@@ -54,22 +66,34 @@ function TimerClient({ commitTime, commitMessage }: { commitTime: string | null,
   );
 }
 
-export default function HomePageClient({ commitTime, commitMessage }: { commitTime: string | null, commitMessage?: string | null }) {
+export default function HomePageClient({
+  commitTime,
+  commitMessage,
+}: {
+  commitTime: string | null;
+  commitMessage?: string | null;
+}) {
   const { settings, currentTheme } = useSettings();
-  
-  // Get theme colors
-  const themeColors = currentTheme === 'dark' ? settings?.theme.darkMode.colors : settings?.theme.lightMode.colors;
-  const backgroundColor = themeColors?.background || '#000000';
-  const textColor = themeColors?.text || '#FFFFFF';
-  const accentColor = themeColors?.accent || '#ff00ea';
-  
+
+  const themeColors =
+    currentTheme === "dark"
+      ? settings?.theme.darkMode.colors
+      : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.background || "#000000";
+  const textColor = themeColors?.text || "#FFFFFF";
+  const accentColor = themeColors?.accent || "#ff00ea";
+
   return (
-    <main className="relative w-screen h-screen overflow-hidden" style={{ backgroundColor }}>
-      {/* Theme Toggle */}
+    <main
+      className="relative w-screen h-screen overflow-hidden"
+      style={{ backgroundColor }}
+    >
       <ThemeToggle />
-      
-      {/* Base Layer - DotGrid */}
-      <div className="absolute inset-0" style={{ backgroundColor, overflow: 'hidden' }}>
+
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor, overflow: "hidden" }}
+      >
         <DotGrid
           dotSize={2}
           gap={12}
@@ -84,10 +108,8 @@ export default function HomePageClient({ commitTime, commitMessage }: { commitTi
         />
       </div>
 
-      {/* Content Layer - Centered */}
       <div className="absolute inset-0 grid place-items-center">
         <div className="flex flex-col items-center">
-          {/* Under Construction Text */}
           <div className="w-screen max-w-[900px] flex items-center justify-center px-4">
             <TextPressure
               text="UNDER CONSTRUCTION"
@@ -105,22 +127,24 @@ export default function HomePageClient({ commitTime, commitMessage }: { commitTi
               minFontSize={100}
             />
           </div>
-          <div className="text-center text-light text-xl tracking-widest uppercase mt-12" style={{ fontFamily: 'Compressa VF', color: textColor }}>
+          <div
+            className="text-center text-light text-xl tracking-widest uppercase mt-12"
+            style={{ fontFamily: "Compressa VF", color: textColor }}
+          >
             COME BACK SOON
           </div>
         </div>
 
-        {/* Timer */}
         <TimerClient commitTime={commitTime} commitMessage={commitMessage} />
       </div>
 
       <style jsx global>{`
         @font-face {
-          font-family: 'Compressa VF';
-          src: url('https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2');
+          font-family: "Compressa VF";
+          src: url("https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2");
           font-style: normal;
         }
       `}</style>
     </main>
   );
-} 
+}
