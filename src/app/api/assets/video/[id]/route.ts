@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "next-sanity";
-
-// Create server-side Sanity client
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || "",
-  dataset: process.env.SANITY_DATASET || "",
-  apiVersion: process.env.SANITY_API_VERSION || "",
-  useCdn: process.env.NODE_ENV === "production",
-  perspective: "published",
-});
+import { sanityClient } from "@/lib/sanity/client";
+import { sanitizeSanityResponse } from "@/lib/handlers/sanity";
 
 export interface VideoAsset {
   _id: string;
@@ -37,31 +29,6 @@ export interface VideoAsset {
   cdn4kUrl: string;
 }
 
-// Utility function to remove zero-width spaces and sanitize Sanity responses
-const sanitizeSanityResponse = <T>(data: T): T => {
-  if (data === null || data === undefined) return data;
-
-  if (typeof data === "string") {
-    return data.replace(/[\u200B-\u200D\uFEFF]/g, "") as T;
-  }
-
-  if (Array.isArray(data)) {
-    return data.map((item) => sanitizeSanityResponse(item)) as T;
-  }
-
-  if (typeof data === "object" && data !== null) {
-    const sanitized: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(
-      data as Record<string, unknown>,
-    )) {
-      sanitized[key] = sanitizeSanityResponse(value);
-    }
-    return sanitized as T;
-  }
-
-  return data;
-};
-
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -78,7 +45,7 @@ export async function GET(
 
     const query = `*[_type == "assetVideo" && _id == $id][0]`;
 
-    const asset = await client.fetch<VideoAsset>(query, { id });
+    const asset = await sanityClient.fetch<VideoAsset>(query, { id });
 
     if (!asset) {
       return NextResponse.json(

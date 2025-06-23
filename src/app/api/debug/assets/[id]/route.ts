@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "next-sanity";
-
-/**
- * Server-side Sanity client for debug asset fetching.
- * Configured with CDN enabled for consistent behavior with production.
- */
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || "",
-  dataset: process.env.SANITY_DATASET || "",
-  apiVersion: process.env.SANITY_API_VERSION || "",
-  useCdn: true,
-});
+import { sanityClient } from "@/lib/sanity/client";
 
 /**
  * GET handler for the debug assets API route.
@@ -52,7 +41,7 @@ export async function GET(
     }
 
     // Check for photo asset first (most common type)
-    const photoAsset = await client.fetch(
+    const photoAsset = await sanityClient.fetch(
       `*[_type == "assetPhoto" && _id == $id][0]`,
       { id },
     );
@@ -66,7 +55,7 @@ export async function GET(
     }
 
     // Check for SVG asset (icon/logo type)
-    const svgAsset = await client.fetch(
+    const svgAsset = await sanityClient.fetch(
       `*[_type == "assetSVG" && _id == $id][0]`,
       { id },
     );
@@ -80,7 +69,7 @@ export async function GET(
     }
 
     // Fallback: check for any asset with this ID
-    const anyAsset = await client.fetch(`*[_id == $id][0]`, { id });
+    const anyAsset = await sanityClient.fetch(`*[_id == $id][0]`, { id });
 
     if (anyAsset) {
       return NextResponse.json({

@@ -1,6 +1,28 @@
 import { createClient, type SanityClient } from "next-sanity";
 
 /**
+ * Validates that required Sanity environment variables are present.
+ * Throws an error if any required variables are missing.
+ */
+function validateSanityConfig() {
+  const projectId = process.env.SANITY_PROJECT_ID;
+  const dataset = process.env.SANITY_DATASET;
+  const apiVersion = process.env.SANITY_API_VERSION;
+
+  if (!projectId) {
+    throw new Error("SANITY_PROJECT_ID environment variable is required");
+  }
+  if (!dataset) {
+    throw new Error("SANITY_DATASET environment variable is required");
+  }
+  if (!apiVersion) {
+    throw new Error("SANITY_API_VERSION environment variable is required");
+  }
+
+  return { projectId, dataset, apiVersion };
+}
+
+/**
  * A recursive utility function to sanitize data returned from Sanity.
  * It's designed to remove zero-width spaces (\u200B) and other non-printing characters
  * that can sometimes be present in CMS content and cause subtle rendering issues.
@@ -8,7 +30,7 @@ import { createClient, type SanityClient } from "next-sanity";
  * @param data The data to sanitize (can be any type).
  * @returns The sanitized data.
  */
-const sanitizeSanityResponse = <T>(data: T): T => {
+export const sanitizeSanityResponse = <T>(data: T): T => {
   if (data === null || data === undefined) return data;
 
   // If it's a string, remove the problematic characters.
@@ -43,16 +65,7 @@ const sanitizeSanityResponse = <T>(data: T): T => {
  * content previews on the live site.
  */
 const baseClient = createClient({
-  projectId:
-    process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
-    process.env.SANITY_PROJECT_ID ||
-    "",
-  dataset:
-    process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET || "",
-  apiVersion:
-    process.env.NEXT_PUBLIC_SANITY_API_VERSION ||
-    process.env.SANITY_API_VERSION ||
-    "",
+  ...validateSanityConfig(),
   useCdn: process.env.NODE_ENV === "production",
   perspective: "published",
   stega: {

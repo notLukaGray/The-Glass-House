@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sanityClient } from "@/lib/sanity/client";
-import { normalizeSvg, sanitizeSanityResponse } from "@/lib/utils/svg";
+import { normalizeSvg } from "@/lib/utils/svg";
+import { sanitizeSanityResponse } from "@/lib/handlers/sanity";
 
 /**
  * TypeScript interface for SVG asset data structure.

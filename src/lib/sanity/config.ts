@@ -199,17 +199,14 @@ export default defineConfig({
   title: "Portfolio CMS",
 
   // These environment variables connect the studio to your Sanity project.
-  // It's configured to work with both `NEXT_PUBLIC_` and non-public env variables
-  // for flexibility between client-side and server-side environments.
   projectId:
     process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
     process.env.SANITY_PROJECT_ID ||
     "",
+
   dataset:
     process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET || "",
 
-  // The API version ensures that your queries and mutations are compatible
-  // with a specific version of the Sanity API, preventing breaking changes.
   apiVersion:
     process.env.NEXT_PUBLIC_SANITY_API_VERSION ||
     process.env.SANITY_API_VERSION ||
@@ -217,6 +214,11 @@ export default defineConfig({
 
   // Token for authentication with Sanity project
   token: process.env.SANITY_TOKEN || "",
+
+  // Enable CORS for the studio
+  cors: {
+    credentials: "include",
+  },
 
   // Plugins enhance the studio's functionality.
   plugins: [

@@ -5,22 +5,6 @@ const withBundleAnalyzerConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-// Auto-map private Sanity env vars to NEXT_PUBLIC_ for Studio
-const sanityEnvVars = Object.keys(process.env)
-  .filter(
-    (key) => key.startsWith("SANITY_STUDIO_") || key.startsWith("SANITY_"),
-  )
-  .reduce((obj, key) => {
-    // Convert SANITY_STUDIO_ to NEXT_PUBLIC_SANITY_STUDIO_
-    // Convert SANITY_ to NEXT_PUBLIC_SANITY_
-    const publicKey = `NEXT_PUBLIC_${key}`;
-    obj[publicKey] = process.env[key];
-    return obj;
-  }, {});
-
-// Merge with existing env vars
-Object.assign(process.env, sanityEnvVars);
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
@@ -28,12 +12,22 @@ const nextConfig = {
     SANITY_PROJECT_ID: process.env.SANITY_PROJECT_ID,
     SANITY_DATASET: process.env.SANITY_DATASET,
     SANITY_API_VERSION: process.env.SANITY_API_VERSION,
+    SANITY_TOKEN: process.env.SANITY_TOKEN,
+    NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.SANITY_PROJECT_ID,
+    NEXT_PUBLIC_SANITY_DATASET: process.env.SANITY_DATASET,
+    NEXT_PUBLIC_SANITY_API_VERSION: process.env.SANITY_API_VERSION,
   },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "cdn.sanity.io",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "media.notlukagray.com",
         port: "",
         pathname: "/**",
       },
@@ -70,10 +64,39 @@ const nextConfig = {
             directives: {
               defaultSrc: ["'self'"],
               styleSrc: ["'self'", "'unsafe-inline'"],
-              scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-              imgSrc: ["'self'", "data:", "https:"],
-              connectSrc: ["'self'"],
-              fontSrc: ["'self'", "https://res.cloudinary.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+              scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "'unsafe-eval'",
+                "https://core.sanity-cdn.com",
+                "https://va.vercel-scripts.com",
+              ],
+              scriptSrcElem: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://core.sanity-cdn.com",
+                "https://va.vercel-scripts.com",
+              ],
+              imgSrc: [
+                "'self'",
+                "data:",
+                "https:",
+                "https://images.unsplash.com",
+                "https://www.w3schools.com",
+                "https://res.cloudinary.com",
+              ],
+              connectSrc: [
+                "'self'",
+                "https://*.sanity.io",
+                "https://va.vercel-scripts.com",
+                "https://api.github.com",
+              ],
+              fontSrc: [
+                "'self'",
+                "https://res.cloudinary.com",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com",
+              ],
               objectSrc: ["'none'"],
               mediaSrc: ["'self'"],
               frameSrc: ["'none'"],

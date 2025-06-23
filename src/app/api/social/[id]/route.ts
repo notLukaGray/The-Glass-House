@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "next-sanity";
-
-// Create server-side Sanity client
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || "",
-  dataset: process.env.SANITY_DATASET || "",
-  apiVersion: process.env.SANITY_API_VERSION || "",
-  useCdn: process.env.NODE_ENV === "production",
-  perspective: "published",
-});
+import { sanityClient } from "@/lib/sanity/client";
 
 export interface SocialAsset {
   _id: string;
@@ -39,7 +30,7 @@ export async function GET(
 
     const query = `*[_type == $type && _id == $id][0]`;
 
-    const asset = await client.fetch<SocialAsset>(query, { id, type });
+    const asset = await sanityClient.fetch<SocialAsset>(query, { id, type });
 
     if (!asset) {
       return NextResponse.json(
