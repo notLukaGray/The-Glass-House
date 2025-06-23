@@ -118,7 +118,7 @@ This is a portfolio and content management system built with Next.js 15+ and San
 
 ## License
 
-NO LICENSE AT THIS TIME
+NO LICENSE AT THIS TIME - WAIT FOR FUTURE BUILD
 
 ---
 

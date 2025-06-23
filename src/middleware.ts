@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { getAuthConfig } from "@/lib/env";
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error(
-    "NEXTAUTH_SECRET is not set in the environment. This is required for authentication.",
-  );
-}
-
-const secret = process.env.NEXTAUTH_SECRET;
+// Validate environment on middleware load
+const authConfig = getAuthConfig();
 
 const SANITY_PATHS = [
   "/studio",
@@ -32,7 +28,7 @@ export async function middleware(request: NextRequest) {
     const isSanityPath = SANITY_PATHS.some((path) => pathname.startsWith(path));
 
     if (isSanityPath) {
-      const token = await getToken({ req: request, secret });
+      const token = await getToken({ req: request, secret: authConfig.secret });
 
       if (!token) {
         const loginUrl = new URL("/login", request.url);

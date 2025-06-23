@@ -4,10 +4,11 @@ import React from "react";
 import dynamic from "next/dynamic";
 import TextPressure from "@/components/features/TextPressure";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { useSettings } from "../providers/SettingsProvider";
+import { useSettings } from "@/components/providers/SettingsProvider";
 
 const DotGrid = dynamic(() => import("@/components/features/DotGrid"), {
   ssr: false,
+  loading: () => <div className="w-full h-full" />,
 });
 
 function TimerClient({
@@ -22,19 +23,11 @@ function TimerClient({
 
   const themeColors =
     currentTheme === "dark"
-      ? settings?.theme?.darkMode?.colors
-      : settings?.theme?.lightMode?.colors;
-
-  // Better fallback values based on current theme
-  const backgroundColor =
-    themeColors?.secondary ||
-    (currentTheme === "dark"
-      ? "rgba(255, 255, 255, 0.1)"
-      : "rgba(0, 0, 0, 0.1)");
-  const textColor =
-    themeColors?.text || (currentTheme === "dark" ? "#FFFFFF" : "#000000");
-  const accentColor =
-    themeColors?.accent || (currentTheme === "dark" ? "#3b82f6" : "#007acc");
+      ? settings?.theme.darkMode.colors
+      : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.secondary || "rgba(0, 0, 0, 0.8)";
+  const textColor = themeColors?.text || "#FFFFFF";
+  const accentColor = themeColors?.accent || "#8f4d89";
 
   React.useEffect(() => {
     if (!commitTime) return;
@@ -82,16 +75,21 @@ export default function HomePageClient({
   commitMessage?: string | null;
 }) {
   const { settings, currentTheme } = useSettings();
+  const [mounted, setMounted] = React.useState(false);
 
-  // Use fallback values if settings are missing or still loading
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use fallback values if settings are missing
   const themeColors = settings?.theme?.[
     currentTheme === "dark" ? "darkMode" : "lightMode"
   ]?.colors || {
-    primary: currentTheme === "dark" ? "#ffffff" : "#000000",
-    secondary: currentTheme === "dark" ? "#a3a3a3" : "#666666",
-    accent: currentTheme === "dark" ? "#3b82f6" : "#007acc",
-    background: currentTheme === "dark" ? "#000000" : "#ffffff",
-    text: currentTheme === "dark" ? "#ffffff" : "#000000",
+    primary: "#000000",
+    secondary: "#666666",
+    accent: "#ff00ea",
+    background: "#000000",
+    text: "#FFFFFF",
   };
 
   const backgroundColor = themeColors.background;
@@ -109,18 +107,20 @@ export default function HomePageClient({
         className="absolute inset-0"
         style={{ backgroundColor, overflow: "hidden" }}
       >
-        <DotGrid
-          dotSize={2}
-          gap={12}
-          baseColor={themeColors.secondary}
-          activeColor={accentColor}
-          proximity={120}
-          shockRadius={250}
-          shockStrength={5}
-          resistance={750}
-          returnDuration={1.5}
-          style={{ width: "100%", height: "100%" }}
-        />
+        {mounted && (
+          <DotGrid
+            dotSize={2}
+            gap={12}
+            baseColor={themeColors.secondary}
+            activeColor={accentColor}
+            proximity={120}
+            shockRadius={250}
+            shockStrength={5}
+            resistance={750}
+            returnDuration={1.5}
+            style={{ width: "100%", height: "100%" }}
+          />
+        )}
       </div>
 
       <div className="absolute inset-0 grid place-items-center">

@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
 import { normalizeSvg } from "@/lib/utils/svg";
+import { z } from "zod";
 
-/**
- * TypeScript interface for SVG asset data structure.
- * Defines the expected shape of SVG asset data returned from Sanity,
- * including localized content, styling properties, and the raw SVG data.
- */
 export interface SvgAsset {
   _id: string;
   _type: "assetSVG";
@@ -30,11 +26,6 @@ export interface SvgAsset {
   svgData: string;
 }
 
-/**
- * TypeScript interface for image asset data structure.
- * Defines the expected shape of image asset data returned from Sanity,
- * including localized content, accessibility information, and the image URL.
- */
 export interface ImageAsset {
   _id: string;
   _type: "assetPhoto";
@@ -61,27 +52,60 @@ export interface ImageAsset {
   url: string;
 }
 
-/**
- * GET handler for consolidated assets API route.
- *
- * This endpoint fetches individual assets by type and ID, providing
- * enhanced security and data sanitization. It consolidates the previous
- * separate routes for SVG and image assets into a single, flexible endpoint.
- *
- * Supported asset types:
- * - svg: SVG assets with normalization and sanitization
- * - image: Image assets with full metadata
- *
- * The endpoint performs several important operations:
- * - Fetches the asset by type and ID with full metadata
- * - Normalizes and sanitizes SVG data for security (for SVG assets)
- * - Removes zero-width spaces and other problematic characters
- * - Returns clean, safe asset data ready for web use
- *
- * @param {NextRequest} _request - The incoming request (unused but required by Next.js).
- * @param {Promise<{ type: string; id: string }>} params - Dynamic route parameters containing the asset type and ID.
- * @returns {Promise<NextResponse>} JSON response with sanitized asset or error.
- */
+const AssetParamsSchema = z.object({
+  type: z.enum(["svg", "image"]),
+  id: z.string().min(1).max(100),
+});
+
+const SvgAssetSchema = z.object({
+  _id: z.string(),
+  _type: z.literal("assetSVG"),
+  _createdAt: z.string(),
+  _updatedAt: z.string(),
+  _rev: z.string(),
+  title: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  description: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  caption: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  color: z.string(),
+  order: z.number(),
+  svgData: z.string(),
+});
+
+const ImageAssetSchema = z.object({
+  _id: z.string(),
+  _type: z.literal("assetPhoto"),
+  _createdAt: z.string(),
+  _updatedAt: z.string(),
+  _rev: z.string(),
+  title: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  description: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  caption: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  altText: z.object({
+    _type: z.literal("localeString"),
+    en: z.string(),
+  }),
+  order: z.number(),
+  url: z.string(),
+});
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ type: string; id: string }> },
@@ -89,16 +113,14 @@ export async function GET(
   try {
     const { type, id } = await params;
 
-    if (!id) {
+    // Validate parameters
+    const validatedParams = AssetParamsSchema.safeParse({ type, id });
+    if (!validatedParams.success) {
       return NextResponse.json(
-        { error: "Asset ID is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!type || !["svg", "image"].includes(type)) {
-      return NextResponse.json(
-        { error: 'Invalid asset type. Must be "svg" or "image"' },
+        {
+          error: "Invalid asset parameters",
+          details: validatedParams.error.flatten(),
+        },
         { status: 400 },
       );
     }
@@ -106,14 +128,28 @@ export async function GET(
     let query: string;
     let asset: SvgAsset | ImageAsset | null;
 
-    if (type === "svg") {
+    if (validatedParams.data.type === "svg") {
       // Fetch SVG asset by ID
       query = `*[_type == "assetSVG" && _id == $id][0]`;
-      asset = await sanityClient.fetch<SvgAsset>(query, { id });
+      asset = await sanityClient.fetch<SvgAsset>(query, {
+        id: validatedParams.data.id,
+      });
 
       if (asset && asset.svgData) {
         // Normalize SVG data for security
         asset.svgData = normalizeSvg(asset.svgData);
+      }
+
+      // Validate SVG asset response
+      if (asset) {
+        const validatedAsset = SvgAssetSchema.safeParse(asset);
+        if (!validatedAsset.success) {
+          return NextResponse.json(
+            { error: "Invalid SVG asset data format" },
+            { status: 500 },
+          );
+        }
+        return NextResponse.json(validatedAsset.data);
       }
     } else {
       // Fetch image asset by ID with complete metadata
@@ -130,7 +166,21 @@ export async function GET(
         order,
         url
       }`;
-      asset = await sanityClient.fetch<ImageAsset>(query, { id });
+      asset = await sanityClient.fetch<ImageAsset>(query, {
+        id: validatedParams.data.id,
+      });
+
+      // Validate image asset response
+      if (asset) {
+        const validatedAsset = ImageAssetSchema.safeParse(asset);
+        if (!validatedAsset.success) {
+          return NextResponse.json(
+            { error: "Invalid image asset data format" },
+            { status: 500 },
+          );
+        }
+        return NextResponse.json(validatedAsset.data);
+      }
     }
 
     if (!asset) {
@@ -138,8 +188,7 @@ export async function GET(
     }
 
     return NextResponse.json(asset);
-  } catch (error) {
-    console.error("Error fetching asset:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch asset" },
       { status: 500 },

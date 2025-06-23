@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
+import { z } from "zod";
 
 export interface SocialAsset {
   _id: string;
@@ -12,6 +13,26 @@ export interface SocialAsset {
   icon?: { _ref: string; _type: "reference" };
 }
 
+const SocialAssetParamsSchema = z.object({
+  id: z.string().min(1).max(100),
+});
+
+const SocialAssetSchema = z.object({
+  _id: z.string(),
+  _type: z.string(),
+  _createdAt: z.string(),
+  _updatedAt: z.string(),
+  _rev: z.string(),
+  name: z.string(),
+  url: z.string(),
+  icon: z
+    .object({
+      _ref: z.string(),
+      _type: z.literal("reference"),
+    })
+    .optional(),
+});
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -21,16 +42,21 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "website";
 
-    if (!id) {
+    // Validate parameters
+    const validatedParams = SocialAssetParamsSchema.safeParse({ id });
+    if (!validatedParams.success) {
       return NextResponse.json(
-        { error: "Social asset ID is required" },
+        { error: "Invalid social asset ID" },
         { status: 400 },
       );
     }
 
     const query = `*[_type == $type && _id == $id][0]`;
 
-    const asset = await sanityClient.fetch<SocialAsset>(query, { id, type });
+    const asset = await sanityClient.fetch<SocialAsset>(query, {
+      id: validatedParams.data.id,
+      type,
+    });
 
     if (!asset) {
       return NextResponse.json(
@@ -39,9 +65,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(asset);
-  } catch (error) {
-    console.error("Error fetching social asset:", error);
+    // Validate response data
+    const validatedAsset = SocialAssetSchema.safeParse(asset);
+    if (!validatedAsset.success) {
+      return NextResponse.json(
+        { error: "Invalid social asset data format" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(validatedAsset.data);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch social asset" },
       { status: 500 },

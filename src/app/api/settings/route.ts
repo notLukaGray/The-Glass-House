@@ -8,56 +8,87 @@ import {
   SanitySettingsResponse,
   DEFAULT_SETTINGS,
 } from "@/types/settings";
-import { validateSettings } from "@/lib/validation/utils";
+import { schemas } from "@/lib/validation/schemas";
+
+function cleanInvisibleChars(str: string): string {
+  if (typeof str !== "string") return str;
+  // Remove zero-width spaces, zero-width non-joiners, and other invisible Unicode characters
+  return str
+    .replace(/[\u200B-\u200D\uFEFF\u200E\u200F\u2060-\u2064\u206A-\u206F]/g, "")
+    .trim();
+}
+
+function cleanObjectStrings(obj: unknown): unknown {
+  if (typeof obj === "string") {
+    return cleanInvisibleChars(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(cleanObjectStrings);
+  }
+  if (obj && typeof obj === "object") {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      cleaned[key] = cleanObjectStrings(value);
+    }
+    return cleaned;
+  }
+  return obj;
+}
 
 function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
+  // Clean invisible characters from the data first
+  const cleanedData = cleanObjectStrings(data) as SanitySettingsResponse;
+
   return {
-    _id: data._id || "siteSettings",
-    _type: data._type || "siteSettings",
+    _id: cleanedData._id || "siteSettings",
+    _type: cleanedData._type || "siteSettings",
     basicInfo: {
-      title: data.basicInfo?.title || DEFAULT_SETTINGS.basicInfo.title,
+      title: cleanedData.basicInfo?.title || DEFAULT_SETTINGS.basicInfo.title,
       description:
-        data.basicInfo?.description || DEFAULT_SETTINGS.basicInfo.description,
-      favicon: data.basicInfo?.favicon || DEFAULT_SETTINGS.basicInfo.favicon,
-      logo: data.basicInfo?.logo || DEFAULT_SETTINGS.basicInfo.logo,
+        cleanedData.basicInfo?.description ||
+        DEFAULT_SETTINGS.basicInfo.description,
+      favicon:
+        cleanedData.basicInfo?.favicon || DEFAULT_SETTINGS.basicInfo.favicon,
+      logo: cleanedData.basicInfo?.logo || DEFAULT_SETTINGS.basicInfo.logo,
     },
     theme: {
       defaultMode:
-        data.theme?.defaultMode || DEFAULT_SETTINGS.theme.defaultMode,
+        cleanedData.theme?.defaultMode || DEFAULT_SETTINGS.theme.defaultMode,
       lightMode: {
         colors: {
           ...DEFAULT_SETTINGS.theme.lightMode.colors,
-          ...data.theme?.lightMode?.colors,
+          ...cleanedData.theme?.lightMode?.colors,
         },
         overlays: {
           ...DEFAULT_SETTINGS.theme.lightMode.overlays,
-          ...data.theme?.lightMode?.overlays,
+          ...cleanedData.theme?.lightMode?.overlays,
         },
       },
       darkMode: {
         colors: {
           ...DEFAULT_SETTINGS.theme.darkMode.colors,
-          ...data.theme?.darkMode?.colors,
+          ...cleanedData.theme?.darkMode?.colors,
         },
         overlays: {
           ...DEFAULT_SETTINGS.theme.darkMode.overlays,
-          ...data.theme?.darkMode?.overlays,
+          ...cleanedData.theme?.darkMode?.overlays,
         },
       },
       typography: {
         ...DEFAULT_SETTINGS.theme.typography,
-        ...data.theme?.typography,
+        ...cleanedData.theme?.typography,
       },
       spacing: {
         ...DEFAULT_SETTINGS.theme.spacing,
-        ...data.theme?.spacing,
+        ...cleanedData.theme?.spacing,
       },
     },
     seo: {
-      metaTitle: data.seo?.metaTitle || DEFAULT_SETTINGS.seo.metaTitle,
+      metaTitle: cleanedData.seo?.metaTitle || DEFAULT_SETTINGS.seo.metaTitle,
       metaDescription:
-        data.seo?.metaDescription || DEFAULT_SETTINGS.seo.metaDescription,
-      ogImage: data.seo?.ogImage || DEFAULT_SETTINGS.seo.ogImage,
+        cleanedData.seo?.metaDescription ||
+        DEFAULT_SETTINGS.seo.metaDescription,
+      ogImage: cleanedData.seo?.ogImage || DEFAULT_SETTINGS.seo.ogImage,
     },
   };
 }
@@ -70,8 +101,6 @@ export async function GET(request: NextRequest) {
     let query: string;
 
     if (type === "build") {
-      // Simplified query for build-time metadata generation
-      // Only fetches essential fields needed for SEO and basic site info
       query = `*[_type == "siteSettings"][0] {
         _id,
         _type,
@@ -108,8 +137,6 @@ export async function GET(request: NextRequest) {
         }
       }`;
     } else {
-      // Full query for runtime client-side usage
-      // Includes all theme colors, spacing, and dynamic content
       query = `*[_type == "siteSettings"][0] {
         _id,
         _type,
@@ -152,12 +179,11 @@ export async function GET(request: NextRequest) {
       }`;
     }
 
-    // Use the appropriate client based on the query type
     const client = type === "build" ? sanityClientBuild : sanityClient;
-    const data: SanitySettingsResponse = await client.fetch(query);
+    const rawData: SanitySettingsResponse = await client.fetch(query);
 
     // If no document exists in Sanity, use defaults
-    if (!data) {
+    if (!rawData) {
       return NextResponse.json(DEFAULT_SETTINGS, {
         status: 200,
         headers: {
@@ -167,20 +193,36 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Clean the data to remove invisible Unicode characters
+    const data = cleanObjectStrings(rawData) as SanitySettingsResponse;
+
     // Merge with defaults BEFORE validation
     const mergedSettings = mergeWithDefaults(data);
 
-    // Validate the merged data, not the raw data
-    const validatedData = validateSettings(mergedSettings);
+    // Sanitize the defaultMode value to remove any invisible characters
+    if (mergedSettings.theme?.defaultMode) {
+      // Remove all non-printable characters and trim whitespace
+      const cleanedMode = mergedSettings.theme.defaultMode
+        .replace(/[^\x20-\x7E]/g, "")
+        .trim();
+      mergedSettings.theme.defaultMode = cleanedMode as
+        | "light"
+        | "dark"
+        | "system";
+    }
 
-    if (!validatedData) {
-      return NextResponse.json(DEFAULT_SETTINGS, {
-        status: 200,
-        headers: {
-          "Cache-Control":
-            "public, s-maxage=3600, stale-while-revalidate=86400",
+    // Zod validation
+    try {
+      schemas.settings.Settings.parse(mergedSettings);
+    } catch (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Settings validation failed",
+          details: error instanceof Error ? error.message : error,
         },
-      });
+        { status: 500 },
+      );
     }
 
     // Always return the merged, validated settings
@@ -190,11 +232,12 @@ export async function GET(request: NextRequest) {
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
         error: "Failed to fetch settings",
+        details: error instanceof Error ? error.message : error,
       },
       { status: 500 },
     );

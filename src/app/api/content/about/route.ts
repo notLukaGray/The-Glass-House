@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
+import { z } from "zod";
 
-/**
- * TypeScript interface for the about page data structure.
- * Defines the expected shape of data returned from Sanity,
- * including user information and structured sections with items.
- */
 interface AboutData {
   user?: unknown;
   sections?: Array<{
@@ -30,21 +26,40 @@ interface AboutData {
   }>;
 }
 
-/**
- * GET handler for the about API route.
- *
- * This endpoint fetches the complete about page content from Sanity, including:
- * - User information and profile data
- * - Structured sections (e.g., skills, experience, education)
- * - Section items with their associated icons and logos
- *
- * The query uses Sanity's reference resolution to fetch icon and logo SVGs
- * along with their color information in a single request. This structure
- * allows for flexible content management where different sections can have
- * different types of items (skills, work experience, education, etc.).
- *
- * @returns {Promise<NextResponse>} JSON response with about page data or error.
- */
+const AboutDataSchema = z.object({
+  user: z.unknown().optional(),
+  sections: z
+    .array(
+      z.object({
+        _key: z.string(),
+        _type: z.string(),
+        items: z
+          .array(
+            z.object({
+              _key: z.string(),
+              _type: z.string(),
+              icon: z
+                .object({
+                  _id: z.string(),
+                  svgData: z.string(),
+                  color: z.string(),
+                })
+                .optional(),
+              logo: z
+                .object({
+                  _id: z.string(),
+                  svgData: z.string(),
+                  color: z.string(),
+                })
+                .optional(),
+            }),
+          )
+          .optional(),
+      }),
+    )
+    .optional(),
+});
+
 export async function GET(): Promise<NextResponse> {
   try {
     // Fetch about page data with resolved icon and logo references
@@ -77,9 +92,17 @@ export async function GET(): Promise<NextResponse> {
       );
     }
 
-    return NextResponse.json(aboutData);
-  } catch (error) {
-    console.error("Error fetching about data:", error);
+    // Validate response data
+    const validatedAboutData = AboutDataSchema.safeParse(aboutData);
+    if (!validatedAboutData.success) {
+      return NextResponse.json(
+        { error: "Invalid about data format" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(validatedAboutData.data);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch about data" },
       { status: 500 },

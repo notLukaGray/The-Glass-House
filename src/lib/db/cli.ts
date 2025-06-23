@@ -1,77 +1,135 @@
 #!/usr/bin/env node
 
-import { config } from "dotenv";
-import { resolve } from "path";
 import {
+  createUser,
+  isSetupComplete,
+  getAllUsers,
   deleteAllUsers,
-  ensureDefaultAdmin,
   getUsersCount,
-  disconnect,
+  validatePassword,
 } from "./index";
+import readline from "readline";
 
-// Load environment variables from .env.local
-config({ path: resolve(process.cwd(), ".env.local") });
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+function question(prompt: string): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question(prompt, resolve);
+  });
+}
+
+async function setupAdmin() {
+  console.log("Portfolio CMS Setup");
+  console.log("==================\n");
+
+  // Check if setup is already complete
+  const setupComplete = await isSetupComplete();
+
+  if (setupComplete) {
+    console.log("Setup already completed. Admin user already exists.");
+    console.log("If you need to reset, use: npm run db:delete-all-users");
+    process.exit(1);
+  }
+
+  console.log("Creating your first admin user...\n");
+  console.log("Password requirements:");
+  console.log("- At least 8 characters long");
+  console.log("- At least one uppercase letter");
+  console.log("- At least one lowercase letter");
+  console.log("- At least one number\n");
+
+  // Get admin details
+  const email = await question("Admin email: ");
+  const username = await question("Admin username: ");
+  const name = await question("Admin full name: ");
+
+  let password = "";
+  let passwordValid = false;
+
+  while (!passwordValid) {
+    password = await question("Admin password: ");
+    const validation = validatePassword(password);
+
+    if (validation.isValid) {
+      passwordValid = true;
+    } else {
+      console.log(`Password error: ${validation.error}`);
+      console.log("Please try again.\n");
+    }
+  }
+
+  if (!email || !username || !name || !password) {
+    console.log("All fields are required.");
+    process.exit(1);
+  }
+
+  try {
+    const admin = await createUser({
+      email,
+      username,
+      name,
+      password,
+      role: "admin",
+    });
+
+    console.log("\nAdmin user created successfully!");
+    console.log(`Username: ${admin.username}`);
+    console.log(`Email: ${admin.email}`);
+    console.log(`Role: ${admin.role}`);
+    console.log("\nYou can now login at /login");
+  } catch (error) {
+    console.error("Failed to create admin user:", error);
+    process.exit(1);
+  }
+}
 
 async function main() {
   const command = process.argv[2];
 
-  try {
-    switch (command) {
-      case "setup-admin":
-        await ensureDefaultAdmin();
-        break;
-
-        console.log("Setting up default admin user...");
-        const result = await ensureDefaultAdmin();
-        console.log(result.message);
-        if (result.created) {
-          console.log(`\nUser created:`, {
-            id: result.user.id,
-            username: result.user.username,
-            email: result.user.email,
-            role: result.user.role,
-          });
-        }
-        break;
-
-      case "delete-all-users":
-        console.log("Deleting all users...");
+  switch (command) {
+    case "setup-admin":
+      await setupAdmin();
+      break;
+    case "count-users":
+      const count = await getUsersCount();
+      console.log(`Total users: ${count}`);
+      break;
+    case "delete-all-users":
+      const confirm = await question(
+        "Are you sure you want to delete ALL users? (yes/no): ",
+      );
+      if (confirm.toLowerCase() === "yes") {
         await deleteAllUsers();
-        console.log("All users deleted successfully.");
-        break;
-
-      case "count-users":
-        const count = await getUsersCount();
-        console.log(`Total users in database: ${count}`);
-        break;
-
-      default:
-        console.log(`
-Database Management CLI
-
-Usage: npx tsx src/lib/db/cli.ts <command>
-
-Commands:
-  setup-admin      - Create default admin user if none exists
-  delete-all-users - Delete all users from database
-  count-users      - Show total number of users
-
-Examples:
-  npx tsx src/lib/db/cli.ts setup-admin
-  npx tsx src/lib/db/cli.ts delete-all-users
-  npx tsx src/lib/db/cli.ts count-users
-        `);
-        break;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    process.exit(1);
-  } finally {
-    await disconnect();
+        console.log("All users deleted.");
+      } else {
+        console.log("Operation cancelled.");
+      }
+      break;
+    case "list-users":
+      const users = await getAllUsers();
+      console.log("Users:");
+      users.forEach((user) => {
+        console.log(`- ${user.username} (${user.email}) - ${user.role}`);
+      });
+      break;
+    default:
+      console.log("Available commands:");
+      console.log("  setup-admin     - Create first admin user");
+      console.log("  count-users     - Show total user count");
+      console.log("  delete-all-users - Delete all users (dangerous!)");
+      console.log("  list-users      - List all users");
+      break;
   }
+
+  rl.close();
+  process.exit(0);
 }
 
-// Run if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
+main().catch((error) => {
+  console.error("Error:", error);
+  rl.close();
+  process.exit(1);
+});

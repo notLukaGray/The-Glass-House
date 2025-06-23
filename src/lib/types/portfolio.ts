@@ -1,7 +1,5 @@
-// Shared types for portfolio sections and related content
-
-export interface ResolvedSection {
+export type ResolvedSection = {
   _key: string;
   _type: string;
   [key: string]: unknown;
-}
+};

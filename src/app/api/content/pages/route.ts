@@ -1,5 +1,33 @@
 import { NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
+import { z } from "zod";
+
+const PageSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  slug: z.object({
+    current: z.string(),
+  }),
+  publishedAt: z.string().optional(),
+  locked: z.boolean().optional(),
+  sections: z
+    .array(
+      z.object({
+        _id: z.string(),
+        title: z.string().optional(),
+        order: z.number().optional(),
+        content: z
+          .array(
+            z.object({
+              _key: z.string(),
+              _type: z.string(),
+            }),
+          )
+          .optional(),
+      }),
+    )
+    .optional(),
+});
 
 export async function GET() {
   try {
@@ -23,9 +51,17 @@ export async function GET() {
 
     const pages = await sanityClient.fetch(query);
 
-    return NextResponse.json(pages);
-  } catch (error) {
-    console.error("Error fetching pages:", error);
+    // Validate response data
+    const validatedPages = z.array(PageSchema).safeParse(pages);
+    if (!validatedPages.success) {
+      return NextResponse.json(
+        { error: "Invalid page data format" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(validatedPages.data);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch pages" },
       { status: 500 },

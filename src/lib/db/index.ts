@@ -35,10 +35,51 @@ export async function comparePassword(
   return bcrypt.compare(password, hashedPassword);
 }
 
+export function validatePassword(password: string): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (password.length < 8) {
+    return {
+      isValid: false,
+      error: "Password must be at least 8 characters long",
+    };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return {
+      isValid: false,
+      error: "Password must contain at least one uppercase letter",
+    };
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return {
+      isValid: false,
+      error: "Password must contain at least one lowercase letter",
+    };
+  }
+
+  if (!/\d/.test(password)) {
+    return {
+      isValid: false,
+      error: "Password must contain at least one number",
+    };
+  }
+
+  return { isValid: true };
+}
+
 // User management
 export async function createUser(
   userData: CreateUserData,
 ): Promise<UserWithoutPassword> {
+  // Validate password strength
+  const passwordValidation = validatePassword(userData.password);
+  if (!passwordValidation.isValid) {
+    throw new Error(`Password validation failed: ${passwordValidation.error}`);
+  }
+
   const hashedPassword = await hashPassword(userData.password);
 
   const user = await prisma.user.create({
@@ -112,6 +153,12 @@ export async function updateUserPassword(
   userId: string,
   newPassword: string,
 ): Promise<void> {
+  // Validate password strength
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    throw new Error(`Password validation failed: ${passwordValidation.error}`);
+  }
+
   const hashedPassword = await hashPassword(newPassword);
 
   await prisma.user.update({
@@ -184,12 +231,17 @@ export async function getUsersCount(): Promise<number> {
   return prisma.user.count();
 }
 
+export async function isSetupComplete(): Promise<boolean> {
+  const userCount = await getUsersCount();
+  return userCount > 0;
+}
+
 export async function createDefaultAdmin(): Promise<UserWithoutPassword> {
   const defaultAdmin = {
-    email: "admin@example.com",
-    username: "admin",
-    name: "Default Admin",
-    password: "admin123",
+    email: process.env.DEFAULT_ADMIN_EMAIL || "admin@example.com",
+    username: process.env.DEFAULT_ADMIN_USERNAME || "admin",
+    name: process.env.DEFAULT_ADMIN_NAME || "Default Admin",
+    password: process.env.DEFAULT_ADMIN_PASSWORD || "admin123",
     role: "admin" as const,
   };
 
@@ -206,10 +258,14 @@ export async function ensureDefaultAdmin(): Promise<{
   if (userCount === 0) {
     // No users exist, create default admin
     const admin = await createDefaultAdmin();
+    const isEnvSetup = process.env.DEFAULT_ADMIN_PASSWORD;
+
     return {
       created: true,
       user: admin,
-      message: `Default admin created with credentials:\nUsername: admin\nPassword: admin123\n\nPlease change the password after first login.`,
+      message: isEnvSetup
+        ? `Default admin created via environment variables:\nUsername: ${admin.username}\nPassword: [Set via environment]\n\nPlease change the password after first login.`
+        : `Default admin created with credentials:\nUsername: ${admin.username}\nPassword: admin123\n\nPlease change the password after first login.`,
     };
   } else {
     // Check if admin user exists
@@ -224,10 +280,14 @@ export async function ensureDefaultAdmin(): Promise<{
     } else {
       // Create admin user
       const newAdmin = await createDefaultAdmin();
+      const isEnvSetup = process.env.DEFAULT_ADMIN_PASSWORD;
+
       return {
         created: true,
         user: newAdmin,
-        message: `Admin user created with credentials:\nUsername: admin\nPassword: admin123\n\nPlease change the password after first login.`,
+        message: isEnvSetup
+          ? `Admin user created via environment variables:\nUsername: ${newAdmin.username}\nPassword: [Set via environment]\n\nPlease change the password after first login.`
+          : `Admin user created with credentials:\nUsername: ${newAdmin.username}\nPassword: admin123\n\nPlease change the password after first login.`,
       };
     }
   }

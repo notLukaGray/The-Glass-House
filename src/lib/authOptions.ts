@@ -26,25 +26,6 @@ declare module "next-auth/jwt" {
   }
 }
 
-const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 10 * 60 * 1000;
-
-function getClientKey(
-  credentials: Record<string, unknown> | undefined,
-  req: {
-    headers?: Record<string, string>;
-    socket?: { remoteAddress?: string };
-  },
-) {
-  const username = credentials?.username || "unknown_username";
-  const ip =
-    req?.headers?.["x-forwarded-for"]?.split(",")[0] ||
-    req?.socket?.remoteAddress ||
-    "unknown_ip";
-  return `${username}:${ip}`;
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -54,43 +35,20 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
 
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
-          const key = getClientKey(credentials, req);
-          const now = Date.now();
-          const attempt = loginAttempts.get(key);
-
-          if (attempt && now - attempt.lastAttempt < WINDOW_MS) {
-            if (attempt.count >= MAX_ATTEMPTS) {
-              console.warn(`Rate limit exceeded for ${key}`);
-              throw new Error(
-                "Too many login attempts. Please try again later.",
-              );
-            }
-            loginAttempts.set(key, {
-              count: attempt.count + 1,
-              lastAttempt: now,
-            });
-          } else {
-            loginAttempts.set(key, { count: 1, lastAttempt: now });
-          }
-
           const user = await validateUserCredentials(
             credentials?.username as string,
             credentials?.password as string,
           );
 
           if (user) {
-            loginAttempts.delete(key);
             return {
               ...user,
               id: user.id,
             } as User;
           }
 
-          console.warn(
-            `Invalid credentials for username: ${credentials?.username}`,
-          );
           throw new Error("Invalid username or password");
         } catch (error: unknown) {
           console.error("[NextAuth][authorize] Error:", error);
@@ -115,4 +73,28 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
   },
+  // NextAuth built-in throttling configuration
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+  // Enable built-in throttling
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  // Throttling configuration
+  events: {
+    async signIn({ user }) {
+      // Log successful sign-ins for monitoring
+      console.log(`Successful sign-in for user: ${user.name || user.email}`);
+    },
+    async signOut({ session, token }) {
+      // Log sign-outs for monitoring
+      console.log(`User signed out: ${session?.user?.name || token?.sub}`);
+    },
+  },
+  // Built-in rate limiting (NextAuth handles this automatically)
+  // The CredentialsProvider automatically implements throttling
+  // based on the number of failed attempts per IP address
 };

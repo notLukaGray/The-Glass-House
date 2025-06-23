@@ -1,5 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
+import { z } from "zod";
+
+const PortfolioSlugSchema = z.object({
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-zA-Z0-9-_]+$/),
+});
+
+const PortfolioDataSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  subhead: z.string().optional(),
+  colorTheme: z.string().optional(),
+  locked: z.boolean().optional(),
+  coverAsset: z.unknown().optional(),
+  externalLink: z.string().optional(),
+  featured: z.boolean().optional(),
+  categories: z.array(z.unknown()).optional(),
+  tags: z.array(z.unknown()).optional(),
+  sections: z.array(z.unknown()).optional(),
+});
 
 export async function GET(
   _request: NextRequest,
@@ -8,9 +31,11 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    if (!slug) {
+    // Validate slug parameter
+    const validatedSlug = PortfolioSlugSchema.safeParse({ slug });
+    if (!validatedSlug.success) {
       return NextResponse.json(
-        { error: "Portfolio slug is required" },
+        { error: "Invalid portfolio slug format" },
         { status: 400 },
       );
     }
@@ -71,7 +96,7 @@ export async function GET(
       description?: string;
       content?: unknown;
       [key: string]: unknown;
-    }>(query, { slug });
+    }>(query, { slug: validatedSlug.data.slug });
 
     if (!portfolioData) {
       return NextResponse.json(
@@ -80,9 +105,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(portfolioData);
-  } catch (error) {
-    console.error("Error fetching portfolio:", error);
+    // Validate response data
+    const validatedPortfolioData = PortfolioDataSchema.safeParse(portfolioData);
+    if (!validatedPortfolioData.success) {
+      return NextResponse.json(
+        { error: "Invalid portfolio data format" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(validatedPortfolioData.data);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch portfolio" },
       { status: 500 },

@@ -8,12 +8,34 @@ import {
   createUser,
   updateUserPassword,
 } from "@/lib/auth/db";
+import { authRateLimiter } from "@/lib/rateLimit";
+import { z } from "zod";
 
-/**
- * POST /api/auth/setup
- * Sets up the initial admin user and migrates hardcoded users
- */
+const CreateUserSchema = z.object({
+  email: z.string().email(),
+  username: z.string().min(3).max(50),
+  name: z.string().min(1),
+  password: z.string().min(8),
+  role: z.enum(["admin", "user"]).optional(),
+});
+
+const ChangePasswordSchema = z.object({
+  userId: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+const UpdateRoleSchema = z.object({
+  userId: z.string().min(1),
+  role: z.enum(["admin", "user"]),
+});
+
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResult = authRateLimiter(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -25,50 +47,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { action, userData } = await request.json();
+    const body = await request.json();
+    const { action, userData } = body;
 
     switch (action) {
-      case "create-user":
-        if (!userData) {
+      case "create-user": {
+        const parsed = CreateUserSchema.safeParse(userData);
+        if (!parsed.success) {
           return NextResponse.json(
-            { error: "User data required" },
+            { error: "Invalid user data", details: parsed.error.flatten() },
             { status: 400 },
           );
         }
-        const newUser = await createUser(userData);
+        const newUser = await createUser(parsed.data);
         return NextResponse.json({
           success: true,
           message: "User created successfully",
           user: newUser,
         });
-
-      case "change-password":
-        if (!userData?.userId || !userData?.newPassword) {
+      }
+      case "change-password": {
+        const parsed = ChangePasswordSchema.safeParse(userData);
+        if (!parsed.success) {
           return NextResponse.json(
-            { error: "User ID and new password required" },
+            {
+              error: "Invalid password change data",
+              details: parsed.error.flatten(),
+            },
             { status: 400 },
           );
         }
-        await updateUserPassword(userData.userId, userData.newPassword);
+        await updateUserPassword(parsed.data.userId, parsed.data.newPassword);
         return NextResponse.json({
           success: true,
           message: "Password updated successfully",
         });
-
+      }
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch (error) {
-    console.error("Setup error:", error);
+  } catch {
     return NextResponse.json({ error: "Setup failed" }, { status: 500 });
   }
 }
 
-/**
- * GET /api/auth/setup
- * Gets all users (admin only)
- */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResult = authRateLimiter(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -81,8 +110,7 @@ export async function GET() {
 
     const users = await getAllUsers();
     return NextResponse.json({ users });
-  } catch (error) {
-    console.error("Error fetching users:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch users" },
       { status: 500 },
@@ -90,11 +118,13 @@ export async function GET() {
   }
 }
 
-/**
- * PUT /api/auth/setup
- * Updates user role (admin only)
- */
 export async function PUT(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResult = authRateLimiter(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -105,23 +135,22 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { userId, role } = await request.json();
-
-    if (!userId || !role) {
+    const body = await request.json();
+    const parsed = UpdateRoleSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "User ID and role are required" },
+        { error: "Invalid role update data", details: parsed.error.flatten() },
         { status: 400 },
       );
     }
 
-    const user = await updateUserRole(userId, role);
+    const user = await updateUserRole(parsed.data.userId, parsed.data.role);
     return NextResponse.json({
       success: true,
       message: "User role updated",
       user,
     });
-  } catch (error) {
-    console.error("Error updating user role:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to update user role" },
       { status: 500 },
@@ -129,11 +158,13 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-/**
- * DELETE /api/auth/setup
- * Deletes a user (admin only)
- */
 export async function DELETE(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResult = authRateLimiter(request);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -146,10 +177,9 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-
-    if (!userId) {
+    if (!userId || typeof userId !== "string" || userId.length < 1) {
       return NextResponse.json(
-        { error: "User ID is required" },
+        { error: "User ID is required and must be a string" },
         { status: 400 },
       );
     }
@@ -167,8 +197,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: "User deleted successfully",
     });
-  } catch (error) {
-    console.error("Error deleting user:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete user" },
       { status: 500 },

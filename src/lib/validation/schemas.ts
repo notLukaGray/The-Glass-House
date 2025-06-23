@@ -173,7 +173,7 @@ export const SpacingSchema = z.object({
 
 export const ThemeSchema = z.object({
   defaultMode: z.enum(["light", "dark", "system"]).optional(),
-  lightMode: ThemeModeSchema,
+  lightMode: ThemeModeSchema.optional(),
   darkMode: ThemeModeSchema.optional(),
   typography: TypographySchema.optional(),
   spacing: SpacingSchema.optional(),

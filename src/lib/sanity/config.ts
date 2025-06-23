@@ -1,31 +1,24 @@
 import { defineConfig } from "sanity";
 import { deskTool } from "sanity/desk";
 import { visionTool } from "@sanity/vision";
+import { colorInput } from "@sanity/color-input";
 import { schemaTypes } from "./schemas";
 import deskStructure from "./schemas/deskStructure";
-import { colorInput } from "@sanity/color-input";
+import { clientEnv } from "@/lib/env";
 import { Card, Text, Stack, Box, Heading } from "@sanity/ui";
 import { HomeIcon } from "@sanity/icons";
 import React from "react";
 
-/**
- * A custom tool for the Sanity Studio that displays a welcoming dashboard.
- * This provides a user-friendly entry point for content editors, explaining
- * what the other tools are for. It's a good example of how to customize
- * the Sanity Studio UI.
- */
 const studioInfoTool = () => {
   return {
     title: "Studio",
-    name: "studio-info", // Unique name for the tool
+    name: "studio-info",
     icon: HomeIcon,
     component: () => {
-      // The component is built using Sanity's own UI components (`@sanity/ui`)
-      // and React's `createElement` for a declarative structure.
       return React.createElement(
         Box,
         {
-          padding: 4,
+          padding: [3, 4, 5],
           style: { maxWidth: "800px", margin: "0 auto" },
         },
         [
@@ -33,33 +26,41 @@ const studioInfoTool = () => {
             Stack,
             {
               key: "content",
-              space: 4,
+              space: 5,
             },
             [
               React.createElement(
-                Heading,
+                Stack,
                 {
-                  key: "title",
-                  size: 3,
+                  key: "header",
+                  space: 3,
                 },
-                "Welcome to Portfolio CMS Studio",
-              ),
-
-              React.createElement(
-                Text,
-                {
-                  key: "intro",
-                  size: 2,
-                  muted: true,
-                },
-                "Here are the available tools to help you manage your portfolio content:",
+                [
+                  React.createElement(
+                    Heading,
+                    {
+                      key: "title",
+                      size: 4,
+                    },
+                    "Welcome to Portfolio CMS Studio",
+                  ),
+                  React.createElement(
+                    Text,
+                    {
+                      key: "intro",
+                      size: 2,
+                      muted: true,
+                    },
+                    "Manage your portfolio content with these powerful tools:",
+                  ),
+                ],
               ),
 
               React.createElement(
                 Stack,
                 {
                   key: "tools-grid",
-                  space: 3,
+                  space: 4,
                 },
                 [
                   React.createElement(
@@ -85,7 +86,7 @@ const studioInfoTool = () => {
                               key: "structure-title",
                               size: 2,
                             },
-                            "📋 Structure",
+                            "Structure",
                           ),
                           React.createElement(
                             Text,
@@ -124,7 +125,7 @@ const studioInfoTool = () => {
                               key: "vision-title",
                               size: 2,
                             },
-                            "🔍 Vision",
+                            "Vision",
                           ),
                           React.createElement(
                             Text,
@@ -165,7 +166,7 @@ const studioInfoTool = () => {
                           key: "getting-started-title",
                           size: 2,
                         },
-                        "💡 Getting Started",
+                        "Getting Started",
                       ),
                       React.createElement(
                         Text,
@@ -188,10 +189,6 @@ const studioInfoTool = () => {
   };
 };
 
-/**
- * The main configuration for the Sanity Studio.
- * This object defines the project connection, datasets, plugins, and schema.
- */
 export default defineConfig({
   // A name for the studio configuration.
   name: "default",
@@ -199,21 +196,13 @@ export default defineConfig({
   title: "Portfolio CMS",
 
   // These environment variables connect the studio to your Sanity project.
-  projectId:
-    process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
-    process.env.SANITY_PROJECT_ID ||
-    "",
-
-  dataset:
-    process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET || "",
-
-  apiVersion:
-    process.env.NEXT_PUBLIC_SANITY_API_VERSION ||
-    process.env.SANITY_API_VERSION ||
-    "",
+  projectId: clientEnv.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: clientEnv.NEXT_PUBLIC_SANITY_DATASET!,
+  apiVersion: clientEnv.NEXT_PUBLIC_SANITY_API_VERSION!,
 
   // Token for authentication with Sanity project
-  token: process.env.SANITY_TOKEN || "",
+  // Note: The token is not needed for the client-side studio configuration
+  // It will be handled by the server-side API routes when needed
 
   // Enable CORS for the studio
   cors: {
@@ -235,6 +224,7 @@ export default defineConfig({
   ],
 
   // Custom tools are added here, appearing in the studio's navigation.
+  // The studioInfoTool is listed first to make it the default view.
   tools: [studioInfoTool()],
 
   // Defines the document types and schemas available in the studio.

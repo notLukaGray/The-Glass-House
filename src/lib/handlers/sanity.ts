@@ -1,49 +1,11 @@
 import { createClient, type SanityClient } from "next-sanity";
+import { getSanityConfig } from "@/lib/env";
 
-function validateSanityConfig() {
-  const projectId = process.env.SANITY_PROJECT_ID;
-  const dataset = process.env.SANITY_DATASET;
-  const apiVersion = process.env.SANITY_API_VERSION;
-
-  if (!projectId) {
-    throw new Error("SANITY_PROJECT_ID environment variable is required");
-  }
-  if (!dataset) {
-    throw new Error("SANITY_DATASET environment variable is required");
-  }
-  if (!apiVersion) {
-    throw new Error("SANITY_API_VERSION environment variable is required");
-  }
-
-  return { projectId, dataset, apiVersion };
-}
-
-export const sanitizeSanityResponse = <T>(data: T): T => {
-  if (data === null || data === undefined) return data;
-
-  if (typeof data === "string") {
-    return data.replace(/[\u200B-\u200D\uFEFF]/g, "") as T;
-  }
-
-  if (Array.isArray(data)) {
-    return data.map((item) => sanitizeSanityResponse(item)) as T;
-  }
-
-  if (typeof data === "object") {
-    const sanitized: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(
-      data as Record<string, unknown>,
-    )) {
-      sanitized[key] = sanitizeSanityResponse(value);
-    }
-    return sanitized as T;
-  }
-
-  return data;
-};
-
+// Create Sanity clients with validated configuration
 const baseClient = createClient({
-  ...validateSanityConfig(),
+  projectId: getSanityConfig().projectId,
+  dataset: getSanityConfig().dataset,
+  apiVersion: getSanityConfig().apiVersion,
   useCdn: process.env.NODE_ENV === "production",
   perspective: "published",
   stega: {
@@ -53,7 +15,9 @@ const baseClient = createClient({
 });
 
 const baseClientBuild = createClient({
-  ...validateSanityConfig(),
+  projectId: getSanityConfig().projectId,
+  dataset: getSanityConfig().dataset,
+  apiVersion: getSanityConfig().apiVersion,
   useCdn: false,
   perspective: "published",
   stega: {
@@ -61,6 +25,30 @@ const baseClientBuild = createClient({
     studioUrl: "/studio",
   },
 });
+
+// Sanitize Sanity response to prevent XSS
+function sanitizeSanityResponse<T>(data: T): T {
+  if (typeof data === "string") {
+    return data.replace(
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      "",
+    ) as T;
+  }
+
+  if (typeof data === "object" && data !== null) {
+    if (Array.isArray(data)) {
+      return data.map(sanitizeSanityResponse) as T;
+    }
+
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data)) {
+      sanitized[key] = sanitizeSanityResponse(value);
+    }
+    return sanitized as T;
+  }
+
+  return data;
+}
 
 const client = {
   ...baseClient,

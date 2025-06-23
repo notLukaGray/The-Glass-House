@@ -1,7 +1,5 @@
 import bcrypt from "bcryptjs";
 
-const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
-
 export interface User {
   id: string;
   name: string;
@@ -85,50 +83,6 @@ export function validatePassword(password: string): {
   return { isValid: true };
 }
 
-export function checkRateLimit(
-  username: string,
-  maxAttempts: number = 5,
-  windowMs: number = 15 * 60 * 1000,
-): { allowed: boolean; remainingAttempts: number; resetTime?: number } {
-  const now = Date.now();
-  const userAttempts = loginAttempts.get(username);
-
-  if (!userAttempts) {
-    loginAttempts.set(username, { count: 1, lastAttempt: now });
-    return { allowed: true, remainingAttempts: maxAttempts - 1 };
-  }
-
-  // Reset if window has passed
-  if (now - userAttempts.lastAttempt > windowMs) {
-    loginAttempts.set(username, { count: 1, lastAttempt: now });
-    return { allowed: true, remainingAttempts: maxAttempts - 1 };
-  }
-
-  // Check if user is blocked
-  if (userAttempts.count >= maxAttempts) {
-    const resetTime = userAttempts.lastAttempt + windowMs;
-    return {
-      allowed: false,
-      remainingAttempts: 0,
-      resetTime,
-    };
-  }
-
-  // Increment attempts
-  userAttempts.count++;
-  userAttempts.lastAttempt = now;
-  loginAttempts.set(username, userAttempts);
-
-  return {
-    allowed: true,
-    remainingAttempts: maxAttempts - userAttempts.count,
-  };
-}
-
-export function resetRateLimit(username: string): void {
-  loginAttempts.delete(username);
-}
-
 export function sanitizeUser(user: User): Omit<User, "password"> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _password, ...userWithoutPass } = user;
@@ -137,13 +91,4 @@ export function sanitizeUser(user: User): Omit<User, "password"> {
 
 export function generateSessionId(): string {
   return crypto.randomUUID();
-}
-
-export function cleanupRateLimits(maxAgeMs: number = 60 * 60 * 1000): void {
-  const now = Date.now();
-  for (const [username, attempts] of loginAttempts.entries()) {
-    if (now - attempts.lastAttempt > maxAgeMs) {
-      loginAttempts.delete(username);
-    }
-  }
 }

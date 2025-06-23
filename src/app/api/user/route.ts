@@ -1,5 +1,34 @@
 import { NextResponse } from "next/server";
 import { client as sanityClient } from "@/lib/handlers/sanity";
+import { z } from "zod";
+
+const UserDataSchema = z.object({
+  _id: z.string(),
+  name: z.string(),
+  jobTitle: z.string().optional(),
+  avatar: z
+    .object({
+      url: z.string(),
+      alt: z.string().optional(),
+    })
+    .optional(),
+  bio: z.string().optional(),
+  social: z
+    .array(
+      z.object({
+        _id: z.string(),
+        name: z.string(),
+        url: z.string(),
+        icon: z
+          .object({
+            _id: z.string(),
+            svgData: z.string(),
+          })
+          .optional(),
+      }),
+    )
+    .optional(),
+});
 
 export async function GET() {
   try {
@@ -37,9 +66,17 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(userData);
-  } catch (error) {
-    console.error("Error fetching user:", error);
+    // Validate response data
+    const validatedUserData = UserDataSchema.safeParse(userData);
+    if (!validatedUserData.success) {
+      return NextResponse.json(
+        { error: "Invalid user data format" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(validatedUserData.data);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch user" },
       { status: 500 },
