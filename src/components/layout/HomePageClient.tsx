@@ -75,13 +75,26 @@ export default function HomePageClient({
 }) {
   const { settings, currentTheme } = useSettings();
 
-  const themeColors =
-    currentTheme === "dark"
-      ? settings?.theme.darkMode.colors
-      : settings?.theme.lightMode.colors;
-  const backgroundColor = themeColors?.background || "#000000";
-  const textColor = themeColors?.text || "#FFFFFF";
-  const accentColor = themeColors?.accent || "#ff00ea";
+  // Use fallback values if settings are missing
+  const themeColors = settings?.theme?.[
+    currentTheme === "dark" ? "darkMode" : "lightMode"
+  ]?.colors || {
+    primary: "#000000",
+    secondary: "#666666",
+    accent: "#ff00ea",
+    background: "#000000",
+    text: "#FFFFFF",
+  };
+
+  const backgroundColor = themeColors.background;
+  const textColor = themeColors.text;
+  const accentColor = themeColors.accent;
+
+  console.log("[HomePageClient] Rendering with:", {
+    settings,
+    currentTheme,
+    themeColors,
+  });
 
   return (
     <main
@@ -97,7 +110,7 @@ export default function HomePageClient({
         <DotGrid
           dotSize={2}
           gap={12}
-          baseColor={themeColors?.secondary || "#24061e"}
+          baseColor={themeColors.secondary}
           activeColor={accentColor}
           proximity={120}
           shockRadius={250}

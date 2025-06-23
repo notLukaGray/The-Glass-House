@@ -152,16 +152,80 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     [],
   );
 
+  // Deep merge helper
+  function deepMergeSettings(
+    a: SiteSettings,
+    b: Partial<SiteSettings>,
+  ): SiteSettings {
+    return {
+      ...a,
+      ...b,
+      theme: {
+        ...a.theme,
+        ...b.theme,
+        lightMode: {
+          ...a.theme.lightMode,
+          ...(b.theme?.lightMode || {}),
+          colors: {
+            ...a.theme.lightMode.colors,
+            ...(b.theme?.lightMode?.colors || {}),
+          },
+          overlays: {
+            ...a.theme.lightMode.overlays,
+            ...(b.theme?.lightMode?.overlays || {}),
+          },
+        },
+        darkMode: {
+          ...a.theme.darkMode,
+          ...(b.theme?.darkMode || {}),
+          colors: {
+            ...a.theme.darkMode.colors,
+            ...(b.theme?.darkMode?.colors || {}),
+          },
+          overlays: {
+            ...a.theme.darkMode.overlays,
+            ...(b.theme?.darkMode?.overlays || {}),
+          },
+        },
+        typography: {
+          ...a.theme.typography,
+          ...(b.theme?.typography || {}),
+        },
+        spacing: {
+          ...a.theme.spacing,
+          ...(b.theme?.spacing || {}),
+          spacingScale: {
+            ...a.theme.spacing.spacingScale,
+            ...(b.theme?.spacing?.spacingScale || {}),
+          },
+        },
+      },
+      seo: {
+        ...a.seo,
+        ...(b.seo || {}),
+      },
+      basicInfo: {
+        ...a.basicInfo,
+        ...(b.basicInfo || {}),
+      },
+    };
+  }
+
   // Effect to fetch the initial settings from Sanity.
   // It only runs once the component has mounted to ensure it's client-side.
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        console.log("[SettingsProvider] Starting to fetch settings...");
         setIsLoading(true);
         setError(null);
 
         // Fetch settings from the API route
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+        console.log(
+          "[SettingsProvider] Fetching from:",
+          `${baseUrl}/api/settings`,
+        );
         const res = await fetch(`${baseUrl}/api/settings`);
 
         if (!res.ok) {
@@ -169,16 +233,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         const fetchedSettings = await res.json();
+        console.log("[SettingsProvider] Fetched settings:", fetchedSettings);
 
         if (fetchedSettings) {
-          setSettings(fetchedSettings);
-          const initialTheme = initializeTheme(
-            fetchedSettings.theme.defaultMode,
-          );
+          const merged = deepMergeSettings(DEFAULT_SETTINGS, fetchedSettings);
+          console.log("[SettingsProvider] Merged settings:", merged);
+          setSettings(merged);
+          const initialTheme = initializeTheme(merged.theme.defaultMode);
           setCurrentTheme(initialTheme);
-          applyThemeToCSS(initialTheme, fetchedSettings.theme);
+          applyThemeToCSS(initialTheme, merged.theme);
         } else {
-          // Fallback to default settings if fetching fails or returns no data.
+          console.log("[SettingsProvider] No fetched settings, using defaults");
           setSettings(DEFAULT_SETTINGS);
           const initialTheme = initializeTheme(
             DEFAULT_SETTINGS.theme.defaultMode,
@@ -192,6 +257,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           err instanceof Error ? err : new Error("Failed to fetch settings"),
         );
         // Ensure defaults are applied even on catastrophic failure.
+        console.log("[SettingsProvider] Using DEFAULT_SETTINGS due to error");
         setSettings(DEFAULT_SETTINGS);
         const initialTheme = initializeTheme(
           DEFAULT_SETTINGS.theme.defaultMode,
@@ -205,6 +271,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (mounted) {
       fetchSettings();
+    } else {
+      // Set default settings immediately while waiting for mount
+      console.log(
+        "[SettingsProvider] Not mounted yet, setting DEFAULT_SETTINGS",
+      );
+      setSettings(DEFAULT_SETTINGS);
+      setIsLoading(false);
     }
   }, [mounted, initializeTheme, applyThemeToCSS]);
 

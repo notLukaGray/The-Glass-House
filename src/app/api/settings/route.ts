@@ -171,22 +171,26 @@ export async function GET(request: NextRequest) {
     const client = type === "build" ? sanityClientBuild : sanityClient;
     const data: SanitySettingsResponse = await client.fetch(query);
 
-    // Validate the data using Zod
-    const validatedData = validateSettings(data);
+    // Merge with defaults BEFORE validation
+    const mergedSettings = mergeWithDefaults(data);
+
+    // Validate the merged data, not the raw data
+    const validatedData = validateSettings(mergedSettings);
 
     if (!validatedData) {
       // Log validation errors for debugging
       try {
-        schemas.SiteSettings.parse(data);
+        schemas.SiteSettings.parse(mergedSettings);
       } catch (error) {
         if (error instanceof Error) {
-          logValidationErrors("Settings API", error as z.ZodError, data);
+          logValidationErrors(
+            "Settings API",
+            error as z.ZodError,
+            mergedSettings,
+          );
         }
       }
-
       console.warn("Settings validation failed, using defaults");
-
-      // Return default settings if validation fails
       return NextResponse.json(DEFAULT_SETTINGS, {
         status: 200,
         headers: {
@@ -196,9 +200,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Merge with defaults to ensure all required fields are present
-    const mergedSettings = mergeWithDefaults(data);
-
+    // Always return the merged, validated settings
     return NextResponse.json(mergedSettings, {
       status: 200,
       headers: {
