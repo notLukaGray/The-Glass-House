@@ -2,20 +2,23 @@
 import { notFound } from "next/navigation";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default function ComponentTestDetailPage({ params }: PageProps) {
+export default async function ComponentTestDetailPage({ params }: PageProps) {
+  // Await the params since it's now a Promise in Next.js 15
+  const { slug } = await params;
+
   // For now, just show the slug
-  if (!params.slug) {
+  if (!slug) {
     notFound();
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Testing: {params.slug}</h1>
+      <h1 className="text-4xl font-bold mb-8">Testing: {slug}</h1>
 
       <div className="space-y-8">
         <section>

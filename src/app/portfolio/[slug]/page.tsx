@@ -5,25 +5,28 @@ import { notFound } from "next/navigation";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default function PortfolioDetailPage({ params }: PageProps) {
+export default async function PortfolioDetailPage({ params }: PageProps) {
+  // Await the params since it's now a Promise in Next.js 15
+  const { slug } = await params;
+
   // For now, just show the slug
-  if (!params.slug) {
+  if (!slug) {
     notFound();
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Project: {params.slug}</h1>
+      <h1 className="text-4xl font-bold mb-8">Project: {slug}</h1>
 
       <div className="bg-white shadow rounded-lg p-8">
         <div className="prose max-w-none">
           <p className="text-gray-600 mb-6">
-            This is a placeholder for the {params.slug} project details. Project
+            This is a placeholder for the {slug} project details. Project
             information and assets will be displayed here.
           </p>
 
