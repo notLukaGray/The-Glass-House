@@ -68,3 +68,28 @@ export async function getLatestCommit() {
     return { commitTime: null, commitMessage: null };
   }
 }
+
+/**
+ * Fetches GitHub repository data using the GitHub API.
+ * Requires a GitHub token for authentication.
+ */
+export async function getGitHubData(repoName: string) {
+  const token = process.env.GITHUB_TOKEN;
+
+  if (!token) {
+    throw new Error("GitHub token not found in environment variables");
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repoName}`, {
+    headers: {
+      Authorization: `token ${token}`,
+      "User-Agent": "portfolio-app",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub API error: ${response.status}`);
+  }
+
+  return response.json();
+}

@@ -108,3 +108,60 @@ export const sanitizeSanityResponse = <T>(data: T): T => {
 
   return data;
 };
+
+/**
+ * Sanitizes SVG content by removing potentially dangerous elements and attributes.
+ * Removes script tags, event handlers, and other security risks.
+ */
+export function sanitizeSvg(svgContent: string): string {
+  if (!svgContent) return "";
+
+  // Remove script tags and their content
+  let sanitized = svgContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+
+  // Remove event handlers
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, "");
+
+  // Remove javascript: URLs
+  sanitized = sanitized.replace(/javascript:/gi, "");
+
+  // Remove data: URLs (potential security risk)
+  sanitized = sanitized.replace(/data:/gi, "");
+
+  // Remove external references
+  sanitized = sanitized.replace(/xlink:href\s*=\s*["'][^"']*["']/gi, "");
+
+  return sanitized;
+}
+
+/**
+ * Recursively removes sensitive fields from API responses.
+ * Strips out internal IDs, timestamps, and other metadata.
+ */
+export function cleanApiResponse(response: unknown): unknown {
+  if (Array.isArray(response)) {
+    return response.map(cleanApiResponse);
+  }
+
+  if (response && typeof response === "object") {
+    const cleaned: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(response)) {
+      // Skip internal fields
+      if (
+        key.startsWith("_") ||
+        key === "id" ||
+        key === "createdAt" ||
+        key === "updatedAt"
+      ) {
+        continue;
+      }
+
+      cleaned[key] = cleanApiResponse(value);
+    }
+
+    return cleaned;
+  }
+
+  return response;
+}

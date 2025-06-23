@@ -1,37 +1,38 @@
 // TODO: Use new API route or shared client for portfolio detail fetching if needed.
 
+import { notFound } from "next/navigation";
+
 export const revalidate = 0;
 
-export default async function PortfolioPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
 
-  // TODO: Implement proper data fetching using new API routes
-  // const portfolio = await getPortfolioDataServer({ slug });
+export default function PortfolioDetailPage({ params }: PageProps) {
+  // For now, just show the slug
+  if (!params.slug) {
+    notFound();
+  }
 
-  // Show placeholder since data fetching is not implemented
   return (
-    <main className="container mx-auto px-4 py-8">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Portfolio: {slug}</h1>
-        <p className="text-xl text-gray-600">
-          Portfolio data fetching not yet implemented. This will be connected to
-          the new API routes.
-        </p>
-      </header>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Project: {params.slug}</h1>
 
-      <div className="space-y-8">
-        <div className="border rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-          <p className="text-gray-600">
-            This page will display portfolio content once the data fetching is
-            implemented using the new API routes.
+      <div className="bg-white shadow rounded-lg p-8">
+        <div className="prose max-w-none">
+          <p className="text-gray-600 mb-6">
+            This is a placeholder for the {params.slug} project details. Project
+            information and assets will be displayed here.
           </p>
+
+          <div className="bg-gray-100 p-4 rounded">
+            <h3 className="text-lg font-semibold mb-2">Project Overview</h3>
+            <p>Project details coming soon...</p>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -215,6 +215,9 @@ export default defineConfig({
     process.env.SANITY_API_VERSION ||
     "",
 
+  // Token for authentication with Sanity project
+  token: process.env.SANITY_TOKEN || "",
+
   // Plugins enhance the studio's functionality.
   plugins: [
     // The Desk Tool is the primary interface for editing documents.

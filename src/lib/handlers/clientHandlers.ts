@@ -112,15 +112,18 @@ export interface SocialAssetQuery {
   type?: string; // e.g., 'website', 'assetSocial', etc.
 }
 
-// Helper function to get the correct base URL
-const getBaseUrl = () => {
-  if (typeof window === "undefined") {
-    // Server-side: use environment variable or default
-    return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+// Get the correct base URL for the current environment
+function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    return window.location.origin;
   }
-  // Client-side: use relative URL
-  return "";
-};
+
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  return "http://localhost:3000";
+}
 
 // Client-side SVG handler
 export async function getSvgAsset(

@@ -1,3 +1,26 @@
+import withBundleAnalyzer from "@next/bundle-analyzer";
+import { createSecureHeaders } from "next-secure-headers";
+
+const withBundleAnalyzerConfig = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+// Auto-map private Sanity env vars to NEXT_PUBLIC_ for Studio
+const sanityEnvVars = Object.keys(process.env)
+  .filter(
+    (key) => key.startsWith("SANITY_STUDIO_") || key.startsWith("SANITY_"),
+  )
+  .reduce((obj, key) => {
+    // Convert SANITY_STUDIO_ to NEXT_PUBLIC_SANITY_STUDIO_
+    // Convert SANITY_ to NEXT_PUBLIC_SANITY_
+    const publicKey = `NEXT_PUBLIC_${key}`;
+    obj[publicKey] = process.env[key];
+    return obj;
+  }, {});
+
+// Merge with existing env vars
+Object.assign(process.env, sanityEnvVars);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
@@ -35,6 +58,44 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["@sanity/ui", "framer-motion", "gsap"],
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: createSecureHeaders({
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["'self'"],
+              styleSrc: ["'self'", "'unsafe-inline'"],
+              scriptSrc: ["'self'"],
+              imgSrc: ["'self'", "data:", "https:"],
+              connectSrc: ["'self'"],
+              fontSrc: ["'self'"],
+              objectSrc: ["'none'"],
+              mediaSrc: ["'self'"],
+              frameSrc: ["'none'"],
+            },
+          },
+          referrerPolicy: "strict-origin-when-cross-origin",
+          permissionsPolicy: {
+            camera: [],
+            microphone: [],
+            geolocation: [],
+          },
+          xFrameOptions: "DENY",
+          xContentTypeOptions: "nosniff",
+          strictTransportSecurity: {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true,
+          },
+        }),
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+export default withBundleAnalyzerConfig(nextConfig);

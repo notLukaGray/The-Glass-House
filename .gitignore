@@ -43,3 +43,5 @@ next-env.d.ts
 # Local todo files
 .todo-warnings.md
 test-results/
+
+/src/generated/prisma

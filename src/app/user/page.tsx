@@ -1,69 +1,33 @@
-// TODO: Use new API route or shared client for user data fetching if needed.
+// User profile page
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import { redirect } from "next/navigation";
 
 export default async function UserPage() {
-  // const user = await getUserDataServer();
+  const session = await getServerSession(authOptions);
 
-  // if (!user) {
-  //   return (
-  //     <main className="min-h-screen flex items-center justify-center">
-  //       <h1 className="text-2xl text-red-600">Failed to load user data.</h1>
-  //     </main>
-  //   );
-  // }
-
-  // const avatar = user.avatar?._ref
-  //   ? await getImageAssetServer({ id: user.avatar._ref })
-  //   : null;
+  if (!session) {
+    redirect("/login");
+  }
 
   return (
-    <main className="min-h-screen flex items-center justify-center">
-      <div className="max-w-2xl mx-auto p-8">
-        <div className="text-center mb-8">
-          {/* {avatar && (
-            <Image
-              src={avatar.url}
-              alt={avatar.title?.en || "User Avatar"}
-              width={150}
-              height={150}
-              className="rounded-full mx-auto mb-4"
-            />
-          )} */}
-          <h1 className="text-3xl font-bold mb-2">
-            {/* {typeof user.name === "string"
-              ? user.name
-              : user.name?.en || "User"} */}
-          </h1>
-          {/* {user.jobTitle && (
-            <p className="text-xl text-gray-600">
-              {typeof user.jobTitle === "string"
-                ? user.jobTitle
-                : user.jobTitle?.en}
-            </p>
-          )} */}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Profile</h1>
+
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">User Information</h2>
+        <div className="space-y-2">
+          <p>
+            <strong>Name:</strong> {session.user.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {session.user.email}
+          </p>
+          <p>
+            <strong>Role:</strong> {session.user.role}
+          </p>
         </div>
-
-        {/* {user.bio && (
-          <div className="prose max-w-none mb-8">
-            <PortableText value={user.bio as any} />
-          </div>
-        )} */}
-
-        {/* {user.social && user.social.length > 0 && (
-          <div className="flex justify-center space-x-4">
-            {user.social.map((social) => (
-              <a
-                key={social._id}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                {social.name}
-              </a>
-            ))}
-          </div>
-        )} */}
       </div>
-    </main>
+    </div>
   );
 }

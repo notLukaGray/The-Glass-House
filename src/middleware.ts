@@ -90,9 +90,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - studio (Sanity Studio routes - handled separately)
      *
      * This is a more efficient approach than listing every path to include.
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|studio).*)",
   ],
 };

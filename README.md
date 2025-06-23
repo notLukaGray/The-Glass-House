@@ -1,39 +1,34 @@
 # Portfolio CMS
 
-A modern, modular portfolio and content management system built with **Next.js 15+** and **Sanity Studio v3**.
+This is a portfolio and content management system built with Next.js 15+ and Sanity Studio v3. It's designed for developers and designers who want a modern, secure, and flexible site for their work.
 
-## Features
+## What's Included
 
-- ⚡️ **Next.js 15+** (App Router, server components, Tailwind CSS)
-- 🗂️ **Sanity Studio v3** for content management
-- 🧩 **Modular, dynamic sections** for portfolio and pages
-- 🖼️ **Asset handling** for images, SVGs, videos, and 3D models
-- 🔒 **Secure authentication** (bcrypt hashing, rate limiting, input validation)
-- 🛡️ **Role-based access control** (admin/user roles)
-- 🌍 **Multilingual-ready** (localeString fields)
-- 🚀 **Ready for deployment** (Vercel, Netlify, or custom)
+- Next.js 15+ (App Router, server components, Tailwind CSS)
+- Sanity Studio v3 for content management
+- Modular sections for portfolio and pages
+- Handles images, SVGs, videos, and 3D models
+- Secure authentication (bcrypt, rate limiting, input validation)
+- Role-based access (admin and user)
+- Multilingual support (localeString fields)
+- Ready for Vercel, Netlify, or your own server
 
 ## Getting Started
 
-1. **Clone the repo:**
-
+1. **Clone the repository:**
    ```sh
    git clone https://github.com/notLukaGray/portfolio.git
    cd portfolio
    ```
-
 2. **Install dependencies:**
-
    ```sh
    npm install
    # or
    yarn install
    ```
-
 3. **Set up environment variables:**
-
    - Copy `.env.local.example` to `.env.local` (create if missing)
-   - Add your Sanity and auth credentials:
+   - Add your Sanity and authentication credentials:
      ```env
      SANITY_PROJECT_ID=your-sanity-project-id
      SANITY_DATASET=your-dataset
@@ -42,120 +37,85 @@ A modern, modular portfolio and content management system built with **Next.js 1
      NEXTAUTH_SECRET=your-random-secret
      NEXT_PUBLIC_BASE_URL=http://localhost:3000
      ```
-
-4. **Create secure user accounts:**
-
-   ```sh
-   node scripts/hash-passwords.js
-   ```
-
-   This will prompt you for user details and output a secure AUTH_USERS configuration.
-
-5. **Run the dev server:**
-
+4. **Run the development server:**
    ```sh
    npm run dev
    ```
-
-6. **Access the app:**
+5. **Open your browser:**
    - Main site: [http://localhost:3000](http://localhost:3000)
    - CMS: [http://localhost:3000/studio](http://localhost:3000/studio) (admin login required)
 
-## Security Features
+## Authentication and Security
 
-### Authentication
+- Passwords are hashed with bcrypt
+- Login attempts are rate-limited
+- User input is validated
+- Sessions use JWT tokens
+- Admin routes are protected by middleware
+- API routes require authentication
+- CSRF protection is handled by NextAuth
 
-- **Password hashing** with bcrypt (12 salt rounds)
-- **Rate limiting** (5 attempts per 15 minutes)
-- **Input validation** (username/password requirements)
-- **Session management** with JWT tokens
-- **Role-based access control**
+**Default admin user is created automatically on first setup:**
 
-### Protection
+- Username: `admin`
+- Password: `ChangeMe123!`
+- Email: `admin@example.com`
 
-- **Middleware protection** for admin routes
-- **API route security** with authentication checks
-- **CSRF protection** (built into NextAuth)
-- **Secure session handling**
-
-### Best Practices
-
-- **Never commit `.env.local`** or secrets to GitHub
-- **Use strong passwords** (minimum 8 chars, letters + numbers)
-- **Rotate passwords regularly**
-- **Monitor login attempts** in production logs
-
-## Authentication Setup
-
-### Creating Users
-
-1. Run the password hashing script:
-
-   ```sh
-   node scripts/hash-passwords.js
-   ```
-
-2. Follow the prompts to create a user account
-
-3. Copy the generated AUTH_USERS configuration to your `.env.local`
-
-### User Roles
-
-- **admin**: Full access to Sanity Studio and protected routes
-- **user**: Basic authenticated access
-
-### Environment Variables
-
-```env
-# Required for authentication
-NEXTAUTH_SECRET=your-32-character-secret
-AUTH_USERS=[{"id":"1","name":"Admin","username":"admin","password":"$2a$12$...","role":"admin","createdAt":"2024-01-01T00:00:00.000Z"}]
-```
+**Change the default password after your first login.**
 
 ## Deployment
 
-- Deploy to Vercel, Netlify, or your own server
-- Make sure to set all environment variables in your deployment platform
-- Use a strong NEXTAUTH_SECRET in production
-- Consider using a database for user management in production
+### Deploying to Vercel
 
-## Development
+1. **Install the Vercel CLI:**
+   ```sh
+   npm i -g vercel
+   ```
+2. **Deploy:**
+   ```sh
+   npm run deploy
+   # or for preview
+   npm run deploy:preview
+   ```
+3. **Set environment variables in the Vercel dashboard:**
 
-### Available Scripts
+   - `DATABASE_URL` (your production database URL)
+   - `NEXTAUTH_SECRET` (32+ character secret)
+   - `NEXTAUTH_URL` (your deployed site URL)
+   - Sanity variables if you use Sanity
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `node scripts/hash-passwords.js` - Create secure user accounts
+4. **Set up your production database (Neon, Supabase, etc.)**
+5. **Visit `/setup` on your deployed site to create the admin user.**
+6. **Login at `/login` and access the studio at `/studio`.**
 
-### Authentication Hooks
+**If you run into issues:**
 
-```tsx
-import { useAuth } from "@/lib/hooks/useAuth";
+- Double-check your environment variables
+- Make sure your database is reachable
+- Visit `/setup` to trigger admin creation if needed
 
-function MyComponent() {
-  const { isAuthenticated, isAdmin, login, logout } = useAuth();
+### Other Deployment Options
 
-  // Use authentication utilities
-}
-```
+- You can deploy to Netlify or your own server
+- Make sure all environment variables are set
+- Use a strong `NEXTAUTH_SECRET` in production
 
-### Protected Routes
+## Scripts
 
-```tsx
-// Server-side protection
-const session = await getServerSession(authOptions);
-if (!session) {
-  redirect("/login");
-}
+- `npm run dev` – Start the development server
+- `npm run build` – Build for production
+- `npm run start` – Start the production server
+- `npm run lint` – Run ESLint
+- `npm run manage-users` – Manage users in the database
+- `npm run deploy` – Deploy to Vercel (production)
+- `npm run deploy:preview` – Deploy to Vercel (preview)
 
-// Client-side protection
-const { requireAuth, requireRole } = useAuth();
-requireRole("admin", () => {
-  // Admin-only code
-});
-```
+## Development Notes
+
+- Use the `/setup` page to create or reset the admin user
+- All authentication is handled through the database (no hardcoded users)
+- Sanity Studio is available at `/studio` for admin users
+- The codebase is fully type-checked and linted
 
 ## License
 
@@ -163,4 +123,4 @@ MIT (or your preferred license)
 
 ---
 
-**Made with ❤️ by Luka Gray**
+Maintained by Luka Gray. If you have questions or want to contribute, open an issue or pull request.

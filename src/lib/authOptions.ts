@@ -1,25 +1,31 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions, User } from "next-auth";
+import { validateUserCredentials } from "./auth/db";
 
-interface HardcodedUser {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  role: string;
+// Extend NextAuth types to include role
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  }
 }
 
-/**
- * NOTE ON SECURITY:
- * Storing plaintext passwords in an environment variable is highly insecure and should
- * NEVER be used in production. This is a temporary solution for local development.
- * In a real-world application, you should:
- * 1. Store hashed passwords in a database.
- * 2. Use a library like `bcrypt` to compare the provided password with the stored hash.
- */
-const users: HardcodedUser[] = process.env.AUTH_USERS
-  ? JSON.parse(process.env.AUTH_USERS)
-  : [];
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: string;
+  }
+}
 
 // --- In-Memory Rate Limiter ---
 // This simple rate limiter helps prevent brute-force attacks by tracking login attempts
@@ -92,26 +98,21 @@ export const authOptions: NextAuthOptions = {
             loginAttempts.set(key, { count: 1, lastAttempt: now });
           }
 
-          // Find the user in our "database" (the environment variable array).
-          const user = users.find(
-            (u: HardcodedUser) =>
-              u.username === credentials?.username &&
-              u.password === credentials?.password,
+          // Validate credentials against the database
+          const user = await validateUserCredentials(
+            credentials?.username as string,
+            credentials?.password as string,
           );
 
           if (user) {
             // On successful login, clear their rate limit attempts.
             loginAttempts.delete(key);
 
-            // IMPORTANT: Never return the password in the user object.
-            // Even though it's not sent to the client by default, it's a critical security practice.
-            const { ...userWithoutPassword } = user;
-
             // The 'user' object returned here is passed to the JWT callback.
             // NextAuth expects the 'id' property to be a string.
             return {
-              ...userWithoutPassword,
-              id: String(user.id),
+              ...user,
+              id: user.id,
             } as User;
           }
 
@@ -141,7 +142,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // The token argument is the JWT that was created in the `jwt` callback.
       if (session.user && token.role) {
-        (session.user as { role?: string }).role = token.role as string;
+        (session.user as { role?: string; id?: string }).role = token.role;
+        (session.user as { id?: string }).id = token.sub;
       }
       return session;
     },

@@ -7,22 +7,23 @@ interface AboutWorkExperienceProps {
   items: WorkExperienceItem[];
 }
 
-// Helper function to extract text from block content
-const extractTextFromBlocks = (
+// Extract plain text from block content
+function extractTextFromBlocks(
   blocks: WorkExperienceItem["description"],
-): string => {
+): string {
   if (!blocks || !Array.isArray(blocks)) return "";
 
   return blocks
     .map((block) => {
-      if (block.children && Array.isArray(block.children)) {
-        return block.children.map((child) => child.text || "").join(" ");
+      if (block._type === "block" && block.children) {
+        return block.children
+          .map((child: { text?: string }) => child.text || "")
+          .join("");
       }
       return "";
     })
-    .join(" ")
-    .trim();
-};
+    .join(" ");
+}
 
 const AboutWorkExperience: React.FC<AboutWorkExperienceProps> = ({ items }) => (
   <section>
