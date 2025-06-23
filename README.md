@@ -78,7 +78,6 @@ This is a portfolio and content management system built with Next.js 15+ and San
    npm run deploy:preview
    ```
 3. **Set environment variables in the Vercel dashboard:**
-
    - `DATABASE_URL` (your production database URL)
    - `NEXTAUTH_SECRET` (32+ character secret)
    - `NEXTAUTH_URL` (your deployed site URL)
@@ -124,3 +123,5 @@ MIT (or your preferred license)
 ---
 
 Maintained by Luka Gray. If you have questions or want to contribute, open an issue or pull request.
+
+# Sun Jun 22 22:50:35 CDT 2025
