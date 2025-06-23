@@ -18,6 +18,9 @@ async function main() {
   try {
     switch (command) {
       case "setup-admin":
+        await ensureDefaultAdmin();
+        break;
+
         console.log("Setting up default admin user...");
         const result = await ensureDefaultAdmin();
         console.log(result.message);

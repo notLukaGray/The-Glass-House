@@ -1,13 +1,6 @@
 import React from "react";
 import { z } from "zod";
 
-/**
- * MissingModule component for when data validation fails
- *
- * This component is displayed when critical data is missing or invalid.
- * It provides a user-friendly error message and can include debugging
- * information in development mode.
- */
 export function MissingModule({
   moduleName,
   errors,
@@ -41,12 +34,6 @@ export function MissingModule({
   );
 }
 
-/**
- * Generic error boundary component for data validation failures
- *
- * This component can be used to wrap content that might fail validation
- * and provide a consistent error experience.
- */
 export function ValidationErrorBoundary({
   children,
   fallback = MissingModule,

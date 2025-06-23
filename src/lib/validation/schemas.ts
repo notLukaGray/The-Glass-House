@@ -1,21 +1,5 @@
 import { z } from "zod";
 
-/**
- * Zod validation schemas for Sanity data structures
- *
- * This file defines comprehensive validation schemas for all data
- * fetched from Sanity CMS. These schemas ensure data integrity
- * and provide runtime type safety beyond TypeScript's compile-time checks.
- *
- * Each schema includes:
- * - Required field validation
- * - Type checking for all fields
- * - Optional field handling
- * - Nested object validation
- * - Array validation where applicable
- */
-
-// Base schemas for common patterns
 export const SanityReferenceSchema = z.object({
   _ref: z.string(),
   _type: z.literal("reference"),
@@ -29,12 +13,10 @@ export const SanitySvgReferenceSchema = SanityReferenceSchema.extend({
   svgData: z.string().optional(),
 });
 
-// Localized text schema (for multi-language support)
 export const LocalizedTextSchema = z.object({
   en: z.string().min(1, "English text is required"),
 });
 
-// Block content schemas for rich text
 export const BlockContentChildSchema = z.object({
   _type: z.string(),
   _key: z.string(),
@@ -50,7 +32,6 @@ export const BlockContentSchema = z.object({
   children: z.array(BlockContentChildSchema),
 });
 
-// Icon asset schemas
 export const ResolvedIconSchema = z.object({
   _id: z.string(),
   svgData: z.string(),
@@ -62,7 +43,6 @@ export const IconAssetSchema = z.union([
   ResolvedIconSchema,
 ]);
 
-// Content item schemas
 export const WorkExperienceItemSchema = z.object({
   _key: z.string(),
   company: LocalizedTextSchema,
@@ -125,7 +105,6 @@ export const ButtonSchema = z.object({
   url: z.string().url(),
 });
 
-// Positioning and effects schemas
 export const PositioningSchema = z.object({
   fullBleed: z.boolean().optional(),
   size: z.string().optional(),
@@ -149,7 +128,6 @@ export const PositioningAdvancedSchema = z.object({
   hideOnDesktop: z.boolean().optional(),
 });
 
-// Settings schemas
 export const ThemeColorsSchema = z.object({
   primary: z.string(),
   secondary: z.string().optional(),
@@ -214,167 +192,148 @@ export const SeoSchema = z.object({
   ogImage: SanityImageReferenceSchema.optional(),
 });
 
-export const SiteSettingsSchema = z.object({
-  basicInfo: BasicInfoSchema,
-  theme: ThemeSchema,
-  seo: SeoSchema.optional(),
-});
-
-// User data schemas
-export const UserDataSchema = z.object({
+export const SettingsSchema = z.object({
   _id: z.string(),
-  name: z.string(),
-  email: z.string().email(),
-  bio: z.array(BlockContentSchema).optional(),
-  avatar: SanityImageReferenceSchema.optional(),
+  _type: z.literal("siteSettings"),
+  basicInfo: BasicInfoSchema,
+  seo: SeoSchema.optional(),
+  theme: ThemeSchema.optional(),
   socialLinks: z
     .array(
       z.object({
+        _key: z.string(),
         platform: z.string(),
         url: z.string().url(),
+        icon: IconAssetSchema.optional(),
       }),
     )
     .optional(),
 });
 
-// Portfolio schemas
-export const PortfolioPreviewSchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-  slug: z.string(),
-  description: z.string().optional(),
-  coverImage: SanityImageReferenceSchema.optional(),
+export const UserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  role: z.enum(["admin", "user"]),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const PortfolioItemSchema = z.object({
+  _key: z.string(),
+  title: LocalizedTextSchema,
+  description: z.array(BlockContentSchema),
+  image: SanityImageReferenceSchema.optional(),
+  url: z.string().url().optional(),
   tags: z.array(z.string()).optional(),
-  publishedAt: z.string().optional(),
 });
 
-export const PortfolioDetailSchema = PortfolioPreviewSchema.extend({
-  content: z.array(z.any()), // Will be validated by individual section schemas
-  seo: SeoSchema.optional(),
-});
-
-// Page schemas
-export const PageMetaSchema = z.object({
+export const PortfolioSchema = z.object({
   _id: z.string(),
-  title: z.string(),
+  _type: z.literal("portfolio"),
+  title: LocalizedTextSchema,
+  description: z.array(BlockContentSchema),
+  content: z.array(z.any()),
+  meta: z
+    .object({
+      title: LocalizedTextSchema.optional(),
+      description: LocalizedTextSchema.optional(),
+      image: SanityImageReferenceSchema.optional(),
+    })
+    .optional(),
+});
+
+export const PageSchema = z.object({
+  _id: z.string(),
+  _type: z.literal("page"),
+  title: LocalizedTextSchema,
   slug: z.string(),
-  description: z.string().optional(),
-  seo: SeoSchema.optional(),
+  content: z.array(z.any()),
+  meta: z
+    .object({
+      title: LocalizedTextSchema.optional(),
+      description: LocalizedTextSchema.optional(),
+      image: SanityImageReferenceSchema.optional(),
+    })
+    .optional(),
 });
 
-export const PageDetailSchema = PageMetaSchema.extend({
-  content: z.array(z.any()), // Will be validated by individual section schemas
-});
-
-// About page schemas
-export const AboutDataSchema = z.object({
+export const AboutPageSchema = z.object({
   _id: z.string(),
-  title: z.string(),
-  content: z.array(z.any()), // Will be validated by individual section schemas
-  workExperience: z.array(WorkExperienceItemSchema).optional(),
-  education: z.array(EducationItemSchema).optional(),
-  skills: z.array(SkillItemSchema).optional(),
-  software: z.array(SoftwareItemSchema).optional(),
-  process: z.array(ProcessStepSchema).optional(),
-  faqs: z.array(FaqItemSchema).optional(),
-  quotes: z.array(QuoteItemSchema).optional(),
+  _type: z.literal("about"),
+  title: LocalizedTextSchema,
+  content: z.array(z.any()),
+  meta: z
+    .object({
+      title: LocalizedTextSchema.optional(),
+      description: LocalizedTextSchema.optional(),
+      image: SanityImageReferenceSchema.optional(),
+    })
+    .optional(),
 });
 
-// Asset schemas
-export const SvgAssetSchema = z.object({
+export const AssetSchema = z.object({
   _id: z.string(),
-  _type: z.literal("svgAsset"),
-  name: z.string(),
-  svgData: z.string(),
-  color: z.string().optional(),
-});
-
-export const ImageAssetSchema = z.object({
-  _id: z.string(),
-  _type: z.literal("imageAsset"),
-  name: z.string(),
-  url: z.string().url(),
+  _type: z.string(),
+  title: z.string().optional(),
   alt: z.string().optional(),
-  width: z.number().optional(),
-  height: z.number().optional(),
+  url: z.string().url().optional(),
+  svgData: z.string().optional(),
+  metadata: z.record(z.any()).optional(),
 });
 
-export const VideoAssetSchema = z.object({
-  _id: z.string(),
-  _type: z.literal("videoAsset"),
-  name: z.string(),
-  url: z.string().url(),
-  thumbnail: z.string().url().optional(),
-  duration: z.number().optional(),
-});
-
-export const SocialAssetSchema = z.object({
-  _id: z.string(),
-  _type: z.literal("socialAsset"),
-  name: z.string(),
-  platform: z.string(),
-  url: z.string().url(),
-  icon: IconAssetSchema.optional(),
-});
-
-// API response schemas
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
+    success: z.boolean(),
     data: dataSchema.optional(),
     error: z.string().optional(),
   });
 
-// Export all schemas for use throughout the application
 export const schemas = {
-  // Base schemas
-  SanityReference: SanityReferenceSchema,
-  SanityImageReference: SanityImageReferenceSchema,
-  SanitySvgReference: SanitySvgReferenceSchema,
-  LocalizedText: LocalizedTextSchema,
-
-  // Content schemas
-  BlockContent: BlockContentSchema,
-  BlockContentChild: BlockContentChildSchema,
-  IconAsset: IconAssetSchema,
-  ResolvedIcon: ResolvedIconSchema,
-
-  // Item schemas
-  WorkExperienceItem: WorkExperienceItemSchema,
-  EducationItem: EducationItemSchema,
-  SoftwareItem: SoftwareItemSchema,
-  SkillItem: SkillItemSchema,
-  ProcessStep: ProcessStepSchema,
-  FaqItem: FaqItemSchema,
-  QuoteItem: QuoteItemSchema,
-  Button: ButtonSchema,
-
-  // Layout schemas
-  Positioning: PositioningSchema,
-  Effects: EffectsSchema,
-  PositioningAdvanced: PositioningAdvancedSchema,
-
-  // Settings schemas
-  ThemeColors: ThemeColorsSchema,
-  ThemeOverlays: ThemeOverlaysSchema,
-  ThemeMode: ThemeModeSchema,
-  Typography: TypographySchema,
-  Spacing: SpacingSchema,
-  Theme: ThemeSchema,
-  BasicInfo: BasicInfoSchema,
-  Seo: SeoSchema,
-  SiteSettings: SiteSettingsSchema,
-
-  // Data schemas
-  UserData: UserDataSchema,
-  PortfolioPreview: PortfolioPreviewSchema,
-  PortfolioDetail: PortfolioDetailSchema,
-  PageMeta: PageMetaSchema,
-  PageDetail: PageDetailSchema,
-  AboutData: AboutDataSchema,
-
-  // Asset schemas
-  SvgAsset: SvgAssetSchema,
-  ImageAsset: ImageAssetSchema,
-  VideoAsset: VideoAssetSchema,
-  SocialAsset: SocialAssetSchema,
-} as const;
+  base: {
+    SanityReference: SanityReferenceSchema,
+    SanityImageReference: SanityImageReferenceSchema,
+    SanitySvgReference: SanitySvgReferenceSchema,
+    LocalizedText: LocalizedTextSchema,
+    BlockContent: BlockContentSchema,
+    IconAsset: IconAssetSchema,
+  },
+  content: {
+    WorkExperienceItem: WorkExperienceItemSchema,
+    EducationItem: EducationItemSchema,
+    SoftwareItem: SoftwareItemSchema,
+    SkillItem: SkillItemSchema,
+    ProcessStep: ProcessStepSchema,
+    FaqItem: FaqItemSchema,
+    QuoteItem: QuoteItemSchema,
+    Button: ButtonSchema,
+  },
+  item: {
+    Positioning: PositioningSchema,
+    Effects: EffectsSchema,
+    PositioningAdvanced: PositioningAdvancedSchema,
+  },
+  layout: {
+    Theme: ThemeSchema,
+    Typography: TypographySchema,
+    Spacing: SpacingSchema,
+  },
+  settings: {
+    Settings: SettingsSchema,
+    BasicInfo: BasicInfoSchema,
+    Seo: SeoSchema,
+    ThemeColors: ThemeColorsSchema,
+    ThemeMode: ThemeModeSchema,
+    ThemeOverlays: ThemeOverlaysSchema,
+  },
+  data: {
+    User: UserSchema,
+    Portfolio: PortfolioSchema,
+    PortfolioItem: PortfolioItemSchema,
+    Page: PageSchema,
+    AboutPage: AboutPageSchema,
+  },
+  asset: {
+    Asset: AssetSchema,
+  },
+};

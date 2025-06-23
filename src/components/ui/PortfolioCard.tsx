@@ -31,9 +31,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
     const loadImage = async () => {
       if (portfolio.coverAsset) {
         try {
-          const imageAsset = await getImageAsset({
-            id: portfolio.coverAsset._ref,
-          });
+          const imageAsset = await getImageAsset(portfolio.coverAsset._ref);
           setCoverImage(imageAsset);
         } catch (error) {
           console.error("Error loading portfolio image:", error);

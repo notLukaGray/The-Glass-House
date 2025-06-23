@@ -1,21 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
-/**
- * GET handler for individual page API route.
- *
- * This endpoint fetches complete page data by slug, including:
- * - Page metadata (title, subtitle)
- * - Resolved section references with their content
- * - Media content (images, videos, icons, avatars)
- *
- * The query filters by the exact slug to ensure the correct page is returned.
- * All section content is resolved in a single query to optimize performance.
- *
- * @param {NextRequest} _request - The incoming request (unused but required by Next.js).
- * @param {Promise<{ slug: string }>} params - Dynamic route parameters containing the page slug.
- * @returns {Promise<NextResponse>} JSON response with page data or error.
- */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },

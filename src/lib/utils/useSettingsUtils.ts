@@ -2,9 +2,6 @@ import { useSettings } from "@/components/providers/SettingsProvider";
 import { useMemo } from "react";
 import { ThemeColors } from "@/types/settings";
 
-/**
- * Utility hook for common settings operations
- */
 export const useSettingsUtils = () => {
   const { settings, currentTheme, isLoading, error } = useSettings();
 

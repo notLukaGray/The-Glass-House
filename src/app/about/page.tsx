@@ -2,10 +2,6 @@ import React from "react";
 import { sectionComponentMap } from "@/lib/handlers/componentHandler";
 import type { ReactElement } from "react";
 
-/**
- * About page component that displays information about the portfolio owner.
- * Fetches about data from the API and renders it using the component handler system.
- */
 export default async function AboutPage(): Promise<ReactElement> {
   try {
     // Fetch about data from the new API route

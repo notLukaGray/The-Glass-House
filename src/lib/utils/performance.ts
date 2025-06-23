@@ -35,11 +35,6 @@ export class PerformanceMonitor {
         renderTime: endTime - startTime,
         loadStartTime: startTime,
       });
-
-      // Log performance data in development
-      if (process.env.NODE_ENV === "development") {
-        console.log(`🚀 ${componentName} loaded in ${loadTime.toFixed(2)}ms`);
-      }
     };
   }
 
@@ -68,13 +63,6 @@ export class PerformanceMonitor {
         renderTime: endTime - startTime,
         loadStartTime: startTime,
       });
-
-      // Log performance data in development
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `🚀 ${componentName} lazy loaded in ${loadTime.toFixed(2)}ms`,
-        );
-      }
     }
   }
 

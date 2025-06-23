@@ -1,29 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
-/**
- * GET handler for individual portfolio API route.
- *
- * This endpoint fetches complete portfolio data by slug, including:
- * - Project metadata (title, subtitle, color theme, access control)
- * - Cover asset and external link information
- * - Categorization (categories and tags)
- * - Complete section content with all possible field variations
- *
- * The query is designed to handle multiple section types in a single request:
- * - Text content sections (content, leftContent, rightContent)
- * - Media sections (images, videos, assets)
- * - Interactive sections (FAQs, buttons, steps)
- * - Layout sections (fullBleed, layout, style)
- *
- * This comprehensive approach allows for flexible content management
- * where different projects can have different section types without
- * requiring separate API endpoints for each content type.
- *
- * @param {NextRequest} _request - The incoming request (unused but required by Next.js).
- * @param {Promise<{ slug: string }>} params - Dynamic route parameters containing the portfolio slug.
- * @returns {Promise<NextResponse>} JSON response with portfolio data or error.
- */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },

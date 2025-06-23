@@ -23,7 +23,7 @@ const RelatedSection: React.FC<RelatedSectionProps> = ({ heading, items }) => {
       const urls: Record<string, string> = {};
       for (const item of items) {
         if (item.coverImage) {
-          const imageAsset = await getImageAsset({ id: item.coverImage._ref });
+          const imageAsset = await getImageAsset(item.coverImage._ref);
           if (imageAsset) urls[item._id] = imageAsset.url;
         }
       }

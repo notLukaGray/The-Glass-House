@@ -15,6 +15,7 @@ import {
   Effects,
   PositioningAdvanced,
 } from "@/types/content";
+import { sanitizeString } from "@/lib/utils/string";
 
 interface TextSectionProps {
   content: BlockContent[];
@@ -24,18 +25,6 @@ interface TextSectionProps {
   textAlign?: string;
   // Accept any extra props (for flattening)
   [key: string]: unknown;
-}
-
-// Utility to sanitize strings (remove invisible/non-printable characters)
-function sanitizeString(str: string | undefined): string | undefined {
-  return typeof str === "string"
-    ? str
-        .replace(
-          /[\u200B-\u200D\uFEFF\u202A-\u202E\u2060-\u206F\u00A0\u180E\u2000-\u200A]/g,
-          "",
-        )
-        .trim()
-    : str;
 }
 
 function getSizeClass(size?: string) {
@@ -127,21 +116,18 @@ async function resolveAssets(blocks: BlockContent[]): Promise<BlockContent[]> {
     blocks.map(async (block) => {
       if (block._type === "asset" && typeof block._ref === "string") {
         try {
-          const imageAsset = await getImageAsset({ id: block._ref });
+          const imageAsset = await getImageAsset(block._ref);
           if (imageAsset)
             return { ...block, ...imageAsset, _resolvedType: "image" };
 
-          const svgAsset = await getSvgAsset({ id: block._ref });
+          const svgAsset = await getSvgAsset(block._ref);
           if (svgAsset) return { ...block, ...svgAsset, _resolvedType: "svg" };
 
-          const videoAsset = await getVideoAsset({ id: block._ref });
+          const videoAsset = await getVideoAsset(block._ref);
           if (videoAsset)
             return { ...block, ...videoAsset, _resolvedType: "video" };
 
-          const socialAsset = await getSocialAsset({
-            id: block._ref,
-            type: "website",
-          });
+          const socialAsset = await getSocialAsset(block._ref);
           if (socialAsset)
             return { ...block, ...socialAsset, _resolvedType: "social" };
         } catch (error) {
@@ -157,9 +143,6 @@ async function resolveAssets(blocks: BlockContent[]): Promise<BlockContent[]> {
 
 const TextSection: React.FC<TextSectionProps> = (props) => {
   const { settings, currentTheme } = useSettings();
-
-  // Debug log for textAlign and all props
-  console.log("TextSection textAlign:", props.textAlign, props);
 
   // Flatten nested fields into top-level props
   const {

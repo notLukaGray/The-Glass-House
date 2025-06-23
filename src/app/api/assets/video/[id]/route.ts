@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
-import { sanitizeSanityResponse } from "@/lib/handlers/sanity";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
 export interface VideoAsset {
   _id: string;
@@ -54,10 +53,7 @@ export async function GET(
       );
     }
 
-    // Sanitize the response to remove zero-width spaces
-    const sanitizedAsset = sanitizeSanityResponse(asset);
-
-    return NextResponse.json(sanitizedAsset);
+    return NextResponse.json(asset);
   } catch (error) {
     console.error("Error fetching video asset:", error);
     return NextResponse.json(

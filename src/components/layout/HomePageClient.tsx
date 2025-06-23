@@ -4,7 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import TextPressure from "@/components/features/TextPressure";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { useSettings } from "@/components/providers/SettingsProvider";
+import { useSettings } from "../providers/SettingsProvider";
 
 const DotGrid = dynamic(() => import("@/components/features/DotGrid"), {
   ssr: false,
@@ -22,11 +22,19 @@ function TimerClient({
 
   const themeColors =
     currentTheme === "dark"
-      ? settings?.theme.darkMode.colors
-      : settings?.theme.lightMode.colors;
-  const backgroundColor = themeColors?.secondary || "rgba(0, 0, 0, 0.8)";
-  const textColor = themeColors?.text || "#FFFFFF";
-  const accentColor = themeColors?.accent || "#8f4d89";
+      ? settings?.theme?.darkMode?.colors
+      : settings?.theme?.lightMode?.colors;
+
+  // Better fallback values based on current theme
+  const backgroundColor =
+    themeColors?.secondary ||
+    (currentTheme === "dark"
+      ? "rgba(255, 255, 255, 0.1)"
+      : "rgba(0, 0, 0, 0.1)");
+  const textColor =
+    themeColors?.text || (currentTheme === "dark" ? "#FFFFFF" : "#000000");
+  const accentColor =
+    themeColors?.accent || (currentTheme === "dark" ? "#3b82f6" : "#007acc");
 
   React.useEffect(() => {
     if (!commitTime) return;
@@ -75,26 +83,20 @@ export default function HomePageClient({
 }) {
   const { settings, currentTheme } = useSettings();
 
-  // Use fallback values if settings are missing
+  // Use fallback values if settings are missing or still loading
   const themeColors = settings?.theme?.[
     currentTheme === "dark" ? "darkMode" : "lightMode"
   ]?.colors || {
-    primary: "#000000",
-    secondary: "#666666",
-    accent: "#ff00ea",
-    background: "#000000",
-    text: "#FFFFFF",
+    primary: currentTheme === "dark" ? "#ffffff" : "#000000",
+    secondary: currentTheme === "dark" ? "#a3a3a3" : "#666666",
+    accent: currentTheme === "dark" ? "#3b82f6" : "#007acc",
+    background: currentTheme === "dark" ? "#000000" : "#ffffff",
+    text: currentTheme === "dark" ? "#ffffff" : "#000000",
   };
 
   const backgroundColor = themeColors.background;
   const textColor = themeColors.text;
   const accentColor = themeColors.accent;
-
-  console.log("[HomePageClient] Rendering with:", {
-    settings,
-    currentTheme,
-    themeColors,
-  });
 
   return (
     <main

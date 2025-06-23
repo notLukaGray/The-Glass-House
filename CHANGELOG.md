@@ -2,42 +2,131 @@
 
 This file lists the main changes and improvements to the portfolio CMS. It's here so you can see what's new, what's fixed, and what's changed over time.
 
-## 2024-06-13
+## 2025-06-23
 
-- Cleaned up all code comments and documentation to remove AI/LLM patterns
-- Merged deployment instructions into the README
-- Updated all docs to reflect the current state of the project
-- Fixed all lint and type errors
-- Improved security and authentication setup
-- Removed old scripts and test files
-- Added user management through the database only
-- Improved error handling and loading states
-- Optimized bundle size and dependencies
-- Updated Sanity Studio integration
+### Bug Fixes
 
-## 2024-05-30
+- **CSP Violations**: Fixed Content Security Policy to allow external domains (GitHub API, Unsplash, W3Schools, Cloudinary)
+- **Build Errors**: Resolved missing Sanity chunks in build by cleaning cache and reinstalling dependencies
+- **Environment Variables**: Improved Sanity environment variable configuration and validation
+- **Next.js 15 Compatibility**: Added proper error and not-found pages for Next.js 15+ app router
+- **Code Formatting**: Fixed all Prettier and ESLint formatting issues throughout the codebase
+- **Node.js Compatibility**: Added engines specification to enforce Node.js 20+ and npm 10+ for Vercel deployment
 
-- Switched authentication to use Prisma and PostgreSQL
-- Added bcrypt password hashing
-- Created admin dashboard for user management
-- Added CLI tools for user management
-- Set up Vercel deployment and GitHub Actions
-- Improved environment variable handling
+### Improvements
 
-## 2024-05-10
+- **Package Updates**: Updated all packages to latest compatible versions
+- **Error Handling**: Added comprehensive error pages with proper navigation
+- **Build Process**: Improved build reliability and dependency management
+- **Security**: Enhanced CSP configuration for better security while allowing required external resources
 
-- Upgraded to Next.js 15 and Sanity Studio v3
-- Modularized all page sections
-- Added support for images, SVGs, videos, and 3D models
-- Improved Tailwind config and design tokens
-- Added Zod validation for all data
-- Set up strict TypeScript and ESLint
+### Technical Details
 
-## Earlier
+- Added `src/app/error.tsx` and `src/app/not-found.tsx` for proper error handling
+- Updated `package.json` with engines field for Node.js version enforcement
+- Fixed import formatting and TypeScript type issues
+- Resolved all linting warnings and errors
+- Improved build cache management
 
-- Initial project setup
-- Basic portfolio and CMS features
-- First deployment and user authentication
+## 2025-06-22
+
+### Major Infrastructure Overhaul
+
+- **Homepage Restoration**: Fixed DotGrid, TextPressure, and all features with proper CSP and settings fallbacks
+- **Build System**: Added Prisma generate to build script for Vercel deployment
+- **Next.js 15**: Fixed async params in dynamic route pages for Next.js 15 compatibility
+- **Package Management**: Regenerated package-lock.json with clean npm cache
+- **Deployment**: Triggered fresh Vercel deployment with infrastructure improvements
+
+### Database & Authentication
+
+- **Complete Infrastructure Overhaul**: Database auth, admin system, deployment automation
+- **GitHub Actions**: Added CI/CD workflow for automated deployments
+- **Dependencies**: Optimized dependencies and enhanced build infrastructure
+- **Backend Infrastructure**: Clean, documented, and optimized backend infrastructure
+
+## 2025-06-21
+
+### Major Refactor
+
+- **Strict Linting**: Implemented comprehensive ESLint and TypeScript rules
+- **Type Safety**: Enhanced type safety throughout the application
+- **Modular Data Layer**: Reorganized data handling for better maintainability
+- **SSR/Client Separation**: Improved server-side rendering and client-side code separation
+- **Theme System**: Fixed theme-related issues and improved theme handling
+- **Error Handling**: Added comprehensive error handling throughout the application
+
+## 2025-06-20
+
+### Production Readiness
+
+- **GitHub Integration**: Refactored GitHub API calls to work directly from server components
+- **Build Configuration**: Updated build configuration and fixed all build issues
+- **API Routes**: Implemented secure server-side API routes for all data fetching
+- **Handler System**: Complete handler system refactor with type safety
+- **Page Updates**: Updated all pages to use new API routes and handlers
+- **Studio Configuration**: Updated Sanity Studio configuration and layout
+- **Code Cleanup**: Removed old file structure and legacy code
+
+### Diagnostic & Debugging
+
+- Added diagnostic logging for Vercel debugging
+- Fixed unused imports in GitHub API route
+
+## 2025-06-18
+
+### Environment & Build Fixes
+
+- **Environment Variables**: Fixed environment variables and added support for NEXT*PUBLIC* Sanity env vars
+- **Build Process**: Disabled ESLint and TypeScript checks during build to resolve build issues
+- **Dependencies**: Fixed dependency issues and conflicts
+- **Theme System**: Implemented theme system and improved loading experience
+- **ESLint Configuration**: Added ESLint configuration to handle linting errors
+
+## 2025-06-16
+
+### Project Structure & Sanity Integration
+
+- **Project Reorganization**: Renamed test to gallery, moved components showcase to \_components
+- **Sanity Schemas**: Refactored Sanity schemas, Studio UI, and frontend for modular sections
+- **Asset Handling**: Improved asset handling and editor UX
+- **Custom Desk Structure**: Added logical sidebar grouping (Content, Assets, Settings, Sections)
+- **Section Management**: Moved pageSections to reusable section document type
+- **Frontend Updates**: Dereference and flatten section references, render all section objects
+- **Portable Text**: Implemented @portabletext/react with custom block/asset handlers
+
+## 2025-06-15
+
+### Major Framework Updates
+
+- **Tailwind v4 Migration**: Migrated to official Tailwind v4.1+ setup with postcss.config.mjs
+- **Next.js 15 Compatibility**: Fixed dynamic route params and null state handling
+- **Type Safety**: Ensured all asset and section types are type-safe
+- **Build Configuration**: Updated package.json and lock for latest dependencies
+- **Component System**: Fixed PortfolioSectionRenderer and home page for Tailwind compatibility
+
+### Authentication & Performance
+
+- **Revalidation**: Added revalidation and optimize Sanity client
+- **TypeScript Types**: Added proper TypeScript types for Sanity components
+- **Section Mapping**: Ensured all section components are properly mapped
+- **Login System**: Fixed login page with Suspense wrapper for Next.js 15+ compatibility
+
+### Development Experience
+
+- **Build Relaxation**: Temporarily relaxed TypeScript and ESLint build errors for Vercel deploy
+- **Homepage Updates**: Updated homepage with timer and commit message
+- **Component Properties**: Enhanced components and Tailwind properties
+
+## 2025-06-14
+
+### Project Foundation
+
+- **Initial Setup**: Created Next.js portfolio with Sanity CMS and NextAuth
+- **Project Documentation**: Updated README with project details and setup instructions
+- **License**: Updated LICENSE file
+- **Authentication**: Enforced auth for locked portfolios, added caching, and updated auth export
+- **Portfolio System**: Implemented secure portfolio access with authentication requirements
 
 ---
 

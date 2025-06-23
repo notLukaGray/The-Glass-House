@@ -3,80 +3,105 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useState,
+  useEffect,
   useCallback,
-  useMemo,
 } from "react";
-// import { getSettingsClient } from "@/lib/handlers/sanity";
-import {
-  SiteSettings,
-  SettingsContextType,
-  DEFAULT_SETTINGS,
-  ThemeMode,
-} from "@/types/settings";
+import type { SiteSettings, ThemeMode } from "@/types/settings";
 
-/**
- * The context for providing site settings throughout the application.
- * It holds the settings data, loading and error states, and functions to interact with the theme.
- */
-const SettingsContext = createContext<SettingsContextType>({
+const DEFAULT_SETTINGS: SiteSettings = {
+  basicInfo: {
+    title: { _type: "localeString", en: "Portfolio" },
+    description: { _type: "localeString", en: "My portfolio website" },
+    favicon: { _type: "reference", _ref: "" },
+    logo: { _type: "reference", _ref: "" },
+  },
+  seo: {
+    metaTitle: { _type: "localeString", en: "Portfolio" },
+    metaDescription: { _type: "localeString", en: "My portfolio website" },
+    ogImage: { _type: "reference", _ref: "" },
+  },
+  theme: {
+    defaultMode: "system",
+    lightMode: {
+      colors: {
+        primary: "#000000",
+        secondary: "#666666",
+        accent: "#007acc",
+        background: "#ffffff",
+        text: "#000000",
+      },
+      overlays: {
+        color: "#000000",
+        opacity: 0.5,
+      },
+    },
+    darkMode: {
+      colors: {
+        primary: "#ffffff",
+        secondary: "#a3a3a3",
+        accent: "#3b82f6",
+        background: "#000000",
+        text: "#ffffff",
+      },
+      overlays: {
+        color: "#ffffff",
+        opacity: 0.5,
+      },
+    },
+    typography: {
+      headingFont: "system",
+      bodyFont: "system",
+    },
+    spacing: {
+      baseUnit: "1rem",
+      spacingScale: {
+        xs: "0.25rem",
+        sm: "0.5rem",
+        md: "1rem",
+        lg: "1.5rem",
+        xl: "2rem",
+      },
+    },
+  },
+};
+
+const SettingsContext = createContext<{
+  settings: SiteSettings | null;
+  isLoading: boolean;
+  error: Error | null;
+  currentTheme: "light" | "dark";
+  toggleTheme: () => void;
+}>({
   settings: null,
   isLoading: true,
   error: null,
   currentTheme: "light",
   toggleTheme: () => {},
-  updateSettings: () => {},
 });
 
-/**
- * A custom hook for accessing the site settings context.
- * This is the primary way components will consume the settings.
- * @example const { settings, currentTheme, toggleTheme } = useSettings();
- */
 export const useSettings = () => useContext(SettingsContext);
 
-/**
- * The provider component that fetches, manages, and distributes site settings.
- * It handles:
- * - Fetching settings from the client-side Sanity query.
- * - Managing loading and error states.
- * - Determining and applying the color theme (light/dark/system).
- * - Dynamically updating CSS variables for theming.
- * - Listening for system theme changes.
- */
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // State for the settings data, loading status, and any potential errors.
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  // State for the current theme ('light' or 'dark').
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
-
-  // This `mounted` state is crucial to prevent hydration mismatches.
-  // We avoid any client-side-only logic (like checking `window`) until the component is mounted.
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  /**
-   * Checks the user's operating system preference for color scheme.
-   * A useCallback hook is used to memoize the function.
-   */
   const getSystemPreference = useCallback((): "light" | "dark" => {
-    if (typeof window === "undefined") return "light"; // Default for SSR
+    if (typeof window === "undefined") return "light";
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
   }, []);
 
-  /**
-   * Determines the initial theme based on the settings from Sanity (light, dark, or system).
-   */
   const initializeTheme = useCallback(
     (defaultMode: ThemeMode): "light" | "dark" => {
       switch (defaultMode) {
@@ -92,11 +117,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     [getSystemPreference],
   );
 
-  /**
-   * Applies the current theme's colors, fonts, and spacing to the root
-   * document by setting CSS custom properties (variables).
-   * This is the mechanism that makes the theming dynamic.
-   */
   const applyThemeToCSS = useCallback(
     (theme: "light" | "dark", themeSettings: SiteSettings["theme"]) => {
       if (typeof document === "undefined") return;
@@ -105,12 +125,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         theme === "dark" ? themeSettings.darkMode : themeSettings.lightMode;
       const root = document.documentElement;
 
-      // Set color variables
       Object.entries(modeSettings.colors).forEach(([key, value]) => {
         root.style.setProperty(`--color-${key}`, value);
       });
 
-      // Set typography variables
       const setFontVariable = (
         variable: string,
         fontName: string,
@@ -140,7 +158,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         );
       }
 
-      // Set spacing variables
       if (themeSettings.spacing?.spacingScale) {
         Object.entries(themeSettings.spacing.spacingScale).forEach(
           ([key, value]) => {
@@ -152,112 +169,83 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     [],
   );
 
-  // Deep merge helper
-  function deepMergeSettings(
-    a: SiteSettings,
-    b: Partial<SiteSettings>,
-  ): SiteSettings {
-    return {
-      ...a,
-      ...b,
-      theme: {
-        ...a.theme,
-        ...b.theme,
-        lightMode: {
-          ...a.theme.lightMode,
-          ...(b.theme?.lightMode || {}),
-          colors: {
-            ...a.theme.lightMode.colors,
-            ...(b.theme?.lightMode?.colors || {}),
+  const deepMergeSettings = useCallback(
+    (a: SiteSettings, b: Partial<SiteSettings>): SiteSettings => {
+      return {
+        ...a,
+        ...b,
+        theme: {
+          ...a.theme,
+          ...b.theme,
+          lightMode: {
+            ...a.theme.lightMode,
+            ...(b.theme?.lightMode || {}),
+            colors: {
+              ...a.theme.lightMode.colors,
+              ...(b.theme?.lightMode?.colors || {}),
+            },
+            overlays: {
+              ...a.theme.lightMode.overlays,
+              ...(b.theme?.lightMode?.overlays || {}),
+            },
           },
-          overlays: {
-            ...a.theme.lightMode.overlays,
-            ...(b.theme?.lightMode?.overlays || {}),
+          darkMode: {
+            ...a.theme.darkMode,
+            ...(b.theme?.darkMode || {}),
+            colors: {
+              ...a.theme.darkMode.colors,
+              ...(b.theme?.darkMode?.colors || {}),
+            },
+            overlays: {
+              ...a.theme.darkMode.overlays,
+              ...(b.theme?.darkMode?.overlays || {}),
+            },
           },
-        },
-        darkMode: {
-          ...a.theme.darkMode,
-          ...(b.theme?.darkMode || {}),
-          colors: {
-            ...a.theme.darkMode.colors,
-            ...(b.theme?.darkMode?.colors || {}),
+          typography: {
+            ...a.theme.typography,
+            ...(b.theme?.typography || {}),
           },
-          overlays: {
-            ...a.theme.darkMode.overlays,
-            ...(b.theme?.darkMode?.overlays || {}),
-          },
-        },
-        typography: {
-          ...a.theme.typography,
-          ...(b.theme?.typography || {}),
-        },
-        spacing: {
-          ...a.theme.spacing,
-          ...(b.theme?.spacing || {}),
-          spacingScale: {
-            ...a.theme.spacing.spacingScale,
-            ...(b.theme?.spacing?.spacingScale || {}),
+          spacing: {
+            ...a.theme.spacing,
+            ...(b.theme?.spacing || {}),
+            spacingScale: {
+              ...a.theme.spacing.spacingScale,
+              ...(b.theme?.spacing?.spacingScale || {}),
+            },
           },
         },
-      },
-      seo: {
-        ...a.seo,
-        ...(b.seo || {}),
-      },
-      basicInfo: {
-        ...a.basicInfo,
-        ...(b.basicInfo || {}),
-      },
-    };
-  }
+        seo: {
+          ...a.seo,
+          ...(b.seo || {}),
+        },
+        basicInfo: {
+          ...a.basicInfo,
+          ...(b.basicInfo || {}),
+        },
+      };
+    },
+    [],
+  );
 
-  // Effect to fetch the initial settings from Sanity.
-  // It only runs once the component has mounted to ensure it's client-side.
   useEffect(() => {
+    if (!mounted) return;
     const fetchSettings = async () => {
       try {
-        console.log("[SettingsProvider] Starting to fetch settings...");
         setIsLoading(true);
         setError(null);
-
-        // Fetch settings from the API route
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-        console.log(
-          "[SettingsProvider] Fetching from:",
-          `${baseUrl}/api/settings`,
-        );
         const res = await fetch(`${baseUrl}/api/settings`);
-
-        if (!res.ok) {
-          throw new Error(`Failed to fetch settings: ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error(`Failed to fetch settings: ${res.status}`);
         const fetchedSettings = await res.json();
-        console.log("[SettingsProvider] Fetched settings:", fetchedSettings);
-
-        if (fetchedSettings) {
-          const merged = deepMergeSettings(DEFAULT_SETTINGS, fetchedSettings);
-          console.log("[SettingsProvider] Merged settings:", merged);
-          setSettings(merged);
-          const initialTheme = initializeTheme(merged.theme.defaultMode);
-          setCurrentTheme(initialTheme);
-          applyThemeToCSS(initialTheme, merged.theme);
-        } else {
-          console.log("[SettingsProvider] No fetched settings, using defaults");
-          setSettings(DEFAULT_SETTINGS);
-          const initialTheme = initializeTheme(
-            DEFAULT_SETTINGS.theme.defaultMode,
-          );
-          setCurrentTheme(initialTheme);
-          applyThemeToCSS(initialTheme, DEFAULT_SETTINGS.theme);
-        }
+        const merged = deepMergeSettings(DEFAULT_SETTINGS, fetchedSettings);
+        setSettings(merged);
+        const initialTheme = initializeTheme(merged.theme.defaultMode);
+        setCurrentTheme(initialTheme);
+        applyThemeToCSS(initialTheme, merged.theme);
       } catch (err) {
-        console.error("[SettingsProvider] Failed to fetch settings:", err);
         setError(
           err instanceof Error ? err : new Error("Failed to fetch settings"),
         );
-        // Ensure defaults are applied even on catastrophic failure.
-        console.log("[SettingsProvider] Using DEFAULT_SETTINGS due to error");
         setSettings(DEFAULT_SETTINGS);
         const initialTheme = initializeTheme(
           DEFAULT_SETTINGS.theme.defaultMode,
@@ -268,77 +256,44 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsLoading(false);
       }
     };
+    fetchSettings();
+  }, [mounted, initializeTheme, deepMergeSettings, applyThemeToCSS]);
 
-    if (mounted) {
-      fetchSettings();
-    } else {
-      // Set default settings immediately while waiting for mount
-      console.log(
-        "[SettingsProvider] Not mounted yet, setting DEFAULT_SETTINGS",
-      );
-      setSettings(DEFAULT_SETTINGS);
-      setIsLoading(false);
-    }
-  }, [mounted, initializeTheme, applyThemeToCSS]);
-
-  // Effect to listen for changes in the system's preferred color scheme.
-  // This allows the theme to update automatically if the user changes their OS settings.
   useEffect(() => {
-    if (!mounted || !settings || settings.theme.defaultMode !== "system") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      const newTheme = getSystemPreference();
-      setCurrentTheme(newTheme);
+      if (settings?.theme.defaultMode === "system") {
+        const newTheme = getSystemPreference();
+        setCurrentTheme(newTheme);
+        applyThemeToCSS(newTheme, settings.theme);
+      }
     };
 
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [mounted, settings, getSystemPreference]);
+  }, [settings, getSystemPreference, applyThemeToCSS]);
 
-  /**
-   * A simple function to toggle between light and dark themes.
-   * This would override the "system" preference until the next page load.
-   */
-  const toggleTheme = useCallback(() => {
-    setCurrentTheme((prev) => (prev === "light" ? "dark" : "light"));
-  }, []);
-
-  /**
-   * Allows updating parts of the settings object from other components if needed.
-   * For example, this could be used in a live preview editor.
-   */
-  const updateSettings = useCallback((newSettings: Partial<SiteSettings>) => {
-    setSettings((prev) => (prev ? { ...prev, ...newSettings } : null));
-  }, []);
-
-  // Effect to re-apply the CSS variables whenever the theme changes.
   useEffect(() => {
-    if (mounted && settings?.theme) {
+    if (settings && mounted) {
       applyThemeToCSS(currentTheme, settings.theme);
     }
-  }, [mounted, currentTheme, settings?.theme, applyThemeToCSS]);
+  }, [currentTheme, settings, mounted, applyThemeToCSS]);
 
-  /**
-   * Memoize the context value to prevent unnecessary re-renders of consumer components.
-   * The context value only changes if one of its dependencies changes.
-   */
-  const contextValue = useMemo<SettingsContextType>(
-    () => ({
-      settings,
-      isLoading,
-      error,
-      currentTheme,
-      toggleTheme,
-      updateSettings,
-    }),
-    [settings, isLoading, error, currentTheme, toggleTheme, updateSettings],
-  );
+  const toggleTheme = useCallback(() => {
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    setCurrentTheme(newTheme);
+  }, [currentTheme]);
 
   return (
-    <SettingsContext.Provider value={contextValue}>
+    <SettingsContext.Provider
+      value={{
+        settings,
+        isLoading,
+        error,
+        currentTheme,
+        toggleTheme,
+      }}
+    >
       {children}
     </SettingsContext.Provider>
   );

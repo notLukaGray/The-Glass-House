@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
-/**
- * TypeScript interface for portfolio preview data.
- * Defines the structure of portfolio metadata returned for listings,
- * including basic info, categorization, and access control.
- */
 interface PortfolioPreview {
   _id: string;
   title: { en: string };
@@ -18,24 +13,6 @@ interface PortfolioPreview {
   tags: Array<{ _id: string; title: { en: string } }>;
 }
 
-/**
- * GET handler for the portfolios API route.
- *
- * This endpoint fetches portfolio preview data for listing pages, including:
- * - Basic project information (title, subtitle, slug)
- * - Cover asset reference for thumbnails
- * - Featured status and access control (locked)
- * - Categorization (categories and tags)
- *
- * The query orders results by featured status first (featured projects appear
- * at the top), then by creation date (newest first). This provides a logical
- * hierarchy for portfolio displays while ensuring fresh content is visible.
- *
- * Only metadata is fetched here - full project content is handled by
- * individual project endpoints to optimize performance.
- *
- * @returns {Promise<NextResponse>} JSON response with portfolio previews or error.
- */
 export async function GET() {
   try {
     // Fetch portfolio metadata with resolved category and tag references

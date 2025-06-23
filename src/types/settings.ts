@@ -57,6 +57,8 @@ export interface SeoSettings {
 }
 
 export interface SiteSettings {
+  _id?: string;
+  _type?: string;
   basicInfo: BasicInfo;
   theme: ThemeSettings;
   seo: SeoSettings;
@@ -75,6 +77,8 @@ export interface SanityReference {
 }
 
 export interface SanitySettingsResponse {
+  _id?: string;
+  _type?: string;
   basicInfo?: {
     title?: SanityLocaleString;
     description?: SanityLocaleString;

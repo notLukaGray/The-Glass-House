@@ -149,9 +149,9 @@ export default function VideoPlayer({
         controls={false}
         tabIndex={0}
       />
-      {/* Controls */}
+      {}
       <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 flex items-center gap-4 rounded-b-lg z-10">
-        {/* Play/Pause */}
+        {}
         <button
           onClick={togglePlay}
           className="text-white focus:outline-none"
@@ -186,7 +186,7 @@ export default function VideoPlayer({
             </svg>
           )}
         </button>
-        {/* Seek Bar */}
+        {}
         <span className="text-white text-xs w-10 text-right">
           {formatTime(currentTime)}
         </span>
@@ -202,7 +202,7 @@ export default function VideoPlayer({
           aria-label="Seek"
         />
         <span className="text-white text-xs w-10">{formatTime(duration)}</span>
-        {/* Volume */}
+        {}
         <button
           onClick={toggleMute}
           className="text-white focus:outline-none"
@@ -248,7 +248,7 @@ export default function VideoPlayer({
           aria-label="Volume"
           ref={volumeRef}
         />
-        {/* Quality Button */}
+        {}
         {sources.length > 1 && (
           <div className="relative">
             <button

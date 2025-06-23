@@ -1,400 +1,303 @@
-// Client-side handlers that use API routes instead of direct Sanity client
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 export interface SvgAsset {
   _id: string;
   _type: "assetSVG";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: {
-    _type: "localeString";
-    en: string;
-  };
-  description: {
-    _type: "localeString";
-    en: string;
-  };
-  caption: {
-    _type: "localeString";
-    en: string;
-  };
-  color: string;
-  order: number;
   svgData: string;
+  color?: string;
 }
 
 export interface ImageAsset {
   _id: string;
   _type: "assetPhoto";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: {
-    _type: "localeString";
-    en: string;
-  };
-  description: {
-    _type: "localeString";
-    en: string;
-  };
-  caption: {
-    _type: "localeString";
-    en: string;
-  };
-  altText: {
-    _type: "localeString";
-    en: string;
-  };
-  order: number;
   url: string;
+  alt?: string;
+  metadata?: {
+    width?: number;
+    height?: number;
+    format?: string;
+  };
 }
 
 export interface VideoAsset {
   _id: string;
   _type: "assetVideo";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: {
-    _type: "localeString";
-    en: string;
-  };
-  description: {
-    _type: "localeString";
-    en: string;
-  };
-  caption: {
-    _type: "localeString";
-    en: string;
-  };
-  order: number;
-  poster: string;
-  sourceType: "cdn";
-  cdnSdUrl: string;
-  cdn1kUrl: string;
-  cdn2kUrl: string;
-  cdn4kUrl: string;
-}
-
-export interface SvgAssetQuery {
-  id?: string;
+  url: string;
   title?: string;
-  color?: string;
-  order?: number;
-}
-
-export interface ImageAssetQuery {
-  id?: string;
-  title?: string;
-  order?: number;
-}
-
-export interface VideoAssetQuery {
-  id?: string;
-  title?: string;
-  order?: number;
+  caption?: { en?: string };
+  poster?: string;
+  cdn4kUrl?: string;
+  cdn2kUrl?: string;
+  cdn1kUrl?: string;
+  cdnSdUrl?: string;
+  metadata?: {
+    width?: number;
+    height?: number;
+    duration?: number;
+    format?: string;
+  };
 }
 
 export interface SocialAsset {
   _id: string;
-  _type: string; // e.g., 'website', 'assetSocial', etc.
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name: string;
+  _type: string;
+  platform: string;
   url: string;
-  icon?: { _ref: string; _type: "reference" };
+  icon?: {
+    _id: string;
+    svgData: string;
+    color?: string;
+  };
 }
 
-export interface SocialAssetQuery {
-  id?: string;
-  ids?: string[];
-  type?: string; // e.g., 'website', 'assetSocial', etc.
+export interface SocialLink {
+  _key: string;
+  platform: string;
+  url: string;
+  icon?: {
+    _id: string;
+    svgData: string;
+    color?: string;
+  };
 }
 
-// Get the correct base URL for the current environment
-function getBaseUrl() {
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
-
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL;
-  }
-
-  return "http://localhost:3000";
+export interface SocialAssetsResponse {
+  success: boolean;
+  data?: SocialAsset[];
+  error?: string;
 }
 
-// Client-side SVG handler
-export async function getSvgAsset(
-  query: SvgAssetQuery,
-): Promise<SvgAsset | null> {
-  const { id } = query;
+export interface SvgAssetsResponse {
+  success: boolean;
+  data?: SvgAsset[];
+  error?: string;
+}
 
-  if (!id) {
-    console.error("SVG ID is required for client-side fetch");
-    return null;
-  }
+export interface ImageAssetsResponse {
+  success: boolean;
+  data?: ImageAsset[];
+  error?: string;
+}
 
-  try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/assets/svg/${id}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+export interface VideoAssetsResponse {
+  success: boolean;
+  data?: VideoAsset[];
+  error?: string;
+}
+
+export interface SocialLinksResponse {
+  success: boolean;
+  data?: SocialLink[];
+  error?: string;
+}
+
+export const clientHandlers = {
+  async getSvgAsset(id: string): Promise<SvgAsset | null> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/svg/${id}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch SVG asset: ${response.status}`);
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+      const result = await response.json();
+      return result.success ? result.data : null;
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch SVG asset:", error);
+      return null;
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching SVG asset:", error);
-    return null;
-  }
-}
+  },
 
-// Client-side SVG assets handler (for multiple assets)
-export async function getSvgAssets(
-  query?: Partial<SvgAssetQuery>,
-): Promise<SvgAsset[]> {
-  try {
-    const params = new URLSearchParams();
-    if (query?.title) params.append("title", query.title);
-    if (query?.color) params.append("color", query.color);
-    if (query?.order !== undefined)
-      params.append("order", query.order.toString());
+  async getSvgAssets(ids: string[]): Promise<SvgAsset[]> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/svg`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
 
-    const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/assets/svg${params.toString() ? `?${params.toString()}` : ""}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching SVG assets:", error);
-    return [];
-  }
-}
-
-// Client-side image handler
-export async function getImageAsset(
-  query: ImageAssetQuery,
-): Promise<ImageAsset | null> {
-  const { id } = query;
-
-  if (!id) {
-    console.error("Image ID is required for client-side fetch");
-    return null;
-  }
-
-  try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/assets/image/${id}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+      if (!response.ok) {
+        throw new Error(`Failed to fetch SVG assets: ${response.status}`);
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+      const result = await response.json();
+      return result.success ? result.data : [];
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch SVG assets:", error);
+      return [];
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching image asset:", error);
-    return null;
-  }
-}
+  },
 
-// Client-side video handler
-export async function getVideoAsset(
-  query: VideoAssetQuery,
-): Promise<VideoAsset | null> {
-  const { id } = query;
+  async getImageAsset(id: string): Promise<ImageAsset | null> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/image/${id}`);
 
-  if (!id) {
-    console.error("Video ID is required for client-side fetch");
-    return null;
-  }
-
-  try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/assets/video/${id}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image asset: ${response.status}`);
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+      const result = await response.json();
+      return result.success ? result.data : null;
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch image asset:", error);
+      return null;
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching video asset:", error);
-    return null;
-  }
-}
+  },
 
-// Video sources utility function
-export function getVideoSources(
-  asset: VideoAsset,
-): { src: string; type: string; quality: string }[] {
-  const sources = [];
+  async getImageAssets(ids: string[]): Promise<ImageAsset[]> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
 
-  if (asset.cdn4kUrl) {
-    sources.push({
-      src: asset.cdn4kUrl,
-      type: "video/webm",
-      quality: "4K",
-    });
-  }
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image assets: ${response.status}`);
+      }
 
-  if (asset.cdn2kUrl) {
-    sources.push({
-      src: asset.cdn2kUrl,
-      type: "video/webm",
-      quality: "1080p",
-    });
-  }
+      const result = await response.json();
+      return result.success ? result.data : [];
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch image assets:", error);
+      return [];
+    }
+  },
 
-  if (asset.cdn1kUrl) {
-    sources.push({
-      src: asset.cdn1kUrl,
-      type: "video/webm",
-      quality: "720p",
-    });
-  }
+  async getVideoAsset(id: string): Promise<VideoAsset | null> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/video/${id}`);
 
-  if (asset.cdnSdUrl) {
-    sources.push({
-      src: asset.cdnSdUrl,
-      type: "video/webm",
-      quality: "SD",
-    });
-  }
+      if (!response.ok) {
+        throw new Error(`Failed to fetch video asset: ${response.status}`);
+      }
 
-  return sources;
-}
+      const result = await response.json();
+      return result.success ? result.data : null;
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch video asset:", error);
+      return null;
+    }
+  },
 
-// Utility function to get colored SVG (client-side)
-export function getColoredSvg(svgData: string, color: string): string {
-  if (!svgData) return "";
+  async getVideoAssets(ids: string[]): Promise<VideoAsset[]> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/assets/video`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
 
-  // Remove all style tags and their contents
-  let cleanedSvg = svgData.replace(/<style>[\s\S]*?<\/style>/g, "");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch video assets: ${response.status}`);
+      }
 
-  // Remove all defs and their contents
-  cleanedSvg = cleanedSvg.replace(/<defs>[\s\S]*?<\/defs>/g, "");
+      const result = await response.json();
+      return result.success ? result.data : [];
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch video assets:", error);
+      return [];
+    }
+  },
 
-  // Remove all gradient definitions
-  cleanedSvg = cleanedSvg
-    .replace(/<linearGradient[\s\S]*?<\/linearGradient>/g, "")
-    .replace(/<radialGradient[\s\S]*?<\/radialGradient>/g, "")
-    .replace(/<stop[\s\S]*?\/>/g, "");
+  getVideoSources(videoAsset: VideoAsset): { quality: string; src: string }[] {
+    if (!videoAsset) return [];
+    const sources: { quality: string; src: string }[] = [];
+    if (videoAsset.cdn4kUrl)
+      sources.push({ quality: "2160p", src: videoAsset.cdn4kUrl });
+    if (videoAsset.cdn2kUrl)
+      sources.push({ quality: "1080p", src: videoAsset.cdn2kUrl });
+    if (videoAsset.cdn1kUrl)
+      sources.push({ quality: "720p", src: videoAsset.cdn1kUrl });
+    if (videoAsset.cdnSdUrl)
+      sources.push({ quality: "480p", src: videoAsset.cdnSdUrl });
+    if (videoAsset.url) sources.push({ quality: "auto", src: videoAsset.url });
+    return sources;
+  },
 
-  // Remove all class attributes
-  cleanedSvg = cleanedSvg.replace(/class="[^"]*"/g, "");
+  getColoredSvg(svgData: string, color: string): string {
+    if (!svgData || !color) return svgData;
 
-  // Remove all fill-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/fill="[^"]*"/g, "")
-    .replace(/fill-opacity="[^"]*"/g, "")
-    .replace(/fill-rule="[^"]*"/g, "")
-    .replace(/style="[^"]*fill:[^"]*"/g, 'style=""');
+    let svg = svgData;
 
-  // Remove all gradient-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/gradientUnits="[^"]*"/g, "")
-    .replace(/gradientTransform="[^"]*"/g, "")
-    .replace(/x1="[^"]*"/g, "")
-    .replace(/y1="[^"]*"/g, "")
-    .replace(/x2="[^"]*"/g, "")
-    .replace(/y2="[^"]*"/g, "")
-    .replace(/offset="[^"]*"/g, "")
-    .replace(/stop-color="[^"]*"/g, "");
+    svg = svg.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+    svg = svg.replace(/<defs[^>]*>[\s\S]*?<\/defs>/gi, "");
+    svg = svg.replace(/<linearGradient[^>]*>[\s\S]*?<\/linearGradient>/gi, "");
+    svg = svg.replace(/<radialGradient[^>]*>[\s\S]*?<\/radialGradient>/gi, "");
+    svg = svg.replace(/<pattern[^>]*>[\s\S]*?<\/pattern>/gi, "");
+    svg = svg.replace(/class="[^"]*"/gi, "");
+    svg = svg.replace(/fill="[^"]*"/gi, "");
+    svg = svg.replace(/fill-opacity="[^"]*"/gi, "");
+    svg = svg.replace(/fill-rule="[^"]*"/gi, "");
+    svg = svg.replace(/stroke="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-width="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-linecap="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-linejoin="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-dasharray="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-dashoffset="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-opacity="[^"]*"/gi, "");
+    svg = svg.replace(/stroke-miterlimit="[^"]*"/gi, "");
 
-  // Remove all stroke-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/stroke="[^"]*"/g, "")
-    .replace(/stroke-width="[^"]*"/g, "")
-    .replace(/stroke-linecap="[^"]*"/g, "")
-    .replace(/stroke-linejoin="[^"]*"/g, "")
-    .replace(/stroke-opacity="[^"]*"/g, "")
-    .replace(/stroke-dasharray="[^"]*"/g, "")
-    .replace(/stroke-dashoffset="[^"]*"/g, "")
-    .replace(/style="[^"]*stroke:[^"]*"/g, 'style=""');
-
-  // Add our color as both fill and stroke to all paths and shapes
-  cleanedSvg = cleanedSvg
-    .replace(
-      /<(path|rect|circle|ellipse|polygon|polyline|line)/g,
-      `<$1 fill="${color}" stroke="${color}"`,
-    )
-    .replace(
-      /<(path|rect|circle|ellipse|polygon|polyline|line)([^>]*?)(\/>|>)/g,
-      (match, tag, attrs, end) => {
-        if (attrs.includes("fill=") || attrs.includes("stroke=")) {
-          return match;
-        }
-        return `<${tag}${attrs} fill="${color}" stroke="${color}"${end}`;
-      },
+    svg = svg.replace(
+      /<(path|circle|ellipse|line|polyline|polygon|rect|text|g)([^>]*)>/gi,
+      `<$1$2 fill="${color}" stroke="${color}">`,
     );
 
-  return cleanedSvg;
-}
+    return svg;
+  },
 
-// Client-side social handler
-export async function getSocialAsset(
-  query: SocialAssetQuery,
-): Promise<SocialAsset | null> {
-  const { id, type } = query;
+  async getSocialAsset(id: string): Promise<SocialAsset | null> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/social/${id}`);
 
-  if (!id) {
-    console.error("Social asset ID is required for client-side fetch");
-    return null;
-  }
-
-  try {
-    const params = new URLSearchParams();
-    if (type) params.append("type", type);
-
-    const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/social/${id}${params.toString() ? `?${params.toString()}` : ""}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+      if (!response.ok) {
+        throw new Error(`Failed to fetch social asset: ${response.status}`);
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+      const result = await response.json();
+      return result.success ? result.data : null;
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch social asset:", error);
+      return null;
     }
+  },
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching social asset:", error);
-    return null;
-  }
-}
+  async getSocialAssets(ids: string[]): Promise<SocialAsset[]> {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/social`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
 
-// Client-side social assets handler (for multiple assets)
-export async function getSocialAssets(
-  query: SocialAssetQuery,
-): Promise<SocialAsset[]> {
-  try {
-    const params = new URLSearchParams();
-    if (query.type) params.append("type", query.type);
-    if (query.ids && query.ids.length > 0) {
-      query.ids.forEach((id) => params.append("ids", id));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch social assets: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.success ? result.data : [];
+    } catch (error) {
+      console.error("[clientHandlers] Failed to fetch social assets:", error);
+      return [];
     }
+  },
+};
 
-    const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/social${params.toString() ? `?${params.toString()}` : ""}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching social assets:", error);
-    return [];
-  }
-}
+export const getSvgAsset = clientHandlers.getSvgAsset;
+export const getSvgAssets = clientHandlers.getSvgAssets;
+export const getImageAsset = clientHandlers.getImageAsset;
+export const getImageAssets = clientHandlers.getImageAssets;
+export const getVideoAsset = clientHandlers.getVideoAsset;
+export const getVideoAssets = clientHandlers.getVideoAssets;
+export const getVideoSources = clientHandlers.getVideoSources;
+export const getColoredSvg = clientHandlers.getColoredSvg;
+export const getSocialAsset = clientHandlers.getSocialAsset;
+export const getSocialAssets = clientHandlers.getSocialAssets;

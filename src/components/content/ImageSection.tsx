@@ -3,6 +3,7 @@
 import React from "react";
 import { useSettings } from "@/components/providers/SettingsProvider";
 import Image from "next/image";
+import { sanitizeString } from "@/lib/utils/string";
 
 interface ImageSectionProps {
   image: {
@@ -61,18 +62,6 @@ interface ImageSectionProps {
   };
   // Accept any extra props (for flattening)
   [key: string]: unknown;
-}
-
-// Utility to sanitize strings (remove invisible/non-printable characters)
-function sanitizeString(str: string | undefined): string | undefined {
-  return typeof str === "string"
-    ? str
-        .replace(
-          /[\u200B-\u200D\uFEFF\u202A-\u202E\u2060-\u206F\u00A0\u180E\u2000-\u200A]/g,
-          "",
-        )
-        .trim()
-    : str;
 }
 
 function getSizeClass(size?: string) {

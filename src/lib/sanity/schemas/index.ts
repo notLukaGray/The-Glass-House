@@ -6,7 +6,7 @@ import model3d from "./assets/model3d";
 
 // Document Schemas
 import about from "./documents/about";
-import userArr from "./documents/author";
+import user from "./documents/user";
 import blog from "./documents/blog";
 import category from "./documents/category";
 import globalBanner from "./documents/globalBanner";
@@ -30,7 +30,7 @@ import website from "./objects/website";
 export const schemaTypes = [
   // Documents
   about,
-  userArr,
+  user,
   blog,
   category,
   globalBanner,

@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import PerformanceTest from "@/components/ui/PerformanceTest";
-import PerformanceMonitorComponent from "@/components/ui/PerformanceMonitor";
-import { sanityClient } from "@/lib/sanity/client";
+import PerformanceTest from "@/components/features/PerformanceTest";
+import PerformanceMonitorComponent from "@/components/features/PerformanceMonitor";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
 export const dynamic = "force-dynamic";
 

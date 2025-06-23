@@ -5,10 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { validateUsername, validatePassword } from "@/lib/auth/utils";
 import { useSettings } from "@/components/providers/SettingsProvider";
 
-/**
- * The core logic and UI for the login page.
- * It's wrapped in a Suspense boundary by the default export.
- */
 function LoginPageInner() {
   // Form state
   const [username, setUsername] = useState("");
@@ -74,10 +70,6 @@ function LoginPageInner() {
     return null;
   }
 
-  /**
-   * Validates the form inputs and updates the validationErrors state.
-   * @returns {boolean} True if the form is valid, false otherwise.
-   */
   const validateForm = () => {
     const errors: { username?: string; password?: string } = {};
 
@@ -95,9 +87,6 @@ function LoginPageInner() {
     return Object.keys(errors).length === 0;
   };
 
-  /**
-   * Handles the form submission, calling NextAuth's signIn function.
-   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -134,9 +123,6 @@ function LoginPageInner() {
     }
   }
 
-  /**
-   * Clears the username validation error as the user types.
-   */
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
     if (validationErrors.username) {
@@ -144,9 +130,6 @@ function LoginPageInner() {
     }
   };
 
-  /**
-   * Clears the password validation error as the user types.
-   */
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     if (validationErrors.password) {
@@ -271,12 +254,6 @@ function LoginPageInner() {
   );
 }
 
-/**
- * The main login page component.
- * It wraps the core UI in a Suspense boundary, which is good practice for
- * components that might have async dependencies, even though `LoginPageInner`
- * handles its own loading states.
- */
 export default function LoginPage() {
   return (
     <Suspense>

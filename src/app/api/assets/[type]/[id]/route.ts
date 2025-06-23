@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 import { normalizeSvg } from "@/lib/utils/svg";
-import { sanitizeSanityResponse } from "@/lib/handlers/sanity";
 
 /**
  * TypeScript interface for SVG asset data structure.
@@ -135,16 +134,10 @@ export async function GET(
     }
 
     if (!asset) {
-      return NextResponse.json(
-        { error: `${type} asset not found` },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Asset not found" }, { status: 404 });
     }
 
-    // Sanitize the response to remove zero-width spaces
-    const sanitizedAsset = sanitizeSanityResponse(asset);
-
-    return NextResponse.json(sanitizedAsset);
+    return NextResponse.json(asset);
   } catch (error) {
     console.error("Error fetching asset:", error);
     return NextResponse.json(

@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureDefaultAdmin } from "@/lib/db";
 
-/**
- * POST /api/setup
- * Sets up the default admin user automatically
- * This can be called after deployment to ensure admin access
- */
 export async function POST(request: NextRequest) {
   try {
     // Check if this is a setup request
@@ -14,8 +9,6 @@ export async function POST(request: NextRequest) {
     if (action !== "setup-admin") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-
-    console.log("🔐 Auto-setting up admin user...");
 
     const result = await ensureDefaultAdmin();
 
@@ -36,22 +29,14 @@ export async function POST(request: NextRequest) {
             : "Use your existing password",
       },
     });
-  } catch (error) {
-    console.error("Setup error:", error);
+  } catch {
     return NextResponse.json(
-      {
-        error: "Setup failed",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { success: false, error: "Failed to create admin user" },
       { status: 500 },
     );
   }
 }
 
-/**
- * GET /api/setup
- * Checks if admin user exists
- */
 export async function GET() {
   try {
     const { PrismaClient } = await import("@/generated/prisma");
@@ -80,8 +65,7 @@ export async function GET() {
           }
         : null,
     });
-  } catch (error) {
-    console.error("Setup check error:", error);
+  } catch {
     return NextResponse.json(
       {
         error: "Setup check failed",

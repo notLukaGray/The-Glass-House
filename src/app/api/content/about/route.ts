@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
 /**
  * TypeScript interface for the about page data structure.

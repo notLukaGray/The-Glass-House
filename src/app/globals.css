@@ -4,7 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Font Face */
 @font-face {
   font-family: "CompressaPRO";
   src: url("/fonts/CompressaPRO-GX.woff2") format("woff2");
@@ -14,20 +13,17 @@
 }
 
 :root {
-  /* Default fallback values */
   --color-primary: #000000;
   --color-secondary: #666666;
   --color-accent: #3b82f6;
   --color-background: #ffffff;
   --color-text: #000000;
 
-  /* Typography */
   --font-heading:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;

@@ -1,19 +1,6 @@
 import { NextResponse } from "next/server";
-import { sanityClient } from "@/lib/sanity/client";
+import { client as sanityClient } from "@/lib/handlers/sanity";
 
-/**
- * GET handler for the user API route.
- *
- * This endpoint fetches the main user profile data from Sanity, including:
- * - Basic profile information (name, job title, bio)
- * - Avatar image with alt text
- * - Social media links with their associated icons
- *
- * The query uses Sanity's reference resolution to fetch related social media
- * data and icon SVGs in a single request for optimal performance.
- *
- * @returns {Promise<NextResponse>} JSON response with user data or error.
- */
 export async function GET() {
   try {
     // Fetch user data with resolved references for social links and icons

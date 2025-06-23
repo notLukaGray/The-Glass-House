@@ -1,13 +1,14 @@
-import { notFound } from "next/navigation";
 import { getImageAsset, type ImageAsset } from "@/lib/handlers/imageHandler";
 import { getSvgAsset, type SvgAsset } from "@/lib/handlers/svgHandler";
 import { getVideoAsset, type VideoAsset } from "@/lib/handlers/videoHandler";
-import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { client as sanityClient } from "@/lib/handlers/sanity";
+import PerformanceMonitorComponent from "@/components/features/PerformanceMonitor";
+import React from "react";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import ComponentTestPageContentClient from "@/components/content/ComponentTestPageContentClient";
-import PerformanceMonitorComponent from "@/components/ui/PerformanceMonitor";
-import { sanityClient } from "@/lib/sanity/client";
 
 interface Section {
   _key: string;

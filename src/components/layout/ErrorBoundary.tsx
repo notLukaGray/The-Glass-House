@@ -12,41 +12,17 @@ interface State {
   error?: Error;
 }
 
-/**
- * A generic React Error Boundary component.
- *
- * This component catches JavaScript errors anywhere in its child component tree,
- * logs those errors, and displays a fallback UI instead of the crashed component tree.
- * It's a class component because functional components with hooks do not yet have
- * a direct equivalent for the `getDerivedStateFromError` and `componentDidCatch` lifecycles.
- *
- * It is placed in the root layout to catch any potential rendering error across the app,
- * preventing a white screen of death and giving the user a way to recover.
- */
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
 
-  /**
-   * This lifecycle is invoked after an error has been thrown by a descendant component.
-   * It receives the error that was thrown as a parameter and should return a value to update state.
-   * @param error The error that was thrown.
-   * @returns A new state object.
-   */
   static getDerivedStateFromError(error: Error): State {
     // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
-  /**
-   * This lifecycle is also invoked after an error has been thrown by a descendant component.
-   * It is used for side effects, like logging the error to an external service.
-   * @param error The error that was thrown.
-   * @param errorInfo An object with a `componentStack` key containing information about which
-   * component threw the error.
-   */
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Standard console log for all environments.
     console.error("ErrorBoundary caught an error:", error, errorInfo);
@@ -83,7 +59,7 @@ class ErrorBoundary extends Component<Props, State> {
             >
               Refresh Page
             </button>
-            {/* In development, we show the error details to make debugging easier. */}
+            {}
             {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="mt-4 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">

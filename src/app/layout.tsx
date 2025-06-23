@@ -2,16 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 // TODO: Use new API route or shared client for settings fetching if needed.
 
-/**
- * Generates dynamic metadata for the site using settings from Sanity.
- * This function is called at build time and on revalidation to ensure
- * the site's metadata (title, description, social images) is always up-to-date.
- */
 export async function generateMetadata(): Promise<Metadata> {
   try {
     // Fetch settings from the API route
@@ -78,10 +73,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-/**
- * Root layout component for the entire application.
- * Sets up the basic HTML structure and wraps all pages with essential providers.
- */
 export default function RootLayout({
   children,
 }: {

@@ -1,24 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanityClient, sanityClientBuild } from "@/lib/sanity/client";
+import {
+  client as sanityClient,
+  clientBuild as sanityClientBuild,
+} from "@/lib/handlers/sanity";
 import {
   SiteSettings,
   SanitySettingsResponse,
   DEFAULT_SETTINGS,
 } from "@/types/settings";
-import { validateSettings, logValidationErrors } from "@/lib/validation/utils";
-import { schemas } from "@/lib/validation/schemas";
-import { z } from "zod";
+import { validateSettings } from "@/lib/validation/utils";
 
-/**
- * Merges Sanity data with default settings to ensure all required fields are present.
- * This provides a safety net - if Sanity is missing certain fields, the defaults
- * will be used instead of causing the application to break.
- *
- * @param {SanitySettingsResponse} data - The raw data from Sanity.
- * @returns {SiteSettings} Complete settings object with defaults merged in.
- */
 function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
   return {
+    _id: data._id || "siteSettings",
+    _type: data._type || "siteSettings",
     basicInfo: {
       title: data.basicInfo?.title || DEFAULT_SETTINGS.basicInfo.title,
       description:
@@ -67,20 +62,6 @@ function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
   };
 }
 
-/**
- * GET handler for the settings API route.
- *
- * This endpoint serves site settings to client-side components. It supports
- * two different query types:
- * - "build": Simplified query for build-time metadata generation
- * - "runtime": Full query for client-side theming and functionality
- *
- * The endpoint includes comprehensive error handling and validation to ensure
- * the application never breaks due to missing or invalid settings data.
- *
- * @param {NextRequest} request - The incoming request object.
- * @returns {Promise<NextResponse>} JSON response with settings or defaults.
- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -92,6 +73,8 @@ export async function GET(request: NextRequest) {
       // Simplified query for build-time metadata generation
       // Only fetches essential fields needed for SEO and basic site info
       query = `*[_type == "siteSettings"][0] {
+        _id,
+        _type,
         "basicInfo": {
           "title": basicInfo.title,
           "description": basicInfo.description,
@@ -128,6 +111,8 @@ export async function GET(request: NextRequest) {
       // Full query for runtime client-side usage
       // Includes all theme colors, spacing, and dynamic content
       query = `*[_type == "siteSettings"][0] {
+        _id,
+        _type,
         "basicInfo": {
           "title": basicInfo.title,
           "description": basicInfo.description,
@@ -171,6 +156,17 @@ export async function GET(request: NextRequest) {
     const client = type === "build" ? sanityClientBuild : sanityClient;
     const data: SanitySettingsResponse = await client.fetch(query);
 
+    // If no document exists in Sanity, use defaults
+    if (!data) {
+      return NextResponse.json(DEFAULT_SETTINGS, {
+        status: 200,
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
     // Merge with defaults BEFORE validation
     const mergedSettings = mergeWithDefaults(data);
 
@@ -178,19 +174,6 @@ export async function GET(request: NextRequest) {
     const validatedData = validateSettings(mergedSettings);
 
     if (!validatedData) {
-      // Log validation errors for debugging
-      try {
-        schemas.SiteSettings.parse(mergedSettings);
-      } catch (error) {
-        if (error instanceof Error) {
-          logValidationErrors(
-            "Settings API",
-            error as z.ZodError,
-            mergedSettings,
-          );
-        }
-      }
-      console.warn("Settings validation failed, using defaults");
       return NextResponse.json(DEFAULT_SETTINGS, {
         status: 200,
         headers: {
@@ -207,15 +190,13 @@ export async function GET(request: NextRequest) {
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
-  } catch (error) {
-    console.error("[Settings API] Failed to fetch settings:", error);
-
-    // Return default settings on error
-    return NextResponse.json(DEFAULT_SETTINGS, {
-      status: 200,
-      headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch settings",
       },
-    });
+      { status: 500 },
+    );
   }
 }
