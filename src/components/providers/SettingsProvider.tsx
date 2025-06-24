@@ -233,8 +233,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setIsLoading(true);
         setError(null);
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const res = await fetch(`${baseUrl}/api/settings`);
+        const res = await fetch(`/api/settings`);
         if (!res.ok) throw new Error(`Failed to fetch settings: ${res.status}`);
         const fetchedSettings = await res.json();
         const merged = deepMergeSettings(DEFAULT_SETTINGS, fetchedSettings);

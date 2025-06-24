@@ -93,6 +93,7 @@ const nextConfig = {
                 "https://api.github.com",
                 "https://ep-calm-meadow-a8e25r6a.eastus2.azure.neon.tech",
                 "https://media.notlukagray.com",
+                "https://notlukagray.com",
                 "https://iframe.mediadelivery.net",
                 "https://*.b-cdn.net",
                 "https://*.mediadelivery.net",

@@ -1,11 +1,12 @@
 import React from "react";
 import { sectionComponentMap } from "@/lib/handlers/componentHandler";
 import type { ReactElement } from "react";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 export default async function AboutPage(): Promise<ReactElement> {
   try {
     // Fetch about data from the new API route
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/content/about`, {
       next: { revalidate: 60 },
     });

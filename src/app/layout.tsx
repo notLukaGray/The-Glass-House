@@ -5,12 +5,13 @@ import SessionProviderWrapper from "@/components/providers/SessionProviderWrappe
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 // TODO: Use new API route or shared client for settings fetching if needed.
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
     // Fetch settings from the API route
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/settings?type=build`, {
       next: { revalidate: 60 },
     });
