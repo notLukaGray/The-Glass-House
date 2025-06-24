@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getImageAsset } from "@/lib/handlers/clientHandlers";
 
 interface PortfolioPreview {
   _id: string;
@@ -31,8 +30,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
     const loadImage = async () => {
       if (portfolio.coverAsset) {
         try {
-          const imageAsset = await getImageAsset(portfolio.coverAsset._ref);
-          setCoverImage(imageAsset);
+          setCoverImage(null);
         } catch (error) {
           console.error("Error loading portfolio image:", error);
         } finally {

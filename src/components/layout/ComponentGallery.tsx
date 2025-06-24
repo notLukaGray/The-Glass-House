@@ -2,7 +2,7 @@ import ImageSection from "../content/ImageSection";
 import VideoSection from "../content/VideoSection";
 import IconSection from "../content/IconSection";
 import AvatarSection from "../content/AvatarSection";
-import { VideoAsset } from "@/lib/handlers/clientHandlers";
+import { VideoAsset } from "@/lib/handlers/videoHandler";
 
 export default function ComponentsTestPage() {
   // Mock/test data for each component
@@ -16,16 +16,15 @@ export default function ComponentsTestPage() {
     _createdAt: new Date().toISOString(),
     _updatedAt: new Date().toISOString(),
     _rev: "mock-rev",
-    title: "Mock Video",
+    title: { _type: "localeString", en: "Mock Video" },
+    description: { _type: "localeString", en: "A sample video description." },
     caption: { _type: "localeString", en: "A sample video caption." },
     order: 1,
-    poster: "/file.svg",
-    sourceType: "cdn",
-    cdnSdUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    cdn1kUrl: "",
-    cdn2kUrl: "",
-    cdn4kUrl: "",
-    url: "https://www.w3schools.com/html/mov_bbb.mp4",
+    sourceType: "bunny",
+    bunnyVideoUrl:
+      "https://iframe.mediadelivery.net/play/458305/545f30c7-f6fb-4522-ab4f-e0fc4b9faa1c",
+    width: 3840,
+    height: 1634,
   } as VideoAsset;
   const mockIcon = {
     svgData:
@@ -46,6 +45,126 @@ export default function ComponentsTestPage() {
         <h2 className="text-xl font-semibold mb-2">VideoSection</h2>
         <VideoSection
           video={mockVideo}
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Autoplay & Muted
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          autoplay={true}
+          loop={true}
+          muted={true}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Small Size
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          size="small"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Medium Size
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          size="medium"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Large Size
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          size="large"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">VideoSection - XL Size</h2>
+        <VideoSection
+          video={mockVideo}
+          size="xl"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">VideoSection - 2XL Size</h2>
+        <VideoSection
+          video={mockVideo}
+          size="2xl"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Natural Aspect Ratio (Auto)
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          aspectRatio="auto"
+          size="large"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Forced 16:9 Aspect Ratio
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          aspectRatio="16:9"
+          size="large"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Forced 4:3 Aspect Ratio
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          aspectRatio="4:3"
+          size="large"
+          autoplay={false}
+          loop={false}
+          showCaption={true}
+        />
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">
+          VideoSection - Forced Square Aspect Ratio
+        </h2>
+        <VideoSection
+          video={mockVideo}
+          aspectRatio="1:1"
+          size="large"
           autoplay={false}
           loop={false}
           showCaption={true}

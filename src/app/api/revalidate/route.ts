@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Revalidate based on the document type
     if (_type === "projectMeta") {
-      // Portfolio content changed - revalidate portfolio pages
+      // Project content changed - revalidate project pages
       revalidatePath("/portfolio");
       revalidatePath("/portfolio/[slug]");
     } else if (_type === "pageMeta") {

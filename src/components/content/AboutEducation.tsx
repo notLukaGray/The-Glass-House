@@ -1,5 +1,5 @@
 import React from "react";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 import { EducationItem } from "@/types/content";
 
 interface AboutEducationProps {

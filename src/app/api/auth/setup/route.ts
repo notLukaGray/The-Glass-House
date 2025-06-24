@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import {
-  getAllUsers,
-  updateUserRole,
-  deleteUser,
-  createUser,
-  updateUserPassword,
-} from "@/lib/auth/db";
+import { updateUserRole, createUser, updateUserPassword } from "@/lib/auth/db";
 import { authRateLimiter } from "@/lib/rateLimit";
 import { z } from "zod";
 
@@ -91,33 +85,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
-  // Apply rate limiting
-  const rateLimitResult = authRateLimiter(request);
-  if (rateLimitResult) {
-    return rateLimitResult;
-  }
-
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (session?.user?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
-        { status: 403 },
-      );
-    }
-
-    const users = await getAllUsers();
-    return NextResponse.json({ users });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch users" },
-      { status: 500 },
-    );
-  }
-}
-
 export async function PUT(request: NextRequest) {
   // Apply rate limiting
   const rateLimitResult = authRateLimiter(request);
@@ -153,53 +120,6 @@ export async function PUT(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "Failed to update user role" },
-      { status: 500 },
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  // Apply rate limiting
-  const rateLimitResult = authRateLimiter(request);
-  if (rateLimitResult) {
-    return rateLimitResult;
-  }
-
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (session?.user?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
-        { status: 403 },
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    if (!userId || typeof userId !== "string" || userId.length < 1) {
-      return NextResponse.json(
-        { error: "User ID is required and must be a string" },
-        { status: 400 },
-      );
-    }
-
-    // Prevent admin from deleting themselves
-    if (userId === session.user.id) {
-      return NextResponse.json(
-        { error: "Cannot delete your own account" },
-        { status: 400 },
-      );
-    }
-
-    await deleteUser(userId);
-    return NextResponse.json({
-      success: true,
-      message: "User deleted successfully",
-    });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to delete user" },
       { status: 500 },
     );
   }

@@ -178,23 +178,6 @@ export async function checkUserExists(identifier: string): Promise<boolean> {
   return !!user;
 }
 
-export async function getAllUsers(): Promise<UserWithoutPassword[]> {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      username: true,
-      name: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return users;
-}
-
 export async function updateUserRole(
   userId: string,
   newRole: string,
@@ -216,32 +199,19 @@ export async function updateUserRole(
   return user;
 }
 
-export async function deleteUser(userId: string): Promise<void> {
-  await prisma.user.delete({
-    where: { id: userId },
-  });
-}
-
-// Database management utilities
-export async function deleteAllUsers(): Promise<void> {
-  await prisma.user.deleteMany();
-}
-
-export async function getUsersCount(): Promise<number> {
-  return prisma.user.count();
-}
-
 export async function isSetupComplete(): Promise<boolean> {
-  const userCount = await getUsersCount();
-  return userCount > 0;
+  const adminCount = await prisma.user.count({
+    where: { role: "admin" },
+  });
+  return adminCount > 0;
 }
 
 export async function createDefaultAdmin(): Promise<UserWithoutPassword> {
   const defaultAdmin = {
-    email: process.env.DEFAULT_ADMIN_EMAIL || "admin@example.com",
-    username: process.env.DEFAULT_ADMIN_USERNAME || "admin",
-    name: process.env.DEFAULT_ADMIN_NAME || "Default Admin",
-    password: process.env.DEFAULT_ADMIN_PASSWORD || "admin123",
+    email: "admin@example.com",
+    username: "admin",
+    name: "Default Admin",
+    password: "Admin123!",
     role: "admin" as const,
   };
 
@@ -253,47 +223,41 @@ export async function ensureDefaultAdmin(): Promise<{
   user: UserWithoutPassword;
   message: string;
 }> {
-  const userCount = await getUsersCount();
+  const setupComplete = await isSetupComplete();
 
-  if (userCount === 0) {
-    // No users exist, create default admin
+  if (setupComplete) {
+    const existingAdmin = await prisma.user.findFirst({
+      where: { role: "admin" },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      created: false,
+      user: existingAdmin!,
+      message: "Admin user already exists",
+    };
+  }
+
+  try {
     const admin = await createDefaultAdmin();
-    const isEnvSetup = process.env.DEFAULT_ADMIN_PASSWORD;
-
     return {
       created: true,
       user: admin,
-      message: isEnvSetup
-        ? `Default admin created via environment variables:\nUsername: ${admin.username}\nPassword: [Set via environment]\n\nPlease change the password after first login.`
-        : `Default admin created with credentials:\nUsername: ${admin.username}\nPassword: admin123\n\nPlease change the password after first login.`,
+      message: "Default admin user created successfully",
     };
-  } else {
-    // Check if admin user exists
-    const admin = await findUserByUsernameOrEmail("admin");
-    if (admin && admin.role === "admin") {
-      return {
-        created: false,
-        user: admin,
-        message:
-          "Admin user already exists. Use existing credentials to login.",
-      };
-    } else {
-      // Create admin user
-      const newAdmin = await createDefaultAdmin();
-      const isEnvSetup = process.env.DEFAULT_ADMIN_PASSWORD;
-
-      return {
-        created: true,
-        user: newAdmin,
-        message: isEnvSetup
-          ? `Admin user created via environment variables:\nUsername: ${newAdmin.username}\nPassword: [Set via environment]\n\nPlease change the password after first login.`
-          : `Admin user created with credentials:\nUsername: ${newAdmin.username}\nPassword: admin123\n\nPlease change the password after first login.`,
-      };
-    }
+  } catch (error) {
+    throw new Error(`Failed to create default admin: ${error}`);
   }
 }
 
-// Cleanup
 export async function disconnect(): Promise<void> {
   await prisma.$disconnect();
 }

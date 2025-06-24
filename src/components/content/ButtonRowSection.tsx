@@ -1,5 +1,5 @@
 import React from "react";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 
 interface Button {
   _key: string;

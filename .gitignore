@@ -25,9 +25,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# local env files (but allow .env.example)
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
@@ -45,3 +48,60 @@ next-env.d.ts
 test-results/
 
 /src/generated/prisma
+
+# prisma
+/prisma/migrations/
+
+# neon
+.neon
+
+# vercel
+.vercelignore
+
+# git secrets
+.git-secrets
+
+# husky
+.husky
+
+# vscode
+.vscode
+
+# eslint
+.eslintcache
+
+# prettier
+.prettierignore
+
+# typescript
+*.tsbuildinfo
+
+# next.js
+.next/
+out/
+
+# production
+build/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files (but allow .env.example)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

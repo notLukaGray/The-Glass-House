@@ -162,10 +162,24 @@ const imageSection = {
           title: "Size",
           type: "string",
           options: {
-            list: ["auto", "small", "medium", "large", "full", "custom"],
+            list: [
+              { title: "Auto", value: "auto" },
+              { title: "Small", value: "small" },
+              { title: "Medium", value: "medium" },
+              { title: "Large", value: "large" },
+              { title: "XL", value: "xl" },
+              { title: "2XL", value: "2xl" },
+              { title: "3XL", value: "3xl" },
+              { title: "4XL", value: "4xl" },
+              { title: "5XL", value: "5xl" },
+              { title: "6XL", value: "6xl" },
+              { title: "7XL", value: "7xl" },
+              { title: "Full Width", value: "full" },
+              { title: "Custom", value: "custom" },
+            ],
           },
           description:
-            'Set the max width of the image. Example: "small" (max-w-xs), "medium" (max-w-md), "large" (max-w-lg), "full" (100% width). Use "custom" with Width/Max Width for advanced sizing.',
+            'Set the max width of the image. Example: "small" (320px), "medium" (384px), "large" (448px), "xl" (512px), "2xl" (576px), etc. Use "custom" with Width/Max Width for advanced sizing.',
           hidden: ({ parent }: { parent: unknown }) =>
             (parent as Record<string, unknown>)?.fullBleed,
         },

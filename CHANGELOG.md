@@ -1,6 +1,40 @@
 # Changelog
 
-This file lists the main changes and improvements to the portfolio CMS. It's here so you can see what's new, what's fixed, and what's changed over time.
+This file lists the main changes and improvements to The Glass House. It's here so you can see what's new, what's fixed, and what's changed over time.
+
+### Major Improvements (2025-06-24)
+
+- **Component Enhancements:**
+  - Improved VideoSection and ImageSection for better sizing, aspect ratio, and responsive behavior.
+  - Bunny video integration is now fully working and reliable for all supported sources.
+  - Fixed alignment, box shadow, and border radius issues for both video and image components.
+  - Simplified overlay and hover logic for cleaner visuals and easier maintenance.
+  - Updated TextSection and other content components for consistency and flexibility.
+
+- **Environment & Setup:**
+  - Created a comprehensive `.env.example` file with all required variables and clear instructions.
+  - Ensured `.env.example` is tracked in git and available for CI and new developers.
+  - Audited and documented all environment variables used throughout The Glass House.
+  - Improved install and setup instructions in the README for a smoother onboarding experience.
+
+- **Script & Tooling Cleanup:**
+  - Removed unused database scripts for deleting, listing, and counting users.
+  - Kept only the essential setup script for initializing the admin user and database.
+  - Cleaned up related CLI and database files to remove unnecessary code.
+  - Updated ESLint and Prettier configs for consistency and code quality.
+
+- **API & User Management:**
+  - Removed user management endpoints (list/delete) from the admin API route for security and simplicity.
+  - Kept only user creation, password update, and role update actions for admin setup.
+
+- **Continuous Integration & Deployment:**
+  - Ensured GitHub Actions workflows run lint and build checks on every push and pull request.
+  - Updated project and Vercel settings to require passing checks before deployment.
+  - Added guidance for setting up branch protection and required checks on GitHub.
+
+- **General Cleanup:**
+  - Improved documentation and removed outdated references.
+  - Streamlined project structure and removed unnecessary files.
 
 ## 2025-06-23
 

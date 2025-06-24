@@ -3,35 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getImageAsset } from "@/lib/handlers/clientHandlers";
+import type { RelatedItem } from "@/types/content";
 
 interface RelatedSectionProps {
   heading: { en?: string };
-  items: Array<{
-    _id: string;
-    title?: { en?: string };
-    subhead?: { en?: string };
-    coverImage?: { _ref: string };
-  }>;
+  items: RelatedItem[];
 }
 
 const RelatedSection: React.FC<RelatedSectionProps> = ({ heading, items }) => {
-  const [imageUrls, setImageUrls] = React.useState<Record<string, string>>({});
-
-  React.useEffect(() => {
-    const fetchImages = async () => {
-      const urls: Record<string, string> = {};
-      for (const item of items) {
-        if (item.coverImage) {
-          const imageAsset = await getImageAsset(item.coverImage._ref);
-          if (imageAsset) urls[item._id] = imageAsset.url;
-        }
-      }
-      setImageUrls(urls);
-    };
-    fetchImages();
-  }, [items]);
-
   return (
     <section className="my-8">
       <h2 className="text-2xl font-bold mb-4">{heading?.en || "Related"}</h2>
@@ -43,9 +22,9 @@ const RelatedSection: React.FC<RelatedSectionProps> = ({ heading, items }) => {
             className="group"
           >
             <div className="relative aspect-video mb-2 overflow-hidden">
-              {imageUrls[item._id] ? (
+              {item.coverImage?.url ? (
                 <Image
-                  src={imageUrls[item._id]}
+                  src={item.coverImage.url}
                   alt={item.title?.en || "Related item"}
                   width={400}
                   height={225}

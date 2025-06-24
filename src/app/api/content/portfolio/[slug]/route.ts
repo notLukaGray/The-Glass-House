@@ -35,7 +35,7 @@ export async function GET(
     const validatedSlug = PortfolioSlugSchema.safeParse({ slug });
     if (!validatedSlug.success) {
       return NextResponse.json(
-        { error: "Invalid portfolio slug format" },
+        { error: "Invalid project slug format" },
         { status: 400 },
       );
     }
@@ -99,17 +99,14 @@ export async function GET(
     }>(query, { slug: validatedSlug.data.slug });
 
     if (!portfolioData) {
-      return NextResponse.json(
-        { error: "Portfolio not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     // Validate response data
     const validatedPortfolioData = PortfolioDataSchema.safeParse(portfolioData);
     if (!validatedPortfolioData.success) {
       return NextResponse.json(
-        { error: "Invalid portfolio data format" },
+        { error: "Invalid project data format" },
         { status: 500 },
       );
     }
@@ -117,7 +114,7 @@ export async function GET(
     return NextResponse.json(validatedPortfolioData.data);
   } catch {
     return NextResponse.json(
-      { error: "Failed to fetch portfolio" },
+      { error: "Failed to fetch project" },
       { status: 500 },
     );
   }

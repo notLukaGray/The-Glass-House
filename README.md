@@ -1,127 +1,130 @@
-# Portfolio CMS
+# The Glass House
 
-This is a portfolio and content management system built with Next.js 15+ and Sanity Studio v3. It's designed for developers and designers who want a modern, secure, and flexible site for their work.
+The Glass House is a modular frontend framework for combining CMS-driven content, secure authentication, and customizable layout components. Built with Next.js, Sanity, and Prisma, it's designed to support everything from personal portfolios to feature-rich tools like VAELD.
 
-## What's Included
-
-- Next.js 15+ (App Router, server components, Tailwind CSS)
-- Sanity Studio v3 for content management
-- Modular sections for portfolio and pages
-- Handles images, SVGs, videos, and 3D models
-- Secure authentication (bcrypt, rate limiting, input validation)
-- Role-based access (admin and user)
-- Multilingual support (localeString fields)
-- Ready for Vercel, Netlify, or your own server
-
-## Getting Started
-
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/notLukaGray/portfolio.git
-   cd portfolio
-   ```
-2. **Install dependencies:**
-   ```sh
-   npm install
-   # or
-   yarn install
-   ```
-3. **Set up environment variables:**
-   - Copy `.env.local.example` to `.env.local` (create if missing)
-   - Add your Sanity and authentication credentials:
-     ```env
-     SANITY_PROJECT_ID=your-sanity-project-id
-     SANITY_DATASET=your-dataset
-     SANITY_API_VERSION=2023-05-22
-     SANITY_TOKEN=your-sanity-token
-     NEXTAUTH_SECRET=your-random-secret
-     NEXT_PUBLIC_BASE_URL=http://localhost:3000
-     ```
-4. **Run the development server:**
-   ```sh
-   npm run dev
-   ```
-5. **Open your browser:**
-   - Main site: [http://localhost:3000](http://localhost:3000)
-   - CMS: [http://localhost:3000/studio](http://localhost:3000/studio) (admin login required)
-
-## Authentication and Security
-
-- Passwords are hashed with bcrypt
-- Login attempts are rate-limited
-- User input is validated
-- Sessions use JWT tokens
-- Admin routes are protected by middleware
-- API routes require authentication
-- CSRF protection is handled by NextAuth
-
-**Default admin user is created automatically on first setup:**
-
-- Username: `admin`
-- Password: `ChangeMe123!`
-- Email: `admin@example.com`
-
-**Change the default password after your first login.**
-
-## Deployment
-
-### Deploying to Vercel
-
-1. **Install the Vercel CLI:**
-   ```sh
-   npm i -g vercel
-   ```
-2. **Deploy:**
-   ```sh
-   npm run deploy
-   # or for preview
-   npm run deploy:preview
-   ```
-3. **Set environment variables in the Vercel dashboard:**
-   - `DATABASE_URL` (your production database URL)
-   - `NEXTAUTH_SECRET` (32+ character secret)
-   - `NEXTAUTH_URL` (your deployed site URL)
-   - Sanity variables if you use Sanity
-
-4. **Set up your production database (Neon, Supabase, etc.)**
-5. **Visit `/setup` on your deployed site to create the admin user.**
-6. **Login at `/login` and access the studio at `/studio`.**
-
-**If you run into issues:**
-
-- Double-check your environment variables
-- Make sure your database is reachable
-- Visit `/setup` to trigger admin creation if needed
-
-### Other Deployment Options
-
-- You can deploy to Netlify or your own server
-- Make sure all environment variables are set
-- Use a strong `NEXTAUTH_SECRET` in production
-
-## Scripts
-
-- `npm run dev` – Start the development server
-- `npm run build` – Build for production
-- `npm run start` – Start the production server
-- `npm run lint` – Run ESLint
-- `npm run manage-users` – Manage users in the database
-- `npm run deploy` – Deploy to Vercel (production)
-- `npm run deploy:preview` – Deploy to Vercel (preview)
-
-## Development Notes
-
-- Use the `/setup` page to create or reset the admin user
-- All authentication is handled through the database (no hardcoded users)
-- Sanity Studio is available at `/studio` for admin users
-- The codebase is fully type-checked and linted
-
-## License
-
-NO LICENSE AT THIS TIME - WAIT FOR FUTURE BUILD
+Define your layout components once, and control what renders through Sanity — no redeploys required. It's built for Vercel, but can run anywhere that supports Node.js.
 
 ---
 
-Maintained by Luka Gray. If you have questions or want to contribute, open an issue or pull request.
+## Core Philosophy
 
-# Sun Jun 22 22:50:35 CDT 2025
+- CMS-first: structure and content are managed in Sanity, not hardcoded
+- Auth-ready: built-in credential login with secure hashing, rate limits, and middleware protection
+- Component-based: frontend blocks are modular and dynamically filled with content
+- Deployment-agnostic: Vercel-ready, but portable to any platform
+- Future-friendly: built with clean scripts and Prisma extensibility
+
+---
+
+## What's Included
+
+- Next.js 15+ with App Router, server components, Tailwind CSS
+- Sanity Studio v3 for content and layout management
+- Prisma for flexible, schema-driven auth and future user roles
+- Argon2 or bcrypt password hashing
+- JWT-based session handling
+- Rate-limited login with middleware protection
+- Full media support (images, videos, SVGs, 3D files)
+
+---
+
+## Getting Started
+
+1. Clone the repository
+
+   git clone https://github.com/your-username/the-glass-house.git
+   cd the-glass-house
+
+2. Install dependencies
+
+   npm install
+
+3. Set up your environment
+
+   Create a `.env.local` file and add values like:
+
+   NEXT_PUBLIC_BASE_URL=http://localhost:3000  
+   SANITY_PROJECT_ID=your-sanity-project-id  
+   SANITY_DATASET=your-dataset-name  
+   SANITY_API_VERSION=2023-05-22  
+   SANITY_TOKEN=your-sanity-access-token  
+   SANITY_WEBHOOK_SECRET=your-webhook-secret  
+   NEXTAUTH_SECRET=your-random-string  
+   NEXTAUTH_URL=http://localhost:3000
+
+   Note: Your NEXTAUTH_SECRET should be a long, random string. Do not expose any values via NEXT_PUBLIC unless needed client-side.
+
+4. Run the development server
+
+   npm run dev
+
+5. Open in your browser
+   - Main site: http://localhost:3000
+   - CMS Studio: http://localhost:3000/studio (login required)
+
+---
+
+## Authentication
+
+- Auth is managed via NextAuth with a single admin account stored in the database
+- Passwords are hashed using Argon2 or Bcrypt
+- Sessions are JWT-based and scoped by middleware
+- Rate limiting is applied on login to prevent brute force
+- User creation is handled internally — no hardcoded users or env-based logins
+- You can later extend to multi-user access with Prisma if needed
+
+---
+
+## Deployment
+
+### Deploy to Vercel
+
+1. Connect your GitHub repo to Vercel
+2. Add the required environment variables in the Vercel dashboard
+3. Trigger a deploy or run locally via CLI:
+
+   npm run deploy
+
+4. Once deployed, log in at /login, and manage content at /studio
+
+### Self-host or Netlify
+
+1. Make sure Node 18+ is installed
+2. Set the same environment variables locally or in your host's dashboard
+3. Build and start your app:
+
+   npm run build  
+   npm run start
+
+---
+
+## Available Scripts
+
+- `dev` – Starts the local development server (custom entry via src/lib/dev.ts)
+- `build` – Runs `prisma generate` and builds the Next.js app
+- `start` – Runs the Next.js production server
+- `lint` – Runs Next.js's built-in linter
+- `type-check` – Runs TypeScript type checking only
+- `setup` – Initializes an admin user in the database via CLI
+- `deploy` – Deploys the app to Vercel production
+- `deploy:preview` – Deploys the app to a Vercel preview environment
+
+---
+
+## Suggested Use Cases
+
+- Developer portfolio with rich case study content
+- AI-powered tools like VAELD with CMS-controlled UI
+- Internal dashboards or gated tools
+- Launchpad for new SaaS or product sites
+
+---
+
+## License
+
+This project is currently unlicensed and under active development.  
+For reuse or contribution, contact Luka Gray directly.
+
+---
+
+Maintained by Luka Gray.

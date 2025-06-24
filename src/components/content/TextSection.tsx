@@ -1,24 +1,18 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { PortableText, PortableTextComponents } from "@portabletext/react";
 import Image from "next/image";
 import { useSettings } from "@/components/providers/SettingsProvider";
 import {
-  getImageAsset,
-  getSvgAsset,
-  getVideoAsset,
-  getSocialAsset,
-} from "@/lib/handlers/clientHandlers";
-import {
-  BlockContent,
   Positioning,
   Effects,
   PositioningAdvanced,
+  ResolvedContentBlock,
 } from "@/types/content";
 import { sanitizeString } from "@/lib/utils/string";
 
 interface TextSectionProps {
-  content: BlockContent[];
+  content: ResolvedContentBlock[];
   positioning?: Positioning;
   effects?: Effects;
   positioningAdvanced?: PositioningAdvanced;
@@ -108,39 +102,6 @@ function getTextAlignClass(textAlign?: string) {
   }
 }
 
-// Pre-resolve assets before rendering
-async function resolveAssets(blocks: BlockContent[]): Promise<BlockContent[]> {
-  if (!blocks || !Array.isArray(blocks) || blocks.length === 0) return [];
-
-  const resolvedBlocks = await Promise.all(
-    blocks.map(async (block) => {
-      if (block._type === "asset" && typeof block._ref === "string") {
-        try {
-          const imageAsset = await getImageAsset(block._ref);
-          if (imageAsset)
-            return { ...block, ...imageAsset, _resolvedType: "image" };
-
-          const svgAsset = await getSvgAsset(block._ref);
-          if (svgAsset) return { ...block, ...svgAsset, _resolvedType: "svg" };
-
-          const videoAsset = await getVideoAsset(block._ref);
-          if (videoAsset)
-            return { ...block, ...videoAsset, _resolvedType: "video" };
-
-          const socialAsset = await getSocialAsset(block._ref);
-          if (socialAsset)
-            return { ...block, ...socialAsset, _resolvedType: "social" };
-        } catch (error) {
-          console.error("Error resolving asset:", error);
-        }
-      }
-      return block;
-    }),
-  );
-
-  return resolvedBlocks;
-}
-
 const TextSection: React.FC<TextSectionProps> = (props) => {
   const { settings, currentTheme } = useSettings();
 
@@ -159,31 +120,8 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
     ...positioningAdvanced,
   };
 
-  const [resolvedContent, setResolvedContent] = useState<BlockContent[]>([]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadContent = async () => {
-      if (
-        !props.content ||
-        !Array.isArray(props.content) ||
-        props.content.length === 0
-      ) {
-        if (isMounted) setResolvedContent([]);
-        return;
-      }
-
-      const resolved = await resolveAssets(props.content);
-      if (isMounted) setResolvedContent(resolved);
-    };
-
-    loadContent();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [props.content]);
+  // Use content directly since assets should be pre-resolved on server
+  const resolvedContent = props.content || [];
 
   if (!resolvedContent.length) return null;
 
@@ -213,7 +151,7 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
 
     return {
       color: flatProps.textColor || themeColors.text,
-      backgroundColor: flatProps.backgroundColor || themeColors.background,
+      backgroundColor: flatProps.backgroundColor || undefined,
       fontFamily: flatProps.fontFamily || typography.bodyFont,
     };
   };
@@ -233,8 +171,6 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
   // --- Shared classes ---
   const sharedClasses = [
     getBlockAlignmentClass(blockAlignment),
-    getBoxShadowClass(boxShadow),
-    getBorderRadiusClass(borderRadius),
     visibilityClass,
   ]
     .filter(Boolean)
@@ -384,7 +320,7 @@ const TextSection: React.FC<TextSectionProps> = (props) => {
       style={containerStyle}
     >
       <section
-        className={`${sizeClass} ${sharedClasses}`}
+        className={`${sizeClass} ${sharedClasses} ${getBoxShadowClass(boxShadow)} ${getBorderRadiusClass(borderRadius)} overflow-hidden`}
         style={{
           width: width || (!flatProps.fullBleed && size ? undefined : "100%"),
         }}

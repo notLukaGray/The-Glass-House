@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 import { SkillItem } from "@/types/content";
 
 interface AboutSkillsProps {
@@ -17,7 +17,7 @@ const AboutSkills: React.FC<AboutSkillsProps> = ({ items }) => {
             key={item._key}
             className="bg-gray-100 rounded-lg p-4 flex gap-4 items-center"
           >
-            {/* SVG Icon (future-proof) */}
+            {}
             {item.icon && "svgData" in item.icon ? (
               <div
                 className="w-8 h-8 flex items-center justify-center"

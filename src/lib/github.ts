@@ -10,11 +10,12 @@ export async function getLatestCommit() {
 
   try {
     const res = await fetch(
-      "https://api.github.com/repos/notLukaGray/portfolio/commits?sha=main&per_page=1",
+      "https://api.github.com/repos/notLukaGray/The-Glass-House/commits?sha=main&per_page=1",
       {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/vnd.github.v3+json",
+          "User-Agent": "the-glass-house-app",
         },
         next: { revalidate: 3600 },
       },
@@ -56,7 +57,7 @@ export async function getGitHubData(repoName: string) {
   const response = await fetch(`https://api.github.com/repos/${repoName}`, {
     headers: {
       Authorization: `token ${token}`,
-      "User-Agent": "portfolio-app",
+      "User-Agent": "the-glass-house-app",
     },
   });
 

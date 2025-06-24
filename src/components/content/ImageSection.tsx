@@ -67,11 +67,25 @@ interface ImageSectionProps {
 function getSizeClass(size?: string) {
   switch (size) {
     case "small":
-      return "max-w-xs";
+      return "w-64 sm:w-80"; // 256px mobile, 320px desktop
     case "medium":
-      return "max-w-md";
+      return "w-72 sm:w-96"; // 288px mobile, 384px desktop
     case "large":
-      return "max-w-lg";
+      return "w-80 sm:w-[28rem]"; // 320px mobile, 448px desktop
+    case "xl":
+      return "w-96 sm:w-[32rem]"; // 384px mobile, 512px desktop
+    case "2xl":
+      return "w-full max-w-sm sm:max-w-2xl"; // Responsive with max-width
+    case "3xl":
+      return "w-full max-w-md sm:max-w-3xl"; // Responsive with max-width
+    case "4xl":
+      return "w-full max-w-lg sm:max-w-4xl"; // Responsive with max-width
+    case "5xl":
+      return "w-full max-w-xl sm:max-w-5xl"; // Responsive with max-width
+    case "6xl":
+      return "w-full max-w-2xl sm:max-w-6xl"; // Responsive with max-width
+    case "7xl":
+      return "w-full max-w-3xl sm:max-w-7xl"; // Responsive with max-width
     case "full":
       return "w-full";
     default:
@@ -255,9 +269,6 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
   };
 
   // --- Container style and classes ---
-  const fallbackBg =
-    settings?.theme[currentTheme === "dark" ? "darkMode" : "lightMode"].colors
-      .background;
   const safeBackgroundColor =
     typeof adv.backgroundColor === "string" && adv.backgroundColor.trim() !== ""
       ? adv.backgroundColor
@@ -269,10 +280,7 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
     marginTop: adv.marginTop,
     marginBottom: adv.marginBottom,
     padding: adv.padding,
-    backgroundColor:
-      safeBackgroundColor ||
-      (typeof fallbackBg === "string" ? fallbackBg : undefined),
-    position: adv.overlayColor ? "relative" : undefined,
+    backgroundColor: safeBackgroundColor,
     overflow: "visible",
     ...getThemeStyles(),
   };
@@ -312,6 +320,7 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
   // --- Shared overlay/image classes for border radius and hover effects ---
   const sharedOverlayClasses = [
     getBorderRadiusClass(adv.borderRadius),
+    getBoxShadowClass(adv.boxShadow),
     adv.hoverEffect === "zoom"
       ? "transition-transform duration-300 group-hover:scale-105"
       : "",
@@ -325,7 +334,6 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
   // --- Image class ---
   const imgClass = [
     "w-full h-full",
-    getBoxShadowClass(adv.boxShadow),
     shouldUseAspectRatio
       ? objectFit
         ? getObjectFitClass(objectFit)
@@ -410,14 +418,16 @@ const ImageSection: React.FC<ImageSectionProps> = (props) => {
   if (shouldUseAspectRatio) {
     imgElement = (
       <div
-        className={`relative group ${aspectRatioClass} ${sizeClass} ${sharedOverlayClasses}`}
+        className={`relative group ${aspectRatioClass} ${sizeClass} ${sharedOverlayClasses} overflow-hidden`}
       >
         {renderImageContent()}
       </div>
     );
   } else {
     imgElement = (
-      <div className={`relative group ${sizeClass} ${sharedOverlayClasses}`}>
+      <div
+        className={`relative group ${sizeClass} ${sharedOverlayClasses} overflow-hidden`}
+      >
         {renderImageContent()}
       </div>
     );

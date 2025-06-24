@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
 import { SoftwareItem } from "@/types/content";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 
 interface AboutSoftwareProps {
   items: SoftwareItem[];

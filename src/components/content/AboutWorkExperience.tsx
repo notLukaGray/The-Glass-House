@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 import { WorkExperienceItem } from "@/types/content";
 
 interface AboutWorkExperienceProps {

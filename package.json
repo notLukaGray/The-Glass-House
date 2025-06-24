@@ -1,5 +1,5 @@
 {
-  "name": "portfolio_lukagray",
+  "name": "the-glass-house",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,10 +14,6 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "setup": "npx tsx src/lib/db/cli.ts setup-admin",
-    "db:setup-admin": "npx tsx src/lib/db/cli.ts setup-admin",
-    "db:delete-all-users": "npx tsx src/lib/db/cli.ts delete-all-users",
-    "db:count-users": "npx tsx src/lib/db/cli.ts count-users",
-    "db:list-users": "npx tsx src/lib/db/cli.ts list-users",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel"
   },
@@ -32,6 +28,7 @@
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "dotenv-safe": "^9.1.0",
+    "hls.js": "^1.6.5",
     "js-cookie": "^3.0.5",
     "next": "^15.3.4",
     "next-auth": "^4.24.11",

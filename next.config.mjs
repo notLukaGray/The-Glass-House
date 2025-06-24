@@ -5,7 +5,6 @@ const withBundleAnalyzerConfig = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
   env: {
@@ -84,13 +83,19 @@ const nextConfig = {
                 "https://images.unsplash.com",
                 "https://www.w3schools.com",
                 "https://res.cloudinary.com",
+                "https://media.notlukagray.com",
               ],
               connectSrc: [
                 "'self'",
+                "data:",
                 "https://*.sanity.io",
                 "https://va.vercel-scripts.com",
                 "https://api.github.com",
                 "https://ep-calm-meadow-a8e25r6a.eastus2.azure.neon.tech",
+                "https://media.notlukagray.com",
+                "https://iframe.mediadelivery.net",
+                "https://*.b-cdn.net",
+                "https://*.mediadelivery.net",
               ],
               fontSrc: [
                 "'self'",
@@ -99,8 +104,14 @@ const nextConfig = {
                 "https://fonts.gstatic.com",
               ],
               objectSrc: ["'none'"],
-              mediaSrc: ["'self'"],
-              frameSrc: ["'none'"],
+              mediaSrc: [
+                "'self'",
+                "https://media.notlukagray.com",
+                "https://video.bunnycdn.com",
+                "https://iframe.mediadelivery.net",
+                "https://vz-150995e9-3b5.b-cdn.net",
+              ],
+              frameSrc: ["'self'", "https://iframe.mediadelivery.net"],
             },
           },
           referrerPolicy: "strict-origin-when-cross-origin",

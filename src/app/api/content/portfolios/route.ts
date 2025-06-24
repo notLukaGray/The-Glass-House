@@ -78,7 +78,7 @@ export async function GET() {
       .safeParse(portfolios);
     if (!validatedPortfolios.success) {
       return NextResponse.json(
-        { error: "Invalid portfolios data format" },
+        { error: "Invalid projects data format" },
         { status: 500 },
       );
     }
@@ -86,7 +86,7 @@ export async function GET() {
     return NextResponse.json(validatedPortfolios.data);
   } catch {
     return NextResponse.json(
-      { error: "Failed to fetch portfolios" },
+      { error: "Failed to fetch projects" },
       { status: 500 },
     );
   }

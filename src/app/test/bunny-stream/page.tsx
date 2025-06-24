@@ -1,0 +1,124 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
+
+export default function BunnyStreamTest() {
+  const VIDEO_URL =
+    "https://iframe.mediadelivery.net/play/458305/545f30c7-f6fb-4522-ab4f-e0fc4b9faa1c";
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
+  const [cdnDomain, setCdnDomain] = useState<string>("");
+
+  useEffect(() => {
+    const extractCdnDomain = async () => {
+      try {
+        const response = await fetch(VIDEO_URL);
+        const html = await response.text();
+        const cdnMatch = html.match(/https:\/\/[^\/]*\.b-cdn\.net/);
+        if (cdnMatch) {
+          setCdnDomain(cdnMatch[0]);
+        } else {
+          console.warn("Could not extract CDN domain from video URL");
+        }
+      } catch (error) {
+        console.warn("Failed to fetch video URL to extract CDN domain:", error);
+      }
+    };
+
+    extractCdnDomain();
+  }, []);
+
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {
+              // Autoplay failed
+            });
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video) return;
+
+    video.play().catch(() => {
+      // Autoplay on mount failed
+    });
+  }, []);
+
+  const videoGuid = VIDEO_URL.split("/").pop();
+  const libraryId = VIDEO_URL.split("/").slice(-2, -1)[0];
+
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Bunny Stream Test</h1>
+
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Background Video (Autoplay)</h2>
+        <div className="relative h-96 bg-black rounded-lg overflow-hidden">
+          {cdnDomain ? (
+            <video
+              ref={backgroundVideoRef}
+              src={`${cdnDomain}/${videoGuid}/play_720p.mp4`}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+              <p className="text-white">Loading video...</p>
+            </div>
+          )}
+
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center text-white">
+              <h2 className="text-4xl font-bold mb-2">Background Video</h2>
+              <p className="text-xl opacity-90">Autoplay • Loop • Muted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Iframe Player</h2>
+        {cdnDomain ? (
+          <div style={{ position: "relative", paddingTop: "56.25%" }}>
+            <iframe
+              src={`https://iframe.mediadelivery.net/embed/${libraryId}/${videoGuid}?autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
+              loading="lazy"
+              style={{
+                border: 0,
+                position: "absolute",
+                top: 0,
+                height: "100%",
+                width: "100%",
+              }}
+              allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+              allowFullScreen={true}
+            />
+          </div>
+        ) : (
+          <div className="w-full max-w-2xl h-64 bg-gray-800 flex items-center justify-center">
+            <p className="text-white">Loading iframe...</p>
+          </div>
+        )}
+      </div>
+
+      {}
+    </div>
+  );
+}

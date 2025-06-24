@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import BlockRenderer from "./BlockRenderer";
-import { getColoredSvg } from "@/lib/handlers/clientHandlers";
+import { getColoredSvg } from "@/lib/handlers/svgHandler";
 import { BlockContent, IconAsset } from "@/types/content";
 
 interface InsetSectionProps {

@@ -1,13 +1,6 @@
 #!/usr/bin/env node
 
-import {
-  createUser,
-  isSetupComplete,
-  getAllUsers,
-  deleteAllUsers,
-  getUsersCount,
-  validatePassword,
-} from "./index";
+import { createUser, isSetupComplete, validatePassword } from "./index";
 import readline from "readline";
 
 const rl = readline.createInterface({
@@ -22,7 +15,7 @@ function question(prompt: string): Promise<string> {
 }
 
 async function setupAdmin() {
-  console.log("Portfolio CMS Setup");
+  console.log("The Glass House Setup");
   console.log("==================\n");
 
   // Check if setup is already complete
@@ -30,7 +23,9 @@ async function setupAdmin() {
 
   if (setupComplete) {
     console.log("Setup already completed. Admin user already exists.");
-    console.log("If you need to reset, use: npm run db:delete-all-users");
+    console.log(
+      "If you need to reset, you can manually delete users from the database.",
+    );
     process.exit(1);
   }
 
@@ -93,34 +88,9 @@ async function main() {
     case "setup-admin":
       await setupAdmin();
       break;
-    case "count-users":
-      const count = await getUsersCount();
-      console.log(`Total users: ${count}`);
-      break;
-    case "delete-all-users":
-      const confirm = await question(
-        "Are you sure you want to delete ALL users? (yes/no): ",
-      );
-      if (confirm.toLowerCase() === "yes") {
-        await deleteAllUsers();
-        console.log("All users deleted.");
-      } else {
-        console.log("Operation cancelled.");
-      }
-      break;
-    case "list-users":
-      const users = await getAllUsers();
-      console.log("Users:");
-      users.forEach((user) => {
-        console.log(`- ${user.username} (${user.email}) - ${user.role}`);
-      });
-      break;
     default:
       console.log("Available commands:");
       console.log("  setup-admin     - Create first admin user");
-      console.log("  count-users     - Show total user count");
-      console.log("  delete-all-users - Delete all users (dangerous!)");
-      console.log("  list-users      - List all users");
       break;
   }
 

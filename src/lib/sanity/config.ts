@@ -12,7 +12,7 @@ import React from "react";
 const studioInfoTool = () => {
   return {
     title: "Studio",
-    name: "studio-info",
+    name: "studio",
     icon: HomeIcon,
     component: () => {
       return React.createElement(
@@ -42,7 +42,7 @@ const studioInfoTool = () => {
                       key: "title",
                       size: 4,
                     },
-                    "Welcome to Portfolio CMS Studio",
+                    "Welcome to The Glass House Studio",
                   ),
                   React.createElement(
                     Text,
@@ -51,7 +51,7 @@ const studioInfoTool = () => {
                       size: 2,
                       muted: true,
                     },
-                    "Manage your portfolio content with these powerful tools:",
+                    "Manage your content with these powerful tools:",
                   ),
                 ],
               ),
@@ -95,7 +95,7 @@ const studioInfoTool = () => {
                               size: 1,
                               muted: true,
                             },
-                            "The main content management interface where you can create, edit, and organize all your portfolio content. Here you'll find pages, projects, blog posts, assets, and site settings.",
+                            "The main content management interface where you can create, edit, and organize all your content. Here you'll find pages, projects, blog posts, assets, and site settings.",
                           ),
                         ],
                       ),
@@ -175,7 +175,7 @@ const studioInfoTool = () => {
                           size: 1,
                           muted: true,
                         },
-                        "Start with Structure to manage your content. Use Vision when you need to query your data or troubleshoot content issues. Both tools work together to give you complete control over your portfolio content.",
+                        "Start with Structure to manage your content. Use Vision when you need to query your data or troubleshoot content issues. Both tools work together to give you complete control over your content.",
                       ),
                     ],
                   ),
@@ -193,7 +193,7 @@ export default defineConfig({
   // A name for the studio configuration.
   name: "default",
   // The title of the Sanity Studio, visible in the browser tab.
-  title: "Portfolio CMS",
+  title: "The Glass House Studio",
 
   // These environment variables connect the studio to your Sanity project.
   projectId: clientEnv.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -232,3 +232,15 @@ export default defineConfig({
     types: schemaTypes,
   },
 });
+
+// Branding and UI strings
+export const STUDIO_BRANDING = {
+  title: "The Glass House Studio",
+  welcome: "Welcome to The Glass House Studio",
+  description: "Manage your content with these powerful tools:",
+  mainDescription:
+    "The main content management interface where you can create, edit, and organize all your content. Here you'll find pages, projects, blog posts, assets, and site settings.",
+  sidebarDescription:
+    "The Glass House gives you complete control over your content.",
+  studioTitle: "The Glass House Studio",
+};

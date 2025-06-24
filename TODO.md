@@ -1,6 +1,6 @@
-# Project Roadmap and Tasks
+# TODO for The Glass House
 
-This file tracks what's done, what's in progress, and what's next for this portfolio CMS.
+This file tracks what's done, what's in progress, and what's next for this project.
 
 ## What's Done
 
@@ -25,33 +25,46 @@ This file tracks what's done, what's in progress, and what's next for this portf
 
 ### High Priority
 
-- Add Storybook for component development
-- Add end-to-end tests (Playwright)
-- Build shared component library
-- Add type guards for dynamic rendering
-- Improve Sanity Studio with better icons and previews
-- Close all TODO comments in layout.tsx and [slug]/page.tsx
-- Implement proper logging instead of console.log
+- [ ] Add error boundaries and improve error handling throughout the app
+- [ ] Add loading states for all async operations
+- [ ] Improve SEO meta tags and sitemap generation
+- [ ] Audit and document all environment variables (keep .env.example up to date)
+- [ ] Continue improving component flexibility and consistency (especially for content sections)
+- [ ] Add more robust form validation and user feedback
+- [ ] Ensure accessibility (a11y) best practices across all components
+- [ ] Add more tests (unit, integration, and e2e)
 
 ### Medium Priority
 
-- Optimize images and use Next.js Image everywhere
-- Review caching and revalidation strategies
-- Write CONTRIBUTING.md and dev guidelines
-- Add performance monitoring
-- Implement error logging and monitoring
-- Optimize public assets to reduce bundle size
-- Add basic test suite (Vitest or Jest)
+- [ ] Add dark mode toggle and theme improvements
+- [ ] Optimize image handling and use Next.js Image everywhere
+- [ ] Set up proper CI/CD pipeline for all environments
+- [ ] Add performance monitoring and logging
+- [ ] Add internationalization (i18n) support
+- [ ] Improve search functionality
+- [ ] Add more documentation and code comments
 
 ### Low Priority
 
-- Add dark mode toggle
-- Implement advanced search
-- Add analytics and user tracking
-- Create admin dashboard
-- Add multi-language support
-- Implement advanced caching
-- Add automated accessibility testing
+- [ ] Add subtle animations and transitions for better UX
+- [ ] Improve keyboard navigation and accessibility
+- [ ] Add print styles and offline support
+- [ ] Add social sharing and newsletter signup
+- [ ] Add contact form and blog functionality
+
+## Completed (2025-06-24)
+
+- Improved VideoSection and ImageSection for better sizing, aspect ratio, and responsive behavior
+- Bunny video integration is now fully working and reliable for all supported sources
+- Fixed alignment, box shadow, and border radius issues for both video and image components
+- Simplified overlay and hover logic for cleaner visuals
+- Updated TextSection and other content components for consistency
+- Created and documented a comprehensive .env.example file
+- Cleaned up unused scripts and database CLI commands
+- Removed user management endpoints from admin API route
+- Updated ESLint and Prettier configs
+- Improved README and onboarding instructions
+- Ensured GitHub Actions and Vercel deploys only run on passing checks
 
 ## Technical Debt
 
