@@ -38,6 +38,7 @@ describe("Content API Routes", () => {
       };
 
       const { client } = await import("@/lib/handlers/sanity");
+      // @ts-expect-error - test mock shape doesn't match SanityClient.fetch
       vi.mocked(client.fetch).mockResolvedValue(mockAboutData);
 
       const response = await GET();
@@ -49,6 +50,7 @@ describe("Content API Routes", () => {
 
     it("returns 404 when about data not found", async () => {
       const { client } = await import("@/lib/handlers/sanity");
+      // @ts-expect-error - test mock shape doesn't match SanityClient.fetch
       vi.mocked(client.fetch).mockResolvedValue(null);
 
       const response = await GET();
@@ -67,6 +69,7 @@ describe("Content API Routes", () => {
       };
 
       const { client } = await import("@/lib/handlers/sanity");
+      // @ts-expect-error - test mock shape doesn't match SanityClient.fetch
       vi.mocked(client.fetch).mockResolvedValue(invalidData);
 
       const response = await GET();
