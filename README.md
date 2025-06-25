@@ -44,6 +44,7 @@ Define your layout components once, and control what renders through Sanity — 
    Create a `.env.local` file and add values like:
 
    # Required for all environments
+
    NEXT_PUBLIC_BASE_URL=http://localhost:3000  
    SANITY_PROJECT_ID=your-sanity-project-id  
    SANITY_DATASET=your-dataset-name  

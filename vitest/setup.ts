@@ -1,4 +1,3 @@
-
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 import React from "react";
@@ -22,13 +21,24 @@ vi.mock("next/navigation", () => ({
 // Mock Next.js Image component
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: ({ src, alt, width, height }: { src: string; alt: string; width?: number | string; height?: number | string }) => {
+  default: ({
+    src,
+    alt,
+    width,
+    height,
+  }: {
+    src: string;
+    alt: string;
+    width?: number | string;
+    height?: number | string;
+  }) => {
     return React.createElement("img", { src, alt, width, height });
   },
 }));
 
 // Mock Next.js Link
 vi.mock("next/link", () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: ({ children, href, className }: any) => {
     return React.createElement("a", { href, className }, children);
   },

@@ -87,4 +87,4 @@ describe("Content API Routes", () => {
       expect(data.error).toBe("Failed to fetch about data");
     });
   });
-}); 
+});

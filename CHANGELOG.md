@@ -3,33 +3,34 @@
 This file lists the main changes and improvements to The Glass House. It's here so you can see what's new, what's fixed, and what's changed over time.
 
 ### Critical Security Fixes (2025-06-25)
-  - **Fixed client-side secret exposure**: Removed `env` object from `next.config.mjs` that was bundling `SANITY_TOKEN` and other secrets into the client-side JavaScript bundle. All secrets now only accessed server-side.
-  - **Database connection optimization**: Implemented PrismaClient singleton pattern to prevent connection pool exhaustion during development hot reloads and production scaling.
-  - **Password input security**: Replaced `readline` with `prompt-sync` in admin CLI setup to hide password input when typing, preventing shoulder surfing attacks.
-  - **Performance improvement**: Migrated from `bcryptjs` (JavaScript implementation) to native `bcrypt` for faster and more secure password hashing.
 
-- **Removed deprecated config:**  
+- **Fixed client-side secret exposure**: Removed `env` object from `next.config.mjs` that was bundling `SANITY_TOKEN` and other secrets into the client-side JavaScript bundle. All secrets now only accessed server-side.
+- **Database connection optimization**: Implemented PrismaClient singleton pattern to prevent connection pool exhaustion during development hot reloads and production scaling.
+- **Password input security**: Replaced `readline` with `prompt-sync` in admin CLI setup to hide password input when typing, preventing shoulder surfing attacks.
+- **Performance improvement**: Migrated from `bcryptjs` (JavaScript implementation) to native `bcrypt` for faster and more secure password hashing.
+
+- **Removed deprecated config:**
   - Deleted `devIndicators` from `next.config.mjs` (removed in Next.js 13.5+, only triggers warnings).
 
-- **Environment variable validation:**  
+- **Environment variable validation:**
   - Replaced custom environment validation with `envalid` in `src/lib/env.ts` for type-safe, declarative, and user-friendly env checks.
   - The app now fails fast and clearly if required environment variables are missing or malformed.
 
-- **Explicit crypto import:**  
+- **Explicit crypto import:**
   - Updated `src/lib/auth/utils.ts` to explicitly import `randomUUID` from `crypto` and use it in `generateSessionId`.
   - Ensures compatibility with all Node.js and Edge runtimes.
 
-- **Prisma postinstall automation:**  
+- **Prisma postinstall automation:**
   - Added `"postinstall": "prisma generate"` to `package.json` scripts.
   - Guarantees Prisma client is always generated after dependency install, preventing missing-client errors on fresh clones or CI.
 
-- **Testing infrastructure setup:**  
+- **Testing infrastructure setup:**
   - Added Vitest, Testing Library, and comprehensive test configuration with proper Next.js mocks.
   - Created `vitest/` directory structure with verification tests and API route tests.
   - Implemented proper test setup with Next.js router and image mocks for reliable component testing.
   - Added test scripts to package.json for development and CI integration.
 
-- **Caching implementation:**  
+- **Caching implementation:**
   - Added ISR (Incremental Static Regeneration) with `revalidate` to key Sanity API routes for improved performance.
   - Fixed Sanity middleware matcher to exclude all studio routes, preventing conflicts with caching.
   - Implemented proper cache headers and revalidation strategies for content API endpoints.
@@ -67,7 +68,6 @@ This file lists the main changes and improvements to The Glass House. It's here 
 - **General Cleanup:**
   - Improved documentation and removed outdated references.
   - Streamlined project structure and removed unnecessary files.
-
 
 ## 2025-06-23
 

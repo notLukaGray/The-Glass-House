@@ -21,4 +21,4 @@ describe("Test Setup Verification", () => {
     expect(nextNavigation.useRouter).toBeDefined();
     expect(typeof nextNavigation.useRouter).toBe("function");
   });
-}); 
+});
