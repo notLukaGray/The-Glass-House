@@ -1,3 +1,4 @@
+# .github/workflows/ci.yml
 name: CI
 
 on:
@@ -9,6 +10,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
+      NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+      SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION }}
+      SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+      SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+      SANITY_TOKEN: ${{ secrets.SANITY_TOKEN }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
