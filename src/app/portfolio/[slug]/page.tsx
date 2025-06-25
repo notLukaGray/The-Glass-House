@@ -1,5 +1,3 @@
-// TODO: Use new API route or shared client for portfolio detail fetching if needed.
-
 import { notFound } from "next/navigation";
 
 export const revalidate = 0;

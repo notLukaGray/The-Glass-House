@@ -40,6 +40,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
       }
 
+      // Check token expiry
+      if (typeof token.exp === "number" && token.exp < Date.now() / 1000) {
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+
       if (token.role !== "admin") {
         return new NextResponse(null, { status: 403 });
       }

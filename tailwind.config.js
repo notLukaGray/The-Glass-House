@@ -1,14 +1,10 @@
 import typography from "@tailwindcss/typography";
 
-/** @type {import('tailwindcss').Config} */
 const config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/lib/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/content/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components*.{js,ts,jsx,tsx,mdx}",
+    "./src/app*.{js,ts,jsx,tsx,mdx}",
+    "./src/lib*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: "class",
   theme: {
@@ -19,12 +15,11 @@ const config = {
         accent: "#E813A4",
         background: "#F4E3FF",
         text: "#09020D",
-        // Add more as needed from your theme
       },
       fontFamily: {
         heading: ["system-ui", "sans-serif"],
         body: ["system-ui", "sans-serif"],
-        compressa: ["CompressaPRO-GX.woff2", "sans-serif"],
+        compressa: ["CompressaPRO", "sans-serif"],
       },
       spacing: {
         xs: "0.25rem",

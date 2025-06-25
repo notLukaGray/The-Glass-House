@@ -78,15 +78,17 @@ export function sanitizeSvg(svgContent: string): string {
   return sanitized;
 }
 
-export function cleanApiResponse(response: unknown): unknown {
+export function cleanApiResponse<T>(response: T): T {
   if (Array.isArray(response)) {
-    return response.map(cleanApiResponse);
+    return response.map(cleanApiResponse) as T;
   }
 
   if (response && typeof response === "object") {
     const cleaned: Record<string, unknown> = {};
 
-    for (const [key, value] of Object.entries(response)) {
+    for (const [key, value] of Object.entries(
+      response as Record<string, unknown>,
+    )) {
       // Skip internal fields
       if (
         key.startsWith("_") ||
@@ -100,7 +102,7 @@ export function cleanApiResponse(response: unknown): unknown {
       cleaned[key] = cleanApiResponse(value);
     }
 
-    return cleaned;
+    return cleaned as T;
   }
 
   return response;

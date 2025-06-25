@@ -8,7 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "npx tsx src/lib/dev.ts",
+    "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,9 +16,9 @@
     "test": "vitest",
     "test:run": "vitest --run",
     "setup": "npx tsx src/lib/db/cli.ts setup-admin",
+    "studio": "prisma studio",
     "deploy": "vercel --prod",
-    "deploy:preview": "vercel",
-    "postinstall": "prisma generate"
+    "deploy:preview": "vercel"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

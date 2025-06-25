@@ -6,7 +6,6 @@ import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getBaseUrl } from "@/lib/utils/getBaseUrl";
-// TODO: Use new API route or shared client for settings fetching if needed.
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
