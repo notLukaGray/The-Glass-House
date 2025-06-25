@@ -43,14 +43,14 @@ Define your layout components once, and control what renders through Sanity — 
 
    Create a `.env.local` file and add values like:
 
+   # Required for all environments
    NEXT_PUBLIC_BASE_URL=http://localhost:3000  
    SANITY_PROJECT_ID=your-sanity-project-id  
    SANITY_DATASET=your-dataset-name  
    SANITY_API_VERSION=2023-05-22  
    SANITY_TOKEN=your-sanity-access-token  
-   SANITY_WEBHOOK_SECRET=your-webhook-secret  
-   NEXTAUTH_SECRET=your-random-string  
-   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your-random-string-at-least-32-characters
+   DATABASE_URL=your-database-connection-string
 
    Note: Your NEXTAUTH_SECRET should be a long, random string. Do not expose any values via NEXT_PUBLIC unless needed client-side.
 

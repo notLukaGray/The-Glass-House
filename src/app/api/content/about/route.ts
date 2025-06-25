@@ -74,7 +74,13 @@ export async function GET(): Promise<NextResponse> {
       }
     }`;
 
-    const aboutData = await sanityClient.fetch<AboutData>(query);
+    const aboutData = await sanityClient.fetch<AboutData>(
+      query,
+      {},
+      {
+        next: { revalidate: 60 }, // Cache for 60 seconds
+      },
+    );
 
     if (!aboutData) {
       return NextResponse.json(

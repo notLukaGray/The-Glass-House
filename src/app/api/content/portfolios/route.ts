@@ -70,7 +70,13 @@ export async function GET() {
       }
     }`;
 
-    const portfolios = await sanityClient.fetch<PortfolioPreview[]>(query);
+    const portfolios = await sanityClient.fetch<PortfolioPreview[]>(
+      query,
+      {},
+      {
+        next: { revalidate: 60 }, // Cache for 60 seconds
+      },
+    );
 
     // Validate response data
     const validatedPortfolios = z

@@ -1,28 +1,3 @@
-# TODO for The Glass House
-
-This file tracks what's done, what's in progress, and what's next for this project.
-
-## What's Done
-
-- TypeScript strict mode and enforcement
-- Sanity schemas organized and clean
-- Prettier and ESLint on every commit
-- Zod runtime data validation
-- GitHub Actions lint and build checks
-- Tailwind config with style purging
-- Secret scanning to prevent leaks
-- API authentication secure and tested
-- Error boundaries and loading states
-- Bundle analysis and optimization
-- Environment variable validation with dotenv-safe
-- Secure CLI-based admin setup
-- Password hashing with bcrypt
-- Rate limiting for all API routes
-- Comprehensive API input and response validation
-- Removed all console.error statements from API routes
-
-## In Progress / Next Up
-
 ### High Priority
 
 - [ ] Add error boundaries and improve error handling throughout the app
@@ -33,6 +8,7 @@ This file tracks what's done, what's in progress, and what's next for this proje
 - [ ] Add more robust form validation and user feedback
 - [ ] Ensure accessibility (a11y) best practices across all components
 - [ ] Add more tests (unit, integration, and e2e)
+- [ ] Look into Redis options
 
 ### Medium Priority
 

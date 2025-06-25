@@ -1,17 +1,12 @@
 #!/usr/bin/env node
 
 import { createUser, isSetupComplete, validatePassword } from "./index";
-import readline from "readline";
+import promptSync from "prompt-sync";
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const prompt = promptSync({ sigint: true });
 
-function question(prompt: string): Promise<string> {
-  return new Promise((resolve) => {
-    rl.question(prompt, resolve);
-  });
+function question(promptText: string, hideInput = false): string {
+  return prompt(promptText, { echo: hideInput ? "*" : undefined });
 }
 
 async function setupAdmin() {
@@ -37,15 +32,15 @@ async function setupAdmin() {
   console.log("- At least one number\n");
 
   // Get admin details
-  const email = await question("Admin email: ");
-  const username = await question("Admin username: ");
-  const name = await question("Admin full name: ");
+  const email = question("Admin email: ");
+  const username = question("Admin username: ");
+  const name = question("Admin full name: ");
 
   let password = "";
   let passwordValid = false;
 
   while (!passwordValid) {
-    password = await question("Admin password: ");
+    password = question("Admin password: ", true); // Hide password input
     const validation = validatePassword(password);
 
     if (validation.isValid) {
@@ -94,12 +89,10 @@ async function main() {
       break;
   }
 
-  rl.close();
   process.exit(0);
 }
 
 main().catch((error) => {
   console.error("Error:", error);
-  rl.close();
   process.exit(1);
 });

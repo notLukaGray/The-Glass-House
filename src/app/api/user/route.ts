@@ -52,15 +52,17 @@ export async function GET() {
 
     const userData = await sanityClient.fetch<{
       _id: string;
-      name: string;
-      email: string;
-      bio?: string;
-      avatar?: {
-        url: string;
-        alt?: string;
-      };
-      [key: string]: unknown;
-    }>(query);
+      _type: string;
+      name?: string;
+      email?: string;
+      avatarUrl?: string;
+    }>(
+      query,
+      {},
+      {
+        next: { revalidate: 300 }, // Cache for 5 minutes since user data changes less frequently
+      },
+    );
 
     if (!userData) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

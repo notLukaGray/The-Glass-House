@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 
 export interface User {
   id: string;
@@ -8,18 +8,6 @@ export interface User {
   role: string;
   createdAt: Date;
   lastLogin?: Date;
-}
-
-export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 12;
-  return bcrypt.hash(password, saltRounds);
-}
-
-export async function comparePassword(
-  password: string,
-  hashedPassword: string,
-): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
 }
 
 export function validateUsername(username: string): {
@@ -90,5 +78,5 @@ export function sanitizeUser(user: User): Omit<User, "password"> {
 }
 
 export function generateSessionId(): string {
-  return crypto.randomUUID();
+  return randomUUID();
 }

@@ -3,12 +3,15 @@ import { sectionComponentMap } from "@/lib/handlers/componentHandler";
 import type { ReactElement } from "react";
 import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
+// Force dynamic rendering to prevent build-time fetch errors
+export const dynamic = "force-dynamic";
+
 export default async function AboutPage(): Promise<ReactElement> {
   try {
     // Fetch about data from the new API route
     const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/content/about`, {
-      next: { revalidate: 60 },
+      cache: "no-store", // Disable caching for dynamic content
     });
 
     if (!res.ok) {

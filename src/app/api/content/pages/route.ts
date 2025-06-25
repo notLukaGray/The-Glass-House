@@ -49,7 +49,13 @@ export async function GET() {
       }
     }`;
 
-    const pages = await sanityClient.fetch(query);
+    const pages = await sanityClient.fetch(
+      query,
+      {},
+      {
+        next: { revalidate: 60 }, // Cache for 60 seconds
+      },
+    );
 
     // Validate response data
     const validatedPages = z.array(PageSchema).safeParse(pages);

@@ -55,5 +55,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|studio).*)"],
+  matcher: [
+    // Exclude static files, images, and all Sanity studio routes
+    "/((?!_next/static|_next/image|favicon.ico|studio|structure|desk|tool|vision|media|assist|settings).*)",
+  ],
 };

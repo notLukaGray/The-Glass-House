@@ -13,8 +13,13 @@ export async function generateMetadata(): Promise<Metadata> {
     // Fetch settings from the API route
     const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/settings?type=build`, {
-      next: { revalidate: 60 },
+      cache: "no-store", // Disable caching to prevent build-time issues
     });
+
+    if (!res.ok) {
+      throw new Error(`Settings API returned ${res.status}`);
+    }
+
     const settings = await res.json();
 
     if (!settings) {
@@ -67,6 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   } catch (error) {
     console.error("Failed to generate metadata:", error);
+    // Return fallback metadata to prevent build failures
     return {
       title: "Portfolio",
       description: "My portfolio website",

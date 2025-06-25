@@ -1,7 +1,12 @@
 import { PrismaClient } from "@/generated/prisma";
-import bcrypt from "bcryptjs";
+import { hashPassword, comparePassword } from "@/lib/auth/serverPassword";
 
-const prisma = new PrismaClient();
+// PrismaClient singleton to prevent multiple connections during hot reloads
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Types
 export interface CreateUserData {
@@ -23,18 +28,6 @@ export interface UserWithoutPassword {
 }
 
 // Password utilities
-export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 12;
-  return bcrypt.hash(password, saltRounds);
-}
-
-export async function comparePassword(
-  password: string,
-  hashedPassword: string,
-): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
-}
-
 export function validatePassword(password: string): {
   isValid: boolean;
   error?: string;
