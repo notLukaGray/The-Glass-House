@@ -79,6 +79,7 @@ const nextConfig = {
                 "'self'",
                 "data:",
                 "https://*.sanity.io",
+                "wss://*.sanity.io",
                 "https://va.vercel-scripts.com",
                 "https://api.github.com",
                 "https://ep-calm-meadow-a8e25r6a.eastus2.azure.neon.tech",

@@ -68,3 +68,9 @@ next-env.d.ts
 
 # prettier
 .prettierignore
+
+# Sanity
+/public/studio
+
+# Context files (for AI assistance)
+MODULAR_CONTEXT.md

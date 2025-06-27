@@ -33,6 +33,37 @@ const deskStructure = (S: StructureBuilder) =>
 
       S.divider(),
 
+      // --- Elements Group ---
+      S.listItem()
+        .title("Elements")
+        .child(
+          S.list()
+            .title("Elements")
+            .items([
+              S.listItem()
+                .title("Image Element")
+                .child(
+                  S.documentTypeList("elementImage").title("Image Elements"),
+                ),
+              S.listItem()
+                .title("Single Line Text")
+                .child(
+                  S.documentTypeList("elementTextSingleLine").title(
+                    "Single Line Text Elements",
+                  ),
+                ),
+              S.listItem()
+                .title("Text Block")
+                .child(
+                  S.documentTypeList("elementTextBlock").title(
+                    "Text Block Elements",
+                  ),
+                ),
+            ]),
+        ),
+
+      S.divider(),
+
       // --- Sections Group ---
       S.listItem()
         .title("Sections")

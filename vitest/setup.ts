@@ -38,8 +38,15 @@ vi.mock("next/image", () => ({
 
 // Mock Next.js Link
 vi.mock("next/link", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  default: ({ children, href, className }: any) => {
+  default: ({
+    children,
+    href,
+    className,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    className?: string;
+  }) => {
     return React.createElement("a", { href, className }, children);
   },
 }));

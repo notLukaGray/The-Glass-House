@@ -1,8 +1,67 @@
 # The Glass House
 
-The Glass House is a modular frontend framework for combining CMS-driven content, secure authentication, and customizable layout components. Built with Next.js, Sanity, and Prisma, it's designed to support everything from personal portfolios to feature-rich tools like VAELD.
+**The Glass House** is a next-generation modular page composition system for building sophisticated, interactive web experiences.  
+It combines a CMS-first approach (Sanity), modern frontend (Next.js), and a unique, hierarchical architecture that empowers both developers and content editors to create anything from simple portfolios to immersive, app-like sites—without redeploys.
 
-Define your layout components once, and control what renders through Sanity — no redeploys required. It's built for Vercel, but can run anywhere that supports Node.js.
+---
+
+## System Architecture
+
+The Glass House is built on a flexible, five-layer architecture:
+
+```
+Blueprints → Scaffolds → Wings → Modules → Elements
+```
+
+- **Blueprints:** Define what a page is, its route, and content source (e.g. blog post, landing page, error page).
+- **Scaffolds:** Control the overall layout and spatial behavior (vertical stack, horizontal scroll, viewport step, etc).
+- **Wings:** Organize modules within a scaffold—think columns, carousels, or full-screen sections.
+- **Modules:** Reusable content blocks (galleries, forms, hero images, carousels, etc).
+- **Elements:** The smallest building blocks—text, images, buttons, and more—that modules are composed from.
+
+This hierarchy enables maximum flexibility, reusability, and editor control.
+
+---
+
+## Roadmap
+
+**Phase 1: Foundation (In Progress)**
+
+- [ ] **Element system:** In progress—building out a full library of elements (text, image, button, etc) with localization and accessibility
+- [x] Modular schema for Sanity Studio
+- [x] Secure authentication (NextAuth, Prisma)
+- [x] Basic modules (hero, gallery, text block)
+- [x] Theme and typography system
+
+**Phase 2: Core**
+
+- [ ] Wing and scaffold system for advanced layouts
+- [ ] Dynamic page blueprints (routing, slugs, collection sources)
+- [ ] Editor-friendly UI for composing pages
+
+**Phase 3: Advanced**
+
+- [ ] Interactive features (animations, scroll effects, parallax)
+- [ ] Advanced modules (forms, 3D, Lottie, etc)
+- [ ] Accessibility and performance enhancements
+
+**Phase 4: Editor**
+
+- [ ] Visual page builder interface
+- [ ] Live preview and drag-and-drop editing
+- [ ] Role-based access and collaboration
+
+---
+
+### Project Standards
+
+- TypeScript everywhere, with strict type safety
+- Linting and formatting enforced (ESLint, Prettier)
+- Modular, maintainable, and well-documented code
+
+---
+
+_See [STRUCTURE.md](./STRUCTURE.md) for a full technical breakdown of every layer and type in the system._
 
 ---
 

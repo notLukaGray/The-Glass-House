@@ -1,10 +1,12 @@
-import typography from "@tailwindcss/typography";
+import { join } from "path";
 
+/** @type {import('tailwindcss').Config} */
 const config = {
   content: [
-    "./src/components*.{js,ts,jsx,tsx,mdx}",
-    "./src/app*.{js,ts,jsx,tsx,mdx}",
-    "./src/lib*.{js,ts,jsx,tsx,mdx}",
+    join(__dirname, "src/**/*.{js,ts,jsx,tsx}"),
+    join(__dirname, "pages/**/*.{js,ts,jsx,tsx}"),
+    join(__dirname, "components/**/*.{js,ts,jsx,tsx}"),
+    join(__dirname, "app/**/*.{js,ts,jsx,tsx}"),
   ],
   darkMode: "class",
   theme: {
@@ -30,7 +32,7 @@ const config = {
       },
     },
   },
-  plugins: [typography],
+  plugins: [],
 };
 
 export default config;

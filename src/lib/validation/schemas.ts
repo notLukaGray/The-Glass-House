@@ -233,7 +233,7 @@ export const PortfolioSchema = z.object({
   _type: z.literal("portfolio"),
   title: LocalizedTextSchema,
   description: z.array(BlockContentSchema),
-  content: z.array(z.any()),
+  content: z.array(z.unknown()),
   meta: z
     .object({
       title: LocalizedTextSchema.optional(),
@@ -248,7 +248,7 @@ export const PageSchema = z.object({
   _type: z.literal("page"),
   title: LocalizedTextSchema,
   slug: z.string(),
-  content: z.array(z.any()),
+  content: z.array(z.unknown()),
   meta: z
     .object({
       title: LocalizedTextSchema.optional(),
@@ -262,7 +262,7 @@ export const AboutPageSchema = z.object({
   _id: z.string(),
   _type: z.literal("about"),
   title: LocalizedTextSchema,
-  content: z.array(z.any()),
+  content: z.array(z.unknown()),
   meta: z
     .object({
       title: LocalizedTextSchema.optional(),
@@ -279,7 +279,7 @@ export const AssetSchema = z.object({
   alt: z.string().optional(),
   url: z.string().url().optional(),
   svgData: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>

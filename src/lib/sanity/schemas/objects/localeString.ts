@@ -1,14 +1,7 @@
 const localeString = {
   name: "localeString",
-  title: "Localized String",
   type: "object",
-  fields: [
-    {
-      name: "en",
-      title: "English",
-      type: "string",
-    },
-  ],
+  title: "Localized String",
+  fields: [{ name: "en", type: "string", title: "English" }],
 };
-
 export default localeString;

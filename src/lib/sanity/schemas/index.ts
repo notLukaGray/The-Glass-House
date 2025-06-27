@@ -21,11 +21,17 @@ import section from "./documents/section";
 import blockContent from "./objects/blockContent";
 import contactForm from "./objects/contactForm";
 import localeString from "./objects/localeString";
+import localeText from "./objects/localeText";
 import navItem from "./objects/navItem";
 import orderableDocumentList from "./objects/orderableDocumentList";
 import pageSections from "./objects/pageSections";
 import seo from "./objects/seo";
 import website from "./objects/website";
+
+// Element Schemas (The Glass House)
+import elements from "./element";
+
+import glassLocalization from "./types/glassLocalization";
 
 export const schemaTypes = [
   // Documents
@@ -51,9 +57,14 @@ export const schemaTypes = [
   blockContent,
   contactForm,
   localeString,
+  localeText,
   navItem,
   orderableDocumentList,
   seo,
   ...pageSections,
   website,
+  glassLocalization,
+
+  // Elements (The Glass House)
+  ...elements,
 ];

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession, signIn, signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
@@ -14,7 +15,7 @@ interface ExtendedUser {
 
 export interface UseAuthReturn {
   // Session state
-  session: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   user: ExtendedUser | undefined;
