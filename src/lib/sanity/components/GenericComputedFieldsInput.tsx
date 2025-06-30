@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { useFormValue, useDocumentOperation } from "sanity";
 import { Card, Stack, Text } from "@sanity/ui";
 import { getElementTypeFromDocument } from "../utils/elementUtils";
@@ -106,7 +106,17 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
       sourceField: "description",
     },
   },
-  text: {
+  svg: {
+    ariaLabel: {
+      prefix: "SVG: ",
+      sourceField: "title",
+    },
+    altText: {
+      prefix: "",
+      sourceField: "description",
+    },
+  },
+  textSingleLine: {
     ariaLabel: {
       prefix: "",
       sourceField: "text",
@@ -126,6 +136,28 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
       prefix: "",
       sourceField: "text",
       isRichText: false,
+    },
+  },
+  richText: {
+    ariaLabel: {
+      prefix: "",
+      sourceField: "richTextContent",
+      isRichText: true,
+    },
+    altText: {
+      prefix: "",
+      sourceField: "richTextContent",
+      isRichText: true,
+    },
+  },
+  button: {
+    ariaLabel: {
+      prefix: "Button: ",
+      sourceField: "title",
+    },
+    altText: {
+      prefix: "",
+      sourceField: "title",
     },
   },
   video: {
@@ -150,19 +182,39 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
   },
 };
 
-// Utility for shallow equality of computed fields
-function shallowEqual(
+// Utility for deep equality of computed fields
+function deepEqual(
   objA: Record<string, Record<string, string>> | null | undefined,
   objB: Record<string, Record<string, string>> | null | undefined,
 ) {
   if (objA === objB) return true;
   if (!objA || !objB) return false;
+
   const keysA = Object.keys(objA);
   const keysB = Object.keys(objB);
+
   if (keysA.length !== keysB.length) return false;
+
   for (const key of keysA) {
-    if (objA[key] !== objB[key]) return false;
+    const valA = objA[key];
+    const valB = objB[key];
+
+    if (typeof valA !== typeof valB) return false;
+
+    if (typeof valA === "object" && valA !== null && valB !== null) {
+      const valAKeys = Object.keys(valA);
+      const valBKeys = Object.keys(valB);
+
+      if (valAKeys.length !== valBKeys.length) return false;
+
+      for (const subKey of valAKeys) {
+        if (valA[subKey] !== valB[subKey]) return false;
+      }
+    } else if (valA !== valB) {
+      return false;
+    }
   }
+
   return true;
 }
 
@@ -175,6 +227,10 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
     ? documentId.replace("drafts.", "")
     : documentId;
   const { patch } = useDocumentOperation(publishedId, "patch");
+  const previousComputedFields = useRef<Record<
+    string,
+    Record<string, string>
+  > | null>(null);
 
   const elementType =
     getElementTypeFromDocument(documentData?._type as string) ||
@@ -194,46 +250,40 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
     const ariaSourceField = rule.ariaLabel.sourceField;
     const altSourceField = rule.altText.sourceField;
 
+    // Special handling for richText element type
+    if (elementType === "richText") {
+      const richTextContent =
+        documentData.richTextContent as PortableTextContent[];
+      const extractedText = extractTextFromRichText(richTextContent);
+
+      return {
+        ariaLabel: { en: extractedText || "Rich text content" },
+        altText: { en: extractedText || "Rich text content" },
+      };
+    }
+
     // Special handling for textBlock element type
     if (elementType === "textBlock") {
-      const richTextEnabled = documentData.richText?.enabled;
+      const textValue = documentData.text as Record<string, string> | undefined;
 
-      if (richTextEnabled) {
-        // Use rich text content and extract plain text
-        const richTextContent =
-          documentData.richTextContent as PortableTextContent[];
-        const extractedText = extractTextFromRichText(richTextContent);
-
-        return {
-          ariaLabel: { en: extractedText || "Text block content" },
-          altText: { en: extractedText || "Text block content" },
-        };
-      } else {
-        // Use simple text field with localization
-        const textValue = documentData.text as
-          | Record<string, string>
-          | undefined;
-
-        const langs = new Set<string>();
-        if (textValue && typeof textValue === "object") {
-          Object.keys(textValue).forEach((lang) => {
-            if (lang !== "_type") langs.add(lang);
-          });
-        }
-        langs.add("en");
-
-        const ariaLabel: { [lang: string]: string } = {};
-        const altText: { [lang: string]: string } = {};
-
-        Array.from(langs).forEach((lang) => {
-          const text =
-            textValue?.[lang] || textValue?.en || "Text block content";
-          ariaLabel[lang] = text;
-          altText[lang] = text;
+      const langs = new Set<string>();
+      if (textValue && typeof textValue === "object") {
+        Object.keys(textValue).forEach((lang) => {
+          if (lang !== "_type") langs.add(lang);
         });
-
-        return { ariaLabel, altText };
       }
+      langs.add("en");
+
+      const ariaLabel: { [lang: string]: string } = {};
+      const altText: { [lang: string]: string } = {};
+
+      Array.from(langs).forEach((lang) => {
+        const text = textValue?.[lang] || textValue?.en || "Text block content";
+        ariaLabel[lang] = text;
+        altText[lang] = text;
+      });
+
+      return { ariaLabel, altText };
     }
 
     // Standard handling for other element types
@@ -270,9 +320,23 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
           ? `${rule.ariaLabel.prefix}${sourceText}`
           : sourceText;
       } else {
+        // Better default values based on element type
+        let defaultText = `${elementType} content`;
+        if (elementType === "button") {
+          defaultText = "Interactive button";
+        } else if (elementType === "image") {
+          defaultText = "Image content";
+        } else if (elementType === "video") {
+          defaultText = "Video content";
+        } else if (elementType === "textBlock") {
+          defaultText = "Text content";
+        } else if (elementType === "richText") {
+          defaultText = "Rich text content";
+        }
+
         ariaLabel[lang] = rule.ariaLabel.prefix
-          ? `${rule.ariaLabel.prefix}${elementType} content`
-          : `${elementType} content`;
+          ? `${rule.ariaLabel.prefix}${defaultText}`
+          : defaultText;
       }
 
       if (altSourceValue && altSourceValue[lang]) {
@@ -281,9 +345,23 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
           ? `${rule.altText.prefix}${sourceText}`
           : sourceText;
       } else {
+        // Better default values based on element type
+        let defaultText = `${elementType} content`;
+        if (elementType === "button") {
+          defaultText = "Button element";
+        } else if (elementType === "image") {
+          defaultText = "Image element";
+        } else if (elementType === "video") {
+          defaultText = "Video element";
+        } else if (elementType === "textBlock") {
+          defaultText = "Text content";
+        } else if (elementType === "richText") {
+          defaultText = "Rich text content";
+        }
+
         altText[lang] = rule.altText.prefix
-          ? `${rule.altText.prefix}${elementType} content`
-          : `${elementType} content`;
+          ? `${rule.altText.prefix}${defaultText}`
+          : defaultText;
       }
     });
 
@@ -305,8 +383,14 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
         altText: Record<string, string>;
       }) || {};
 
-    // Only patch if different
-    if (!shallowEqual(current, computedFields)) {
+    // Only patch if the computed fields have actually changed
+    if (
+      !deepEqual(current, computedFields) &&
+      !deepEqual(previousComputedFields.current, computedFields)
+    ) {
+      // Update the ref to track what we're about to set
+      previousComputedFields.current = computedFields;
+
       try {
         patch.execute([{ set: { computedFields } }]);
       } catch (error) {

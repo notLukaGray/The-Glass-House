@@ -4,8 +4,8 @@ import { typographyObject, typographyFieldset } from "../objects/typography";
 
 const base = createBaseElementSchema(
   "elementTextSingleLine",
-  "Single Line Text",
-  "text",
+  "Single Line Text Element",
+  "textSingleLine",
   [
     // Text content - this is the main field
     {
@@ -62,7 +62,7 @@ base.preview = {
       title || alternativeTitle || description || "Untitled Text";
     return {
       title: displayText,
-      subtitle: "Single Line Text",
+      subtitle: "Single Line Text Element",
       media: undefined,
     };
   },

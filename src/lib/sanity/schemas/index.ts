@@ -17,11 +17,17 @@ import settings from "./documents/settings";
 import tag from "./documents/tag";
 import section from "./documents/section";
 
+// Foundation Schemas
+import foundationSchemas from "./foundation";
+
 // Object Schemas
 import blockContent from "./objects/blockContent";
 import contactForm from "./objects/contactForm";
 import localeString from "./objects/localeString";
 import localeText from "./objects/localeText";
+import glassLocaleString from "./objects/glassLocaleString";
+import glassLocaleText from "./objects/glassLocaleText";
+import glassLocaleRichText from "./objects/glassLocaleRichText";
 import navItem from "./objects/navItem";
 import orderableDocumentList from "./objects/orderableDocumentList";
 import pageSections from "./objects/pageSections";
@@ -47,6 +53,9 @@ export const schemaTypes = [
   tag,
   section,
 
+  // Foundation
+  ...foundationSchemas,
+
   // Assets
   photo,
   svg,
@@ -58,6 +67,9 @@ export const schemaTypes = [
   contactForm,
   localeString,
   localeText,
+  glassLocaleString,
+  glassLocaleText,
+  glassLocaleRichText,
   navItem,
   orderableDocumentList,
   seo,

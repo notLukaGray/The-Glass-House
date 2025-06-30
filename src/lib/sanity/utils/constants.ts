@@ -8,15 +8,21 @@ export const SUPPORTED_LANGUAGES = [
 ] as const;
 
 export const ELEMENT_TYPE_MAPPINGS = {
-  elementTextSingleLine: "text",
+  elementTextSingleLine: "textSingleLine",
   elementTextBlock: "textBlock",
+  elementRichText: "richText",
   elementImage: "image",
   elementVideo: "video",
+  elementButton: "button",
+  elementSVG: "svg",
 } as const;
 
 export const ELEMENT_TITLES = {
-  text: "Single Line Text",
-  textBlock: "Text Block",
+  textSingleLine: "Single Line Text Element",
+  textBlock: "Text Block Element",
+  richText: "Rich Text Element",
   image: "Image Element",
   video: "Video Element",
+  button: "Button Element",
+  svg: "SVG Element",
 } as const;

@@ -3,6 +3,217 @@ import { GenericComputedFieldsInput } from "../../components/GenericComputedFiel
 import { mapElementFields } from "../../utils/elementUtils";
 import { createElementPreview } from "../../utils/previewUtils";
 import { SanityField } from "../../types";
+import {
+  createLocalizedStringField,
+  createLocalizedTextField,
+  createLocalizedComputedFields,
+} from "../../utils/localizationUtils";
+
+export const createImageFields = (
+  fieldName: string,
+  title: string,
+  description?: string,
+  fieldset: string = "content",
+): SanityField[] => [
+  {
+    name: `${fieldName}Source`,
+    title: `${title} Source`,
+    type: "string",
+    options: {
+      list: [
+        { title: "Upload Image", value: "upload" },
+        { title: "External URL", value: "external" },
+      ],
+      layout: "radio",
+    },
+    fieldset,
+    description: `Choose how to provide the ${title.toLowerCase()}`,
+  },
+  {
+    name: `${fieldName}Upload`,
+    title: `Upload ${title}`,
+    type: "image",
+    options: {
+      hotspot: true,
+      accept: "image/*",
+    },
+    fieldset,
+    hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+      parent &&
+      typeof parent === "object" &&
+      (parent as Record<string, unknown>)[`${fieldName}Source`] !== "upload",
+    validation: (rule: Rule) =>
+      rule.custom(
+        (value: unknown, context: { document?: Record<string, unknown> }) => {
+          const sourceField = context.document?.[`${fieldName}Source`];
+          if (sourceField === "upload" && !value) {
+            return `${title} is required when using upload option`;
+          }
+          return true;
+        },
+      ),
+  },
+  {
+    name: `${fieldName}Url`,
+    title: `External ${title} URL`,
+    type: "url",
+    fieldset,
+    hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+      parent &&
+      typeof parent === "object" &&
+      (parent as Record<string, unknown>)[`${fieldName}Source`] !== "external",
+    validation: (rule: Rule) =>
+      rule.custom(
+        (value: unknown, context: { document?: Record<string, unknown> }) => {
+          const sourceField = context.document?.[`${fieldName}Source`];
+          if (sourceField === "external" && !value) {
+            return `URL is required when using external option`;
+          }
+          if (
+            value &&
+            typeof value === "string" &&
+            !value.match(/^https?:\/\//)
+          ) {
+            return "URL must start with http:// or https://";
+          }
+          return true;
+        },
+      ),
+  },
+];
+
+export const createSvgFields = (
+  fieldName: string,
+  title: string,
+  description?: string,
+  fieldset: string = "content",
+): SanityField[] => [
+  {
+    name: `${fieldName}Source`,
+    title: `${title} Source`,
+    type: "string",
+    options: {
+      list: [
+        { title: "Upload SVG File", value: "upload" },
+        { title: "SVG String/Icon", value: "string" },
+      ],
+      layout: "radio",
+    },
+    fieldset,
+    description: `Choose how to provide the ${title.toLowerCase()}`,
+  },
+  {
+    name: `${fieldName}File`,
+    title: `Upload ${title}`,
+    type: "file",
+    options: {
+      accept: ".svg",
+    },
+    fieldset,
+    hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+      parent &&
+      typeof parent === "object" &&
+      (parent as Record<string, unknown>)[`${fieldName}Source`] !== "upload",
+    validation: (rule: Rule) =>
+      rule.custom(
+        (value: unknown, context: { document?: Record<string, unknown> }) => {
+          const sourceField = context.document?.[`${fieldName}Source`];
+          if (sourceField === "upload" && !value) {
+            return `${title} is required when using upload option`;
+          }
+          return true;
+        },
+      ),
+  },
+  {
+    name: `${fieldName}String`,
+    title: `${title} String/Icon`,
+    type: "text",
+    description: description || "Enter SVG code, icon name, or path to SVG",
+    fieldset,
+    hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+      parent &&
+      typeof parent === "object" &&
+      (parent as Record<string, unknown>)[`${fieldName}Source`] !== "string",
+    validation: (rule: Rule) =>
+      rule.custom(
+        (value: unknown, context: { document?: Record<string, unknown> }) => {
+          const sourceField = context.document?.[`${fieldName}Source`];
+          if (sourceField === "string" && !value) {
+            return `${title} string is required when using string option`;
+          }
+          return true;
+        },
+      ),
+  },
+];
+
+export const createSvgField = (
+  fieldName: string = "svgIcon",
+  title: string = "SVG Icon",
+  description?: string,
+  fieldset: string = "content",
+): SanityField => ({
+  name: fieldName,
+  title,
+  type: "string",
+  description: description || "SVG icon identifier or path",
+  fieldset,
+});
+
+export const createColorField = (
+  fieldName: string = "color",
+  title: string = "Color",
+  description?: string,
+  fieldset: string = "content",
+): SanityField => ({
+  name: fieldName,
+  title,
+  type: "string",
+  description: description || "Hex color code (without #) to apply to the SVG",
+  fieldset,
+  validation: (rule: Rule) =>
+    rule
+      .regex(/^[0-9A-Fa-f]{6}$/)
+      .error("Color must be a valid 6-digit hex code (e.g., 582973)"),
+});
+
+export const createRecolorField = (
+  fieldName: string = "recolor",
+  title: string = "Recolor SVG",
+  description?: string,
+  fieldset: string = "content",
+): SanityField => ({
+  name: fieldName,
+  title,
+  type: "boolean",
+  description:
+    description ||
+    "Apply the color to the SVG (unchecked preserves original colors)",
+  fieldset,
+  initialValue: false,
+});
+
+export const createMediaTypeField = (
+  fieldName: string = "mediaType",
+  title: string = "Media Type",
+  description?: string,
+  fieldset: string = "content",
+  mediaTypes: Array<{ title: string; value: string }> = [
+    { title: "SVG Icon", value: "svg" },
+    { title: "Image", value: "image" },
+  ],
+): SanityField => ({
+  name: fieldName,
+  title,
+  type: "string",
+  options: {
+    list: mediaTypes,
+    layout: "radio",
+  },
+  fieldset,
+  description: description || "Choose the type of media to display",
+});
 
 export const createBaseElementSchema = (
   elementName: string,
@@ -12,82 +223,33 @@ export const createBaseElementSchema = (
   additionalMetadataFields: SanityField[] = [],
 ) => {
   const baseFields = [
+    createLocalizedStringField(
+      "title",
+      "Title",
+      `Short title for the ${elementType} (required)`,
+      "titleFieldset",
+      (rule: Rule) => rule.required(),
+    ),
+    createLocalizedStringField(
+      "description",
+      "Description",
+      `Brief description of the ${elementType} content (required)`,
+      "descriptionFieldset",
+      (rule: Rule) => rule.required(),
+    ),
     ...contentFields,
-
-    {
-      name: "title",
-      title: "Title",
-      type: "localeString",
-      validation: (rule: Rule) => rule.required(),
-      fieldset: "titleFieldset",
-      description: `Short title for the ${elementType} (required)`,
-      options: {
-        layout: "dropdown",
-        list: [
-          { title: "English", value: "en" },
-          { title: "Spanish", value: "es" },
-          { title: "French", value: "fr" },
-          { title: "German", value: "de" },
-          { title: "Japanese", value: "ja" },
-          { title: "Chinese", value: "zh" },
-        ],
-      },
-    },
-    {
-      name: "description",
-      title: "Description",
-      type: "localeString",
-      validation: (rule: Rule) => rule.required(),
-      fieldset: "descriptionFieldset",
-      description: `Brief description of the ${elementType} content (required)`,
-      options: {
-        layout: "dropdown",
-        list: [
-          { title: "English", value: "en" },
-          { title: "Spanish", value: "es" },
-          { title: "French", value: "fr" },
-          { title: "German", value: "de" },
-          { title: "Japanese", value: "ja" },
-          { title: "Chinese", value: "zh" },
-        ],
-      },
-    },
-    {
-      name: "alternativeTitle",
-      title: "Alternative Title",
-      type: "localeString",
-      fieldset: "alternativeTitleFieldset",
-      description: `Optional alternative title for display`,
-      options: {
-        layout: "dropdown",
-        list: [
-          { title: "English", value: "en" },
-          { title: "Spanish", value: "es" },
-          { title: "French", value: "fr" },
-          { title: "German", value: "de" },
-          { title: "Japanese", value: "ja" },
-          { title: "Chinese", value: "zh" },
-        ],
-      },
-    },
-    {
-      name: "caption",
-      title: "Caption",
-      type: "localeText",
-      fieldset: "captionFieldset",
-      description: `Optional caption text to display below the ${elementType}`,
-      options: {
-        layout: "dropdown",
-        list: [
-          { title: "English", value: "en" },
-          { title: "Spanish", value: "es" },
-          { title: "French", value: "fr" },
-          { title: "German", value: "de" },
-          { title: "Japanese", value: "ja" },
-          { title: "Chinese", value: "zh" },
-        ],
-      },
-    },
+    createLocalizedStringField(
+      "alternativeTitle",
+      "Alternative Title",
+      `Optional alternative title for display`,
+      "alternativeTitleFieldset",
+    ),
+    createLocalizedTextField(
+      "caption",
+      "Caption",
+      `Optional caption text to display below the ${elementType}`,
+      "captionFieldset",
+    ),
 
     ...additionalMetadataFields,
 
@@ -120,34 +282,7 @@ export const createBaseElementSchema = (
       },
       description:
         "These fields are automatically computed based on your description",
-      fields: [
-        {
-          name: "ariaLabel",
-          title: "ARIA Label",
-          type: "object",
-          fields: [
-            { name: "en", title: "English", type: "string" },
-            { name: "es", title: "Spanish", type: "string" },
-            { name: "fr", title: "French", type: "string" },
-            { name: "de", title: "German", type: "string" },
-            { name: "ja", title: "Japanese", type: "string" },
-            { name: "zh", title: "Chinese", type: "string" },
-          ],
-        },
-        {
-          name: "altText",
-          title: "Alt Text",
-          type: "object",
-          fields: [
-            { name: "en", title: "English", type: "string" },
-            { name: "es", title: "Spanish", type: "string" },
-            { name: "fr", title: "French", type: "string" },
-            { name: "de", title: "German", type: "string" },
-            { name: "ja", title: "Japanese", type: "string" },
-            { name: "zh", title: "Chinese", type: "string" },
-          ],
-        },
-      ],
+      fields: createLocalizedComputedFields(),
     },
   ];
 
@@ -157,11 +292,6 @@ export const createBaseElementSchema = (
     type: "document",
     fieldsets: [
       {
-        name: "content",
-        title: "Content",
-        options: { collapsible: false, collapsed: false },
-      },
-      {
         name: "titleFieldset",
         title: "Title",
         options: { collapsible: false, collapsed: false },
@@ -169,6 +299,11 @@ export const createBaseElementSchema = (
       {
         name: "descriptionFieldset",
         title: "Description",
+        options: { collapsible: false, collapsed: false },
+      },
+      {
+        name: "content",
+        title: "Content",
         options: { collapsible: false, collapsed: false },
       },
       {

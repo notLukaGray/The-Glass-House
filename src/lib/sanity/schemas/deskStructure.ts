@@ -46,19 +46,34 @@ const deskStructure = (S: StructureBuilder) =>
                   S.documentTypeList("elementImage").title("Image Elements"),
                 ),
               S.listItem()
-                .title("Single Line Text")
+                .title("Single Line Text Element")
                 .child(
                   S.documentTypeList("elementTextSingleLine").title(
                     "Single Line Text Elements",
                   ),
                 ),
               S.listItem()
-                .title("Text Block")
+                .title("Text Block Element")
                 .child(
                   S.documentTypeList("elementTextBlock").title(
                     "Text Block Elements",
                   ),
                 ),
+              S.listItem()
+                .title("Rich Text Element")
+                .child(
+                  S.documentTypeList("elementRichText").title(
+                    "Rich Text Elements",
+                  ),
+                ),
+              S.listItem()
+                .title("Button Element")
+                .child(
+                  S.documentTypeList("elementButton").title("Button Elements"),
+                ),
+              S.listItem()
+                .title("SVG Element")
+                .child(S.documentTypeList("elementSVG").title("SVG Elements")),
             ]),
         ),
 
@@ -88,6 +103,9 @@ const deskStructure = (S: StructureBuilder) =>
       S.divider(),
 
       // --- Settings/Other Group ---
+      S.listItem()
+        .title("Foundation Settings")
+        .child(S.document().schemaType("foundation").documentId("foundation")),
       S.listItem()
         .title("Site Settings")
         .child(

@@ -1,34 +1,7 @@
-import { client } from "@/lib/handlers/sanity";
-
-export interface SvgAsset {
-  _id: string;
-  _type: "assetSVG";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: {
-    _type: "localeString";
-    en: string;
-  };
-  description: {
-    _type: "localeString";
-    en: string;
-  };
-  caption: {
-    _type: "localeString";
-    en: string;
-  };
-  color: string;
-  order: number;
-  svgData: string;
-}
-
-export interface SvgAssetQuery {
-  id?: string;
-  title?: string;
-  color?: string;
-  order?: number;
-}
+/**
+ * SVG Utilities
+ * Pure functions for SVG normalization and recoloring with control over color application
+ */
 
 export function normalizeSvg(svgData: string): string {
   if (!svgData) return "";
@@ -166,75 +139,4 @@ export function processSvg(
 
   // Return normalized SVG with original colors preserved
   return normalizedSvg;
-}
-
-export async function getSvgAsset(
-  query: SvgAssetQuery,
-): Promise<SvgAsset | null> {
-  const { id, title, color, order } = query;
-
-  let groqQuery = `*[_type == "assetSVG"`;
-
-  if (id) {
-    groqQuery += ` && _id == "${id}"`;
-  }
-  if (title) {
-    groqQuery += ` && title.en match "${title}"`;
-  }
-  if (color) {
-    groqQuery += ` && color == "${color}"`;
-  }
-  if (order !== undefined) {
-    groqQuery += ` && order == ${order}`;
-  }
-
-  groqQuery += `][0]`;
-
-  try {
-    const asset = await client.fetch<SvgAsset>(groqQuery);
-    if (asset && asset.svgData) {
-      asset.svgData = normalizeSvg(asset.svgData);
-    }
-    return asset || null;
-  } catch (error) {
-    console.error("Error fetching SVG asset:", error);
-    return null;
-  }
-}
-
-export async function getSvgAssets(
-  query?: Partial<SvgAssetQuery>,
-): Promise<SvgAsset[]> {
-  let groqQuery = `*[_type == "assetSVG"`;
-
-  if (query) {
-    const { title, color, order } = query;
-
-    if (title) {
-      groqQuery += ` && title.en match "${title}"`;
-    }
-    if (color) {
-      groqQuery += ` && color == "${color}"`;
-    }
-    if (order !== undefined) {
-      groqQuery += ` && order == ${order}`;
-    }
-  }
-
-  groqQuery += `] | order(order asc)`;
-
-  try {
-    const assets = await client.fetch<SvgAsset[]>(groqQuery);
-    if (assets) {
-      assets.forEach((asset) => {
-        if (asset.svgData) {
-          asset.svgData = normalizeSvg(asset.svgData);
-        }
-      });
-    }
-    return assets || [];
-  } catch (error) {
-    console.error("Error fetching SVG assets:", error);
-    return [];
-  }
 }

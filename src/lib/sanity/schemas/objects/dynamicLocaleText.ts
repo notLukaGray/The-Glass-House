@@ -1,14 +1,13 @@
 import { DynamicLocaleTextInput } from "../../components/DynamicLocaleTextInput";
 
-const localeText = {
-  name: "localeText",
+const dynamicLocaleText = {
+  name: "dynamicLocaleText",
   type: "object",
-  title: "Localized Text",
+  title: "Dynamic Localized Text",
   fields: [{ name: "en", type: "text", title: "English" }],
   components: {
     input: DynamicLocaleTextInput,
   },
-  // Don't define fields - let the component handle everything
 };
 
-export default localeText;
+export default dynamicLocaleText;

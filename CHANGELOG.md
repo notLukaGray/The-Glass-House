@@ -2,6 +2,44 @@
 
 This file lists the main changes and improvements to The Glass House. It's here so you can see what's new, what's fixed, and what's changed over time.
 
+## 2025-06-30
+
+### Major Feature: Glass Localization System
+
+- **Complete Localization Overhaul**: Implemented a dynamic, foundation-based localization system that replaces Sanity's built-in localization with a custom, flexible solution
+- **Foundation Schema**: Created `foundation` document type for core system settings including configurable language options
+- **Dynamic Language Management**: Users can now add/remove languages through the foundation settings, with all localization fields automatically updating
+- **Custom Field Types**: Implemented three new custom Sanity field types:
+  - `glassLocaleString`: For localized string fields (titles, labels, etc.)
+  - `glassLocaleText`: For localized text areas (descriptions, captions, etc.)
+  - `glassLocaleRichText`: For localized rich text content with Portable Text
+- **Runtime Dynamic Components**: Created custom React components that fetch foundation settings at runtime and dynamically render language fields
+- **TypeScript Integration**: Full TypeScript support with proper typing for all localization utilities and components
+- **Schema Integration**: Updated all element schemas (button, image, rich text, etc.) to use the new localization system
+- **Utility Functions**: Built comprehensive utility functions for reading foundation settings and generating dynamic field configurations
+- **Studio Integration**: Integrated foundation schema into Sanity Studio desk structure under Settings section
+
+### Technical Improvements
+
+- **Code Quality**: Fixed all TypeScript linting errors, removed unused imports, and ensured proper type safety throughout
+- **Performance**: Optimized component rendering with proper dependency arrays and equality checks
+- **Error Handling**: Fixed schema errors and runtime issues including undefined type props and missing field properties
+- **Build Success**: All files pass ESLint and Prettier formatting, with successful development server startup
+
+### Schema Enhancements
+
+- **Button Schema**: Enhanced with configurable dropdowns for type, variant, and size with proper default values
+- **Rich Text Schema**: Implemented true dynamic localization with multiple language fields created based on foundation settings
+- **Image Schema**: Fixed preview configuration and added proper localization support
+- **Base Element Schema**: Updated to support the new localization system while maintaining backward compatibility
+
+### Development Experience
+
+- **Auto-Generation**: Improved ARIA label and alt text auto-generation with better deep equality checks
+- **Conditional Fields**: Enhanced conditional visibility logic for media and text fields
+- **Field Organization**: Improved field ordering and default value references for better UX
+- **Studio UX**: Better organization of fields and improved user experience in Sanity Studio
+
 ### Critical Security Fixes (2025-06-25)
 
 - **Fixed client-side secret exposure**: Removed `env` object from `next.config.mjs` that was bundling `SANITY_TOKEN` and other secrets into the client-side JavaScript bundle. All secrets now only accessed server-side.
