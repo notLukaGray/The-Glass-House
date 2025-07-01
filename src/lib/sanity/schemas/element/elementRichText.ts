@@ -106,3 +106,5 @@ base.preview = {
 };
 
 export default base;
+
+export { elementImageCastingFields as elementRichTextCastingFields } from "./elementImage";

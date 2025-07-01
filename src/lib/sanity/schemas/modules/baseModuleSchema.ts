@@ -1,4 +1,7 @@
 import { Rule } from "@sanity/types";
+import CastRefInput from "../../components/CastRefInput";
+import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
+import { createLocalizedComputedFields } from "../../utils/localizationUtils";
 
 // Base module schema - basic information every module needs
 export const createBaseModuleSchema = (
@@ -65,6 +68,21 @@ export const createBaseModuleSchema = (
       fieldset: "advanced",
       description: "Enable debug information for this module",
     },
+    {
+      name: "computedFields",
+      title: "Auto-generated Fields",
+      type: "object",
+      fieldset: "advanced",
+      options: {
+        elementType: "module",
+      },
+      components: {
+        input: GenericComputedFieldsInput,
+      },
+      description:
+        "These fields are automatically computed based on your module content",
+      fields: createLocalizedComputedFields(),
+    },
   ];
   return {
     name: moduleName,
@@ -111,3 +129,40 @@ export const createBaseModuleSchema = (
     },
   };
 };
+
+export function createRefWithCastingField({
+  name,
+  title,
+  refTypes,
+  description,
+}: {
+  name: string;
+  title: string;
+  refTypes: string[];
+  description?: string;
+}) {
+  return {
+    name,
+    title,
+    type: "object",
+    fields: [
+      {
+        name: "ref",
+        type: "reference",
+        to: refTypes.map((type: string) => ({ type })),
+        description,
+        validation: (rule: Rule) =>
+          rule.custom(() => {
+            // Implement the custom validation logic here
+            return true; // Return true for valid cases
+          }),
+      },
+      {
+        name: "casting",
+        type: "object",
+        fields: [],
+      },
+    ],
+    components: { input: CastRefInput },
+  };
+}

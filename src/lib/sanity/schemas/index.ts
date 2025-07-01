@@ -35,6 +35,14 @@ import orderableDocumentList from "./objects/orderableDocumentList";
 // import pageSections from "./objects/pageSections";
 import seo from "./objects/seo";
 // import website from "./objects/website";
+import {
+  castRefObject,
+  castRefImageObject,
+  castRefHeadlineObject,
+  castRefBodyTextObject,
+  castRefButtonObject,
+  castRefVectorObject,
+} from "./objects";
 
 // Element Schemas (The Glass House)
 import elements from "./element";
@@ -104,4 +112,11 @@ export const schemaTypes = [
 
   // Wings (The Glass House)
   ...wingSchemas,
+
+  castRefObject,
+  castRefImageObject,
+  castRefHeadlineObject,
+  castRefBodyTextObject,
+  castRefButtonObject,
+  castRefVectorObject,
 ];

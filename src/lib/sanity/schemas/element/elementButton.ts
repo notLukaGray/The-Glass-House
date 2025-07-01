@@ -11,6 +11,10 @@ import { processSvg } from "../../../utils/svgUtils";
 import { Rule } from "@sanity/types";
 import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
+import {
+  sizeAndPositionFields,
+  displayAndTransformFields,
+} from "../objects/sharedCastingFields";
 
 const createButtonTypeField = (
   fieldName: string = "buttonType",
@@ -504,5 +508,14 @@ base.preview = {
     };
   },
 };
+
+export const elementButtonCastingFields = [
+  { name: "sizeAndPosition", type: "object", fields: sizeAndPositionFields },
+  {
+    name: "displayAndTransform",
+    type: "object",
+    fields: displayAndTransformFields,
+  },
+];
 
 export default base;

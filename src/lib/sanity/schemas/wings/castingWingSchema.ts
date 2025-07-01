@@ -1,4 +1,5 @@
 import ModuleArrayInput from "./components/ModuleArrayInput";
+import { castingFields } from "../modules/castingModuleSchema";
 
 // Casting mechanics for wings - what wings can provide to modules
 export const createCastingWingSchema = () => {
@@ -23,14 +24,9 @@ export const createCastingWingSchema = () => {
             {
               name: "layout",
               type: "object",
-              // TEMP: Add a dummy field to satisfy Sanity's requirement
-              fields: [
-                {
-                  name: "dummy",
-                  type: "string",
-                  title: "Dummy (replace with real layout fields)",
-                },
-              ],
+              fields: castingFields,
+              description:
+                "Layout and positioning for this module within the wing",
             },
           ],
         },

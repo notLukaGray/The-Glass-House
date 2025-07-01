@@ -93,4 +93,6 @@ base.preview = {
   },
 };
 
+export { elementImageCastingFields as elementTextSingleLineCastingFields } from "./elementImage";
+
 export default base;

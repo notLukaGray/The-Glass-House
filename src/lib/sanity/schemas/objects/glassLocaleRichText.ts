@@ -1,4 +1,3 @@
-import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 import type { Rule } from "@sanity/types";
 
 /**
@@ -11,9 +10,6 @@ const glassLocaleRichText = {
   type: "object",
   description:
     "Dynamic rich text localization field that adapts to configured languages",
-  components: {
-    input: GlassLocalizationInput,
-  },
   options: {
     fieldType: "richText",
     richTextOptions: {

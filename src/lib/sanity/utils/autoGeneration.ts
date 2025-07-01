@@ -170,6 +170,13 @@ export const ELEMENT_CONFIGS = {
     maxCustomIdLength: 20,
     supportedLanguages: ["en", "es", "fr", "de", "ja", "zh"],
   },
+  moduleHeroImage: {
+    elementType: "moduleHeroImage",
+    ariaPrefix: "Module: ",
+    fallbackText: "Hero Image Module",
+    maxCustomIdLength: 20,
+    supportedLanguages: ["en", "es", "fr", "de", "ja", "zh"],
+  },
   // Add more element types as needed
 } as const;
 

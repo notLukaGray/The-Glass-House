@@ -15,6 +15,7 @@ export const ELEMENT_TYPE_MAPPINGS = {
   elementVideo: "video",
   elementButton: "button",
   elementSVG: "svg",
+  moduleHeroImage: "moduleHeroImage",
 } as const;
 
 export const ELEMENT_TITLES = {
@@ -25,4 +26,5 @@ export const ELEMENT_TITLES = {
   video: "Video Element",
   button: "Button Element",
   svg: "SVG Element",
+  moduleHeroImage: "Hero Image Module",
 } as const;

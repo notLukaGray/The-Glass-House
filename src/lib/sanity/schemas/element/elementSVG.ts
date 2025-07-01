@@ -6,6 +6,10 @@ import {
   createRecolorField,
 } from "./baseElementSchema";
 import { createSvgPreview } from "../../../utils/svgUtils";
+import {
+  sizeAndPositionFields,
+  displayAndTransformFields,
+} from "../objects/sharedCastingFields";
 
 const base = createBaseElementSchema(
   "elementSVG",
@@ -139,5 +143,14 @@ const previewConfig = {
 
 // Override the preview with proper type assertion
 base.preview = previewConfig as unknown as typeof base.preview;
+
+export const elementSVGCastingFields = [
+  { name: "sizeAndPosition", type: "object", fields: sizeAndPositionFields },
+  {
+    name: "displayAndTransform",
+    type: "object",
+    fields: displayAndTransformFields,
+  },
+];
 
 export default base;

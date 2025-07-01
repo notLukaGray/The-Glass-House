@@ -85,5 +85,10 @@ export function createLocalizedComputedFields(): SanityField[] {
       title: "Alt Text",
       type: "glassLocaleString",
     },
+    {
+      name: "customId",
+      title: "Custom ID",
+      type: "string",
+    },
   ];
 }
