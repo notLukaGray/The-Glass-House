@@ -63,7 +63,7 @@ export default function TestThemePage() {
                   Site Title:
                 </span>
                 <span className="ml-2" style={{ color: themeColors?.text }}>
-                  {settings?.basicInfo.title.en}
+                  {settings?.basicInfo.title}
                 </span>
               </div>
 
@@ -75,7 +75,7 @@ export default function TestThemePage() {
                   Description:
                 </span>
                 <span className="ml-2" style={{ color: themeColors?.text }}>
-                  {settings?.basicInfo.description.en}
+                  {settings?.basicInfo.description}
                 </span>
               </div>
 

@@ -1,69 +1,35 @@
 import { createBaseElementSchema } from "./baseElementSchema";
-import { Rule } from "@sanity/types";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
-import { createLocalizedRichTextFields } from "../../utils/localizationUtils";
+import { createLocalizedRichTextField } from "../../utils/localizationUtils";
 
 const base = createBaseElementSchema(
   "elementRichText",
   "Rich Text Element",
   "richText",
   [
-    // Replace single richTextContent with localized version
-    createLocalizedRichTextFields("richTextContent", "Rich Text Content", {
-      styles: [
-        { title: "Normal", value: "normal" },
-        { title: "Heading 1", value: "h1" },
-        { title: "Heading 2", value: "h2" },
-        { title: "Heading 3", value: "h3" },
-        { title: "Heading 4", value: "h4" },
-        { title: "Heading 5", value: "h5" },
-        { title: "Heading 6", value: "h6" },
-        { title: "Quote", value: "blockquote" },
-      ],
-      marks: {
-        decorators: [
-          { title: "Strong", value: "strong" },
-          { title: "Emphasis", value: "em" },
-          { title: "Code", value: "code" },
-          { title: "Underline", value: "underline" },
-          { title: "Strike", value: "strike-through" },
-        ],
-        annotations: [
-          {
-            title: "URL",
-            name: "link",
-            type: "object",
-            fields: [
-              {
-                title: "URL",
-                name: "href",
-                type: "url",
-                validation: (rule: Rule) => rule.required(),
-              },
-              {
-                title: "Open in new tab",
-                name: "blank",
-                type: "boolean",
-                initialValue: true,
-              },
-            ],
-          },
+    // Usage field for categorization
+    {
+      name: "usage",
+      title: "Usage",
+      type: "string",
+      options: {
+        list: [
+          { title: "General", value: "" },
+          { title: "Hero Description", value: "hero-description" },
         ],
       },
-      lists: [
-        { title: "Bullet", value: "bullet" },
-        { title: "Numbered", value: "number" },
-      ],
-      imageOptions: { hotspot: true },
-      imageFields: [
-        {
-          name: "alt",
-          type: "string",
-          title: "Alternative text",
-          description: "Important for SEO and accessibility.",
-        },
-      ],
-    }),
+      fieldset: "content",
+      description:
+        "What this rich text element is used for (helps with organization)",
+    },
+    // Replace single richTextContent with localized version
+    createLocalizedRichTextField(
+      "richTextContent",
+      "Rich Text Content",
+      "Rich text content with formatting options",
+      "content",
+      (rule) => rule.required(),
+    ),
   ],
   [],
 );

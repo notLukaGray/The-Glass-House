@@ -1,33 +1,12 @@
 import { SanityField } from "../types";
 import type { Rule } from "@sanity/types";
 
-interface RichTextAnnotation {
-  title: string;
-  name: string;
-  type: string;
-  fields?: Array<{
-    title: string;
-    name: string;
-    type: string;
-    validation?: (rule: Rule) => Rule;
-    initialValue?: unknown;
-  }>;
-}
-
-interface RichTextOptions {
+export interface RichTextOptions {
   styles?: Array<{ title: string; value: string }>;
   marks?: {
     decorators?: Array<{ title: string; value: string }>;
-    annotations?: Array<RichTextAnnotation>;
+    annotations?: Array<unknown>;
   };
-  lists?: Array<{ title: string; value: string }>;
-  imageOptions?: Record<string, unknown>;
-  imageFields?: Array<{
-    name: string;
-    type: string;
-    title: string;
-    description?: string;
-  }>;
 }
 
 /**
@@ -73,10 +52,9 @@ export function createLocalizedTextField(
 /**
  * Create localized rich text fields using Glass Localization
  */
-export function createLocalizedRichTextFields(
+export function createLocalizedRichTextField(
   fieldName: string,
   fieldTitle: string,
-  richTextOptions: RichTextOptions,
   description?: string,
   fieldset?: string,
   validation?: (rule: Rule) => Rule,
@@ -88,9 +66,6 @@ export function createLocalizedRichTextFields(
     description,
     fieldset,
     validation,
-    options: {
-      richTextOptions,
-    },
   };
 }
 

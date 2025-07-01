@@ -1,4 +1,5 @@
 import { Rule } from "@sanity/types";
+import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 
 const settings = {
   name: "siteSettings",
@@ -15,27 +16,31 @@ const settings = {
         {
           name: "title",
           title: "Website Title",
-          type: "localeString",
+          type: "string",
           validation: (Rule: Rule) => Rule.required(),
         },
         {
           name: "description",
           title: "Website Description",
-          type: "localeString",
+          type: "string",
           validation: (Rule: Rule) => Rule.required(),
         },
         {
           name: "favicon",
           title: "Favicon",
           type: "reference",
-          to: [{ type: "assetPhoto" }],
+          // Temporarily commented out since assetPhoto schema is not loaded
+          // to: [{ type: "assetPhoto" }],
+          to: [],
           validation: (Rule: Rule) => Rule.required(),
         },
         {
           name: "logo",
           title: "Logo",
           type: "reference",
-          to: [{ type: "assetSVG" }],
+          // Temporarily commented out since assetSVG schema is not loaded
+          // to: [{ type: "assetSVG" }],
+          to: [],
           validation: (Rule: Rule) => Rule.required(),
         },
       ],
@@ -426,14 +431,22 @@ Example:
         {
           name: "metaTitle",
           title: "Default Meta Title",
-          type: "localeString",
+          type: "glassLocaleString",
+          components: { input: GlassLocalizationInput },
+          options: {
+            fieldType: "string",
+          },
           description: "Default title for search engines and social sharing",
           validation: (Rule: Rule) => Rule.required(),
         },
         {
           name: "metaDescription",
           title: "Default Meta Description",
-          type: "localeString",
+          type: "glassLocaleString",
+          components: { input: GlassLocalizationInput },
+          options: {
+            fieldType: "string",
+          },
           description:
             "Default description for search engines and social sharing",
           validation: (Rule: Rule) => Rule.required(),
@@ -442,7 +455,9 @@ Example:
           name: "ogImage",
           title: "Default Social Share Image",
           type: "reference",
-          to: [{ type: "assetPhoto" }],
+          // Temporarily commented out since assetPhoto schema is not loaded
+          // to: [{ type: "assetPhoto" }],
+          to: [],
           description: "Default image for social media sharing",
           validation: (Rule: Rule) => Rule.required(),
         },
@@ -451,7 +466,7 @@ Example:
   ],
   preview: {
     select: {
-      title: "basicInfo.title.en",
+      title: "basicInfo.title",
     },
     prepare({ title }: { title?: string }) {
       return {

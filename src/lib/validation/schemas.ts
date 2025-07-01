@@ -180,8 +180,8 @@ export const ThemeSchema = z.object({
 });
 
 export const BasicInfoSchema = z.object({
-  title: LocalizedTextSchema,
-  description: LocalizedTextSchema.optional(),
+  title: z.string(),
+  description: z.string().optional(),
   favicon: SanityImageReferenceSchema.optional(),
   logo: SanitySvgReferenceSchema.optional(),
 });

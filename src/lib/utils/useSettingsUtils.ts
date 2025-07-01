@@ -64,19 +64,39 @@ export const useSettingsUtils = () => {
   };
 
   const getTitle = () => {
-    return basicInfo?.title?.en || "";
+    if (typeof basicInfo?.title === "string") {
+      return basicInfo.title;
+    }
+    return basicInfo?.title
+      ? (basicInfo.title as Record<string, string>)?.en || ""
+      : "";
   };
 
   const getDescription = () => {
-    return basicInfo?.description?.en || "";
+    if (typeof basicInfo?.description === "string") {
+      return basicInfo.description;
+    }
+    return basicInfo?.description
+      ? (basicInfo.description as Record<string, string>)?.en || ""
+      : "";
   };
 
   const getMetaTitle = () => {
-    return seo?.metaTitle?.en || getTitle();
+    if (typeof seo?.metaTitle === "string") {
+      return seo.metaTitle;
+    }
+    return seo?.metaTitle
+      ? (seo.metaTitle as Record<string, string>)?.en || getTitle()
+      : getTitle();
   };
 
   const getMetaDescription = () => {
-    return seo?.metaDescription?.en || getDescription();
+    if (typeof seo?.metaDescription === "string") {
+      return seo.metaDescription;
+    }
+    return seo?.metaDescription
+      ? (seo.metaDescription as Record<string, string>)?.en || getDescription()
+      : getDescription();
   };
 
   return {

@@ -12,5 +12,5 @@ interface DynamicLocaleTextInputProps {
 }
 
 export function DynamicLocaleTextInput(props: DynamicLocaleTextInputProps) {
-  return <DynamicLocalizationInput {...props} fieldType="text" />;
+  return <DynamicLocalizationInput {...props} />;
 }

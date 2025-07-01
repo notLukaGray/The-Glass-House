@@ -115,8 +115,7 @@ function LoginPageInner() {
             "Unable to sign in. Please check your connection and try again.",
         );
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       setError("A connection error occurred. Please try again.");
     } finally {
       setIsLoading(false);

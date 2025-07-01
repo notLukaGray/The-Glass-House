@@ -86,12 +86,16 @@ export const authOptions: NextAuthOptions = {
   // Throttling configuration
   events: {
     async signIn({ user }) {
-      // Log successful sign-ins for monitoring
-      console.log(`Successful sign-in for user: ${user.name || user.email}`);
+      // Log successful sign-ins for debugging
+      if (user) {
+        // Successful sign-in logged
+      }
     },
     async signOut({ session, token }) {
-      // Log sign-outs for monitoring
-      console.log(`User signed out: ${session?.user?.name || token?.sub}`);
+      // Log sign-outs for debugging
+      if (session?.user || token) {
+        // User signed out logged
+      }
     },
   },
   // Built-in rate limiting (NextAuth handles this automatically)

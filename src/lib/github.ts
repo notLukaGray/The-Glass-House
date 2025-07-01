@@ -2,9 +2,6 @@ export async function getLatestCommit() {
   const token = process.env.GITHUB_TOKEN;
 
   if (!token) {
-    console.warn(
-      "GITHUB_TOKEN is not configured. Skipping GitHub API fetch. The last updated time will not be displayed.",
-    );
     return { commitTime: null, commitMessage: null };
   }
 
@@ -22,12 +19,6 @@ export async function getLatestCommit() {
     );
 
     if (!res.ok) {
-      const errorBody = await res.json().catch(() => ({}));
-      console.error("GitHub API fetch failed:", {
-        status: res.status,
-        statusText: res.statusText,
-        body: errorBody,
-      });
       return { commitTime: null, commitMessage: null };
     }
 
@@ -38,11 +29,7 @@ export async function getLatestCommit() {
     const commitMessage = latestCommit?.commit?.message || null;
 
     return { commitTime, commitMessage };
-  } catch (error) {
-    console.error(
-      "An unexpected error occurred while fetching from GitHub:",
-      error,
-    );
+  } catch {
     return { commitTime: null, commitMessage: null };
   }
 }

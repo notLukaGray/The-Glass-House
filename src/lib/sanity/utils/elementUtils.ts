@@ -19,27 +19,29 @@ export const mapElementFields = (
   elementType: string,
 ) => {
   return fields.map((field) => {
-    // Convert localeString fields to glassLocalization
-    if (
-      field.name === "title" ||
-      field.name === "description" ||
-      field.name === "alternativeTitle" ||
-      field.name === "caption"
-    ) {
+    // Convert title and description to glassLocaleString (single line)
+    if (field.name === "title" || field.name === "description") {
       return {
         ...field,
-        type: "glassLocalization",
+        type: "glassLocaleString",
         components: { input: GlassLocalizationInput },
-        options: undefined,
-        description: undefined,
+        options: {
+          fieldType: "string",
+        },
+        description: field.description,
       };
     }
 
-    // Apply GlassLocalizationInput to any field that's already glassLocalization type
-    if (field.type === "glassLocalization") {
+    // Convert alternativeTitle and caption to glassLocaleText (multi-line)
+    if (field.name === "alternativeTitle" || field.name === "caption") {
       return {
         ...field,
+        type: "glassLocaleText",
         components: { input: GlassLocalizationInput },
+        options: {
+          fieldType: "text",
+        },
+        description: field.description,
       };
     }
 

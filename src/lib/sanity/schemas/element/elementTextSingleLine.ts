@@ -1,6 +1,7 @@
 import { createBaseElementSchema } from "./baseElementSchema";
 import { Rule } from "@sanity/types";
 import { typographyObject, typographyFieldset } from "../objects/typography";
+import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 
 const base = createBaseElementSchema(
   "elementTextSingleLine",
@@ -11,10 +12,29 @@ const base = createBaseElementSchema(
     {
       name: "text",
       title: "Text Content",
-      type: "glassLocalization",
+      type: "glassLocaleString",
+      components: { input: GlassLocalizationInput },
+      options: {
+        fieldType: "string",
+      },
       validation: (rule: Rule) => rule.required(),
       fieldset: "content",
       description: "Single line of text (titles, labels, headings)",
+    },
+    // Usage field for categorization
+    {
+      name: "usage",
+      title: "Usage",
+      type: "string",
+      options: {
+        list: [
+          { title: "General", value: "" },
+          { title: "Hero Headline", value: "hero-headline" },
+        ],
+      },
+      fieldset: "content",
+      description:
+        "What this text element is used for (helps with organization)",
     },
     // Shared typography object
     typographyObject,
@@ -40,29 +60,34 @@ base.fields = base.fields.filter(
     field.name === "customId",
 );
 
-// Override preview to use text field
+// Override preview to use text field with fallback
 base.preview = {
   select: {
-    title: "text.en",
-    alternativeTitle: "text.es",
-    description: "text.en",
+    title: "text",
+    alternativeTitle: "usage",
+    description: "text",
     subtitle: "text",
     media: "text",
   },
   prepare({
     title,
     alternativeTitle,
-    description,
   }: {
-    title?: string;
+    title?: Record<string, string>;
     alternativeTitle?: string;
-    description?: string;
   }) {
+    // Get the best available text content
     const displayText =
-      title || alternativeTitle || description || "Untitled Text";
+      title?.en ||
+      title?.es ||
+      Object.values(title || {}).find((val) => val?.trim()) ||
+      "Untitled Text";
+
     return {
       title: displayText,
-      subtitle: "Single Line Text Element",
+      subtitle: alternativeTitle
+        ? `${alternativeTitle} - Single Line Text Element`
+        : "Single Line Text Element",
       media: undefined,
     };
   },

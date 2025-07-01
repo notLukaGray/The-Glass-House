@@ -80,8 +80,8 @@ async function resolveContentAssets(
               _resolvedType: "social",
             } as ResolvedContentBlock;
           }
-        } catch (error) {
-          console.error("Error resolving asset:", error);
+        } catch {
+          // Return the original block if asset resolution fails
         }
       }
       return block;

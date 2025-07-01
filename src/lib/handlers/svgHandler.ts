@@ -196,8 +196,7 @@ export async function getSvgAsset(
       asset.svgData = normalizeSvg(asset.svgData);
     }
     return asset || null;
-  } catch (error) {
-    console.error("Error fetching SVG asset:", error);
+  } catch {
     return null;
   }
 }
@@ -233,8 +232,7 @@ export async function getSvgAssets(
       });
     }
     return assets || [];
-  } catch (error) {
-    console.error("Error fetching SVG assets:", error);
+  } catch {
     return [];
   }
 }

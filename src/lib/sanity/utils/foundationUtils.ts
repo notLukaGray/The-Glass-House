@@ -1,4 +1,4 @@
-import { SanityClient } from "@sanity/client";
+import { createClient } from "@sanity/client";
 
 export interface LanguageConfig {
   code: string;
@@ -17,154 +17,176 @@ export interface FoundationSettings {
   localization: FoundationLocalization;
 }
 
-/**
- * Get all enabled languages from foundation settings
- */
-export async function getEnabledLanguages(
-  client: SanityClient,
-): Promise<LanguageConfig[]> {
+export async function getEnabledLanguages(): Promise<LanguageConfig[]> {
   try {
+    const client = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: "2024-01-01",
+      useCdn: false,
+    });
+
     const foundation = await client.fetch(`
-      *[_type == "foundation"][0] {
-        localization {
-          additionalLanguages[] {
-            code,
-            name,
-            enabled,
-            direction
-          }
-        }
+      *[_type == "foundationLocalization"][0] {
+        additionalLanguages
       }
     `);
 
-    if (!foundation?.localization?.additionalLanguages) {
+    if (!foundation?.additionalLanguages) {
       // Return default English if no foundation settings found
       return [
         {
           code: "en",
           name: "English",
           enabled: true,
-          direction: "ltr" as const,
+          direction: "ltr",
         },
       ];
     }
 
-    // Filter enabled languages and add English as default
-    const enabledLanguages = foundation.localization.additionalLanguages
+    const enabledLanguages = foundation.additionalLanguages
       .filter((lang: LanguageConfig) => lang.enabled)
       .map((lang: LanguageConfig) => ({
-        ...lang,
-        direction: lang.direction || "ltr",
+        code: lang.code,
+        name: lang.name,
+        enabled: lang.enabled,
+        direction: lang.direction,
       }));
 
     // Always include English as the first language
-    const englishLanguage: LanguageConfig = {
+    const englishLanguage = {
       code: "en",
       name: "English",
       enabled: true,
       direction: "ltr",
     };
 
-    return [englishLanguage, ...enabledLanguages];
-  } catch (error) {
-    console.error("Error fetching foundation settings:", error);
-    // Return default English on error
+    // Check if English is already in the list
+    const hasEnglish = enabledLanguages.some(
+      (lang: LanguageConfig) => lang.code === "en",
+    );
+    if (!hasEnglish) {
+      enabledLanguages.unshift(englishLanguage);
+    }
+
+    return enabledLanguages;
+  } catch {
+    // Return default English if there's an error
     return [
       {
         code: "en",
         name: "English",
         enabled: true,
-        direction: "ltr" as const,
+        direction: "ltr",
       },
     ];
   }
 }
 
-/**
- * Generate localization options for Sanity fields
- */
-export async function generateLocalizationOptions(client: SanityClient) {
-  const languages = await getEnabledLanguages(client);
-
-  return {
-    list: languages.map((lang) => ({
-      title: lang.name,
-      value: lang.code,
-    })),
-    layout: "dropdown" as const,
-  };
-}
-
-/**
- * Create a localized field configuration
- */
-export async function createLocalizedField(
-  client: SanityClient,
-  fieldName: string,
-  fieldType: "string" | "text" | "array" = "string",
-  fieldTitle?: string,
-  additionalOptions: Record<string, unknown> = {},
-) {
-  const languages = await getEnabledLanguages(client);
-
-  const fields = languages.map((lang) => ({
-    name: lang.code,
-    title: lang.name,
-    type: fieldType,
-    ...additionalOptions,
-  }));
-
-  return {
-    name: fieldName,
-    title: fieldTitle || fieldName,
-    type: "object",
-    fields,
-    options: {
-      layout: "dropdown",
-    },
-  };
-}
-
-/**
- * Get the default language from foundation settings
- */
-export async function getDefaultLanguage(
-  client: SanityClient,
-): Promise<string> {
+export async function getAllLanguages(): Promise<LanguageConfig[]> {
   try {
+    const client = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: "2024-01-01",
+      useCdn: false,
+    });
+
     const foundation = await client.fetch(`
-      *[_type == "foundation"][0] {
-        localization {
-          defaultLanguage
-        }
+      *[_type == "foundationLocalization"][0] {
+        additionalLanguages
       }
     `);
 
-    return foundation?.localization?.defaultLanguage || "en";
-  } catch (error) {
-    console.error("Error fetching default language:", error);
+    if (!foundation?.additionalLanguages) {
+      // Return default English if no foundation settings found
+      return [
+        {
+          code: "en",
+          name: "English",
+          enabled: true,
+          direction: "ltr",
+        },
+      ];
+    }
+
+    const allLanguages = foundation.additionalLanguages.map(
+      (lang: LanguageConfig) => ({
+        code: lang.code,
+        name: lang.name,
+        enabled: lang.enabled,
+        direction: lang.direction,
+      }),
+    );
+
+    // Always include English as the first language
+    const englishLanguage = {
+      code: "en",
+      name: "English",
+      enabled: true,
+      direction: "ltr",
+    };
+
+    // Check if English is already in the list
+    const hasEnglish = allLanguages.some(
+      (lang: LanguageConfig) => lang.code === "en",
+    );
+    if (!hasEnglish) {
+      allLanguages.unshift(englishLanguage);
+    }
+
+    return allLanguages;
+  } catch {
+    // Return default English if there's an error
+    return [
+      {
+        code: "en",
+        name: "English",
+        enabled: true,
+        direction: "ltr",
+      },
+    ];
+  }
+}
+
+export async function getDefaultLanguage(): Promise<string> {
+  try {
+    const client = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: "2024-01-01",
+      useCdn: false,
+    });
+
+    const foundation = await client.fetch(`
+      *[_type == "foundationLocalization"][0] {
+        defaultLanguage
+      }
+    `);
+
+    return foundation?.defaultLanguage || "en";
+  } catch {
     return "en";
   }
 }
 
-/**
- * Get the fallback language from foundation settings
- */
-export async function getFallbackLanguage(
-  client: SanityClient,
-): Promise<string> {
+export async function getFallbackLanguage(): Promise<string> {
   try {
+    const client = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: "2024-01-01",
+      useCdn: false,
+    });
+
     const foundation = await client.fetch(`
-      *[_type == "foundation"][0] {
-        localization {
-          fallbackLanguage
-        }
+      *[_type == "foundationLocalization"][0] {
+        fallbackLanguage
       }
     `);
 
-    return foundation?.localization?.fallbackLanguage || "en";
-  } catch (error) {
-    console.error("Error fetching fallback language:", error);
+    return foundation?.fallbackLanguage || "en";
+  } catch {
     return "en";
   }
 }

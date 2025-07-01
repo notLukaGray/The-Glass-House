@@ -44,8 +44,8 @@ export interface ThemeSettings {
 }
 
 export interface BasicInfo {
-  title: { _type: "localeString"; en: string };
-  description: { _type: "localeString"; en: string };
+  title: string;
+  description: string;
   favicon: { _type: "reference"; _ref: string; url?: string };
   logo: { _type: "reference"; _ref: string; url?: string };
 }
@@ -80,8 +80,8 @@ export interface SanitySettingsResponse {
   _id?: string;
   _type?: string;
   basicInfo?: {
-    title?: SanityLocaleString;
-    description?: SanityLocaleString;
+    title?: string | SanityLocaleString;
+    description?: string | SanityLocaleString;
     favicon?: SanityReference & { url?: string };
     logo?: SanityReference & { url?: string };
   };
@@ -118,8 +118,8 @@ export interface SettingsContextType {
 // Default Settings
 export const DEFAULT_SETTINGS: SiteSettings = {
   basicInfo: {
-    title: { _type: "localeString", en: "Portfolio" },
-    description: { _type: "localeString", en: "My portfolio website" },
+    title: "Portfolio",
+    description: "My portfolio website",
     favicon: { _type: "reference", _ref: "" },
     logo: { _type: "reference", _ref: "" },
   },

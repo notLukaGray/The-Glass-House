@@ -45,8 +45,7 @@ async function extractBunnyCdnDomain(videoUrl: string): Promise<string | null> {
     const html = await response.text();
     const cdnMatch = html.match(/https:\/\/[^\/]*\.b-cdn\.net/);
     return cdnMatch ? cdnMatch[0] : null;
-  } catch (error) {
-    console.warn("Failed to extract CDN domain from Bunny Video URL:", error);
+  } catch {
     return null;
   }
 }
@@ -65,8 +64,7 @@ function extractBunnyVideoInfo(videoUrl: string): {
       videoGuid: videoGuid || null,
       libraryId: libraryId || null,
     };
-  } catch (error) {
-    console.warn("Failed to extract video info from Bunny Video URL:", error);
+  } catch {
     return { videoGuid: null, libraryId: null };
   }
 }
@@ -92,11 +90,7 @@ async function extractBunnyVideoDimensions(videoUrl: string): Promise<{
     const height = heightMatch ? parseInt(heightMatch[1], 10) : null;
 
     return { width, height };
-  } catch (error) {
-    console.warn(
-      "Failed to extract video dimensions from Bunny Video URL:",
-      error,
-    );
+  } catch {
     return { width: null, height: null };
   }
 }
@@ -146,8 +140,7 @@ export async function getVideoAsset(
     }
 
     return asset;
-  } catch (error) {
-    console.error("Error fetching video asset:", error);
+  } catch {
     return null;
   }
 }
@@ -201,8 +194,7 @@ export async function getVideoAssets(
     );
 
     return processedAssets;
-  } catch (error) {
-    console.error("Error fetching video assets:", error);
+  } catch {
     return [];
   }
 }

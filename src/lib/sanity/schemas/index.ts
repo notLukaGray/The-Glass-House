@@ -1,82 +1,107 @@
 // Asset Schemas
-import photo from "./assets/photo";
-import svg from "./assets/svg";
-import video from "./assets/video";
-import model3d from "./assets/model3d";
+// Temporarily commented out schemas that use old localeString types
+// import photo from "./assets/photo";
+// import svg from "./assets/svg";
+// import video from "./assets/video";
+// import model3d from "./assets/model3d";
 
 // Document Schemas
-import about from "./documents/about";
-import user from "./documents/user";
-import blog from "./documents/blog";
-import category from "./documents/category";
-import globalBanner from "./documents/globalBanner";
-import page from "./documents/page";
-import project from "./documents/project";
-import route from "./documents/route";
-import settings from "./documents/settings";
-import tag from "./documents/tag";
-import section from "./documents/section";
+// Temporarily commented out schemas that use old localeString/localeText types
+// import about from "./documents/about";
+// import user from "./documents/user";
+// import blog from "./documents/blog";
+// import category from "./documents/category";
+// import globalBanner from "./documents/globalBanner";
+// import page from "./documents/page";
+// import project from "./documents/project";
+// import route from "./documents/route";
+// import settings from "./documents/settings";
+// import tag from "./documents/tag";
+// import section from "./documents/section";
 
 // Foundation Schemas
 import foundationSchemas from "./foundation";
 
 // Object Schemas
-import blockContent from "./objects/blockContent";
-import contactForm from "./objects/contactForm";
-import localeString from "./objects/localeString";
-import localeText from "./objects/localeText";
+// Temporarily commented out blockContent since it references old asset types
+// import blockContent from "./objects/blockContent";
+// Temporarily commented out schemas that use old localeString/localeText types
+// import contactForm from "./objects/contactForm";
 import glassLocaleString from "./objects/glassLocaleString";
 import glassLocaleText from "./objects/glassLocaleText";
 import glassLocaleRichText from "./objects/glassLocaleRichText";
-import navItem from "./objects/navItem";
+// import navItem from "./objects/navItem";
 import orderableDocumentList from "./objects/orderableDocumentList";
-import pageSections from "./objects/pageSections";
+// import pageSections from "./objects/pageSections";
 import seo from "./objects/seo";
-import website from "./objects/website";
+// import website from "./objects/website";
 
 // Element Schemas (The Glass House)
 import elements from "./element";
 
-import glassLocalization from "./types/glassLocalization";
+// Module Schemas (The Glass House)
+import modules from "./modules";
+
+// Blueprint Schemas (The Glass House)
+import blueprintSchemas from "./blueprint";
+
+// Scaffold Schemas (The Glass House)
+import scaffoldSchemas from "./scaffold";
+
+// Wing Schemas (The Glass House)
+import wingSchemas from "./wings";
 
 export const schemaTypes = [
   // Documents
-  about,
-  user,
-  blog,
-  category,
-  globalBanner,
-  page,
-  project,
-  route,
-  settings,
-  tag,
-  section,
+  // Temporarily commented out schemas that use old localeString/localeText types
+  // about,
+  // user,
+  // blog,
+  // category,
+  // globalBanner,
+  // page,
+  // project,
+  // route,
+  // settings,
+  // tag,
+  // section,
 
   // Foundation
   ...foundationSchemas,
 
   // Assets
-  photo,
-  svg,
-  video,
-  model3d,
+  // Temporarily commented out schemas that use old localeString types
+  // photo,
+  // svg,
+  // video,
+  // model3d,
 
   // Objects
-  blockContent,
-  contactForm,
-  localeString,
-  localeText,
+  // Temporarily commented out blockContent since it references old asset types
+  // blockContent,
+  // Temporarily commented out schemas that use old localeString/localeText types
+  // contactForm,
   glassLocaleString,
   glassLocaleText,
   glassLocaleRichText,
-  navItem,
+  // navItem,
   orderableDocumentList,
   seo,
-  ...pageSections,
-  website,
-  glassLocalization,
+  // ...pageSections,
+  // website,
 
-  // Elements (The Glass House)
+  // Elements (The Glass House) - These use the new localization system
   ...elements,
+
+  // Modules (The Glass House)
+  ...modules,
+
+  // Blueprints (The Glass House)
+  ...blueprintSchemas,
+
+  // Scaffolds (The Glass House)
+  ...scaffoldSchemas,
+
+  // Wings (The Glass House)
+  ...wingSchemas,
 ];

@@ -69,12 +69,11 @@ export async function generateMetadata(): Promise<Metadata> {
         images: absoluteOgImageUrl ? [absoluteOgImageUrl] : undefined,
       },
     };
-  } catch (error) {
-    console.error("Failed to generate metadata:", error);
+  } catch {
     // Return fallback metadata to prevent build failures
     return {
       title: "Portfolio",
-      description: "My portfolio website",
+      description: "Portfolio site",
     };
   }
 }

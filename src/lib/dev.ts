@@ -33,30 +33,21 @@ function loadEnvFile() {
 // Load environment variables
 loadEnvFile();
 
-// Start Prisma Studio
-const prismaStudio = spawn("npx", ["prisma", "studio"], {
-  cwd: projectRoot,
+// Start the development server
+const server = spawn("npm", ["run", "dev"], {
   stdio: "inherit",
   shell: true,
-  env: { ...process.env },
 });
 
-// Start Next.js dev server
-const nextDev = spawn("npx", ["next", "dev"], {
-  cwd: projectRoot,
-  stdio: "inherit",
-  shell: true,
-  env: { ...process.env },
+server.on("error", (error) => {
+  console.error("Failed to start development server:", error);
 });
 
 // Handle process termination
 const cleanup = () => {
-  prismaStudio.kill();
-  nextDev.kill();
+  server.kill();
   process.exit(0);
 };
 
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
-
-console.log("✅ Development servers started!");

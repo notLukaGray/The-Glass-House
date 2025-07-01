@@ -50,8 +50,7 @@ export async function getImageAsset(
   try {
     const asset = await client.fetch<ImageAsset>(groqQuery);
     return asset || null;
-  } catch (error) {
-    console.error("Error fetching image asset:", error);
+  } catch {
     return null;
   }
 }
@@ -77,8 +76,7 @@ export async function getImageAssets(
   try {
     const assets = await client.fetch<ImageAsset[]>(groqQuery);
     return assets || [];
-  } catch (error) {
-    console.error("Error fetching image assets:", error);
+  } catch {
     return [];
   }
 }

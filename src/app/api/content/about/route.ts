@@ -92,7 +92,6 @@ export async function GET(): Promise<NextResponse> {
     // Validate response data
     const validatedAboutData = AboutDataSchema.safeParse(aboutData);
     if (!validatedAboutData.success) {
-      console.error("Validation error:", validatedAboutData.error);
       return NextResponse.json(
         { error: "Invalid about data format" },
         { status: 500 },
@@ -100,8 +99,7 @@ export async function GET(): Promise<NextResponse> {
     }
 
     return NextResponse.json(validatedAboutData.data);
-  } catch (error) {
-    console.error("About API error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch about data" },
       { status: 500 },

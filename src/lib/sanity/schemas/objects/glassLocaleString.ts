@@ -2,14 +2,15 @@ import { GlassLocalizationInput } from "../../components/GlassLocalizationInput"
 import type { Rule } from "@sanity/types";
 
 /**
- * Glass Locale String - Dynamic localization field
+ * Glass Locale String - Single line localization field
  * This field type generates language fields based on foundation settings
  */
 const glassLocaleString = {
   name: "glassLocaleString",
   type: "object",
   title: "Glass Localized String",
-  description: "Dynamic localization field that adapts to configured languages",
+  description:
+    "Dynamic single-line localization field that adapts to configured languages",
   fields: [
     // Base English field - always present
     {
@@ -22,6 +23,9 @@ const glassLocaleString = {
   ],
   components: {
     input: GlassLocalizationInput,
+  },
+  options: {
+    fieldType: "string",
   },
 };
 

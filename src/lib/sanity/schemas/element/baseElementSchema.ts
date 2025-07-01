@@ -175,7 +175,7 @@ export const createColorField = (
   validation: (rule: Rule) =>
     rule
       .regex(/^[0-9A-Fa-f]{6}$/)
-      .error("Color must be a valid 6-digit hex code (e.g., 582973)"),
+      .error("Color must be a valid 6-digit hex code (e.g., FF5733, 582973)"),
 });
 
 export const createRecolorField = (

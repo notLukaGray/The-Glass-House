@@ -39,13 +39,28 @@ function mergeWithDefaults(data: SanitySettingsResponse): SiteSettings {
   // Clean invisible characters from the data first
   const cleanedData = cleanObjectStrings(data) as SanitySettingsResponse;
 
+  // Helper function to extract string value from either string or localeString object
+  const extractStringValue = (
+    value: string | import("@/types/settings").SanityLocaleString | undefined,
+  ): string => {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value && typeof value === "object" && value._type === "localeString") {
+      return value.en || "";
+    }
+    return "";
+  };
+
   return {
     _id: cleanedData._id || "siteSettings",
     _type: cleanedData._type || "siteSettings",
     basicInfo: {
-      title: cleanedData.basicInfo?.title || DEFAULT_SETTINGS.basicInfo.title,
+      title:
+        extractStringValue(cleanedData.basicInfo?.title) ||
+        DEFAULT_SETTINGS.basicInfo.title,
       description:
-        cleanedData.basicInfo?.description ||
+        extractStringValue(cleanedData.basicInfo?.description) ||
         DEFAULT_SETTINGS.basicInfo.description,
       favicon:
         cleanedData.basicInfo?.favicon || DEFAULT_SETTINGS.basicInfo.favicon,

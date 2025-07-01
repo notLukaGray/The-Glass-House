@@ -34,14 +34,16 @@ base.fields = base.fields.filter(
     field.name !== "caption",
 );
 
-// Convert localeString fields to glassLocalization and update computed fields
+// Convert fields to use correct localization types and update computed fields
 base.fields = base.fields.map((field) => {
   if (field.name === "title" || field.name === "description") {
     return {
       ...field,
-      type: "glassLocalization",
+      type: "glassLocaleString",
       components: { input: GlassLocalizationInput },
-      options: undefined,
+      options: {
+        fieldType: "string",
+      },
       description: field.description,
     };
   }

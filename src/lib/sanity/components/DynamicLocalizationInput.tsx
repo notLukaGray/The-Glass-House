@@ -1,44 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { useClient, PatchEvent } from "sanity";
-import { set, unset } from "sanity";
-import { Stack, Text, Card, Flex } from "@sanity/ui";
+import { set, unset, PatchEvent } from "sanity";
+import { createClient } from "@sanity/client";
 import { LanguageConfig } from "../utils/foundationUtils";
 
 interface DynamicLocalizationInputProps {
-  value?: Record<string, string>;
-  onChange: (patch: PatchEvent) => void;
   type: {
     name: string;
-    title: string;
   };
-  fieldType: "string" | "text";
+  value?: Record<string, string>;
+  onChange: (patch: PatchEvent) => void;
 }
 
-export function DynamicLocalizationInput(props: DynamicLocalizationInputProps) {
-  const { value = {}, onChange, type, fieldType } = props;
-  const client = useClient();
+export const DynamicLocalizationInput: React.FC<
+  DynamicLocalizationInputProps
+> = ({ type, value = {}, onChange }) => {
   const [languages, setLanguages] = useState<LanguageConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchLanguages() {
+    const fetchLanguages = async () => {
       try {
         setLoading(true);
+        setError(null);
+
+        const client = createClient({
+          projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+          dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+          apiVersion: "2024-01-01",
+          useCdn: false,
+        });
+
         const foundation = await client.fetch(`
-          *[_type == "foundation"][0] {
-            localization {
-              additionalLanguages[] {
-                code,
-                name,
-                enabled,
-                direction
-              }
-            }
+          *[_type == "foundationLocalization"][0] {
+            additionalLanguages
           }
         `);
 
-        if (!foundation?.localization?.additionalLanguages) {
+        if (!foundation?.additionalLanguages) {
           // Default to English if no foundation settings found
           setLanguages([
             {
@@ -48,28 +47,39 @@ export function DynamicLocalizationInput(props: DynamicLocalizationInputProps) {
               direction: "ltr",
             },
           ]);
-        } else {
-          // Filter enabled languages and add English as default
-          const enabledLanguages = foundation.localization.additionalLanguages
-            .filter((lang: LanguageConfig) => lang.enabled)
-            .map((lang: LanguageConfig) => ({
-              ...lang,
-              direction: lang.direction || "ltr",
-            }));
-
-          // Always include English as the first language
-          const englishLanguage: LanguageConfig = {
-            code: "en",
-            name: "English",
-            enabled: true,
-            direction: "ltr",
-          };
-
-          setLanguages([englishLanguage, ...enabledLanguages]);
+          setLoading(false);
+          return;
         }
+
+        const enabledLanguages = foundation.additionalLanguages
+          .filter((lang: LanguageConfig) => lang.enabled)
+          .map((lang: LanguageConfig) => ({
+            code: lang.code,
+            name: lang.name,
+            enabled: lang.enabled,
+            direction: lang.direction,
+          }));
+
+        // Always include English as the first language
+        const englishLanguage = {
+          code: "en",
+          name: "English",
+          enabled: true,
+          direction: "ltr",
+        };
+
+        // Check if English is already in the list
+        const hasEnglish = enabledLanguages.some(
+          (lang: LanguageConfig) => lang.code === "en",
+        );
+        if (!hasEnglish) {
+          enabledLanguages.unshift(englishLanguage);
+        }
+
+        setLanguages(enabledLanguages);
       } catch (err) {
         console.error("Error fetching foundation settings:", err);
-        setError("Failed to load language settings");
+        setError("Failed to load languages");
         // Fallback to English
         setLanguages([
           {
@@ -82,90 +92,94 @@ export function DynamicLocalizationInput(props: DynamicLocalizationInputProps) {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchLanguages();
-  }, [client]);
+  }, []);
 
-  const handleLanguageChange = (langCode: string, newValue: string) => {
-    if (newValue.trim() === "") {
-      onChange(PatchEvent.from([unset([langCode])]));
+  const handleLanguageChange = (languageCode: string, text: string) => {
+    if (text.trim() === "") {
+      // Remove the language field if empty
+      onChange(PatchEvent.from(unset([languageCode])));
     } else {
-      onChange(PatchEvent.from([set(newValue, [langCode])]));
+      // Set the language field
+      onChange(PatchEvent.from(set(text, [languageCode])));
     }
   };
 
   if (loading) {
     return (
-      <Card padding={3}>
-        <Text>Loading languages...</Text>
-      </Card>
+      <div style={{ padding: "1rem" }}>
+        <div>Loading languages from foundation settings...</div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card padding={3} tone="critical">
-        <Text>{error}</Text>
-      </Card>
+      <div style={{ padding: "1rem", color: "red" }}>
+        <div>Error: {error}</div>
+      </div>
     );
   }
 
   return (
-    <Stack space={3}>
-      <Text size={1} weight="semibold">
-        {type.title}
-      </Text>
+    <div style={{ padding: "1rem" }}>
+      <div style={{ marginBottom: "1rem" }}>
+        <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+          {type?.name || "Localized Content"}
+        </div>
+        <div style={{ fontSize: "0.875rem", color: "#666" }}>
+          Enter content for each language
+        </div>
+      </div>
+
       {languages.map((language) => (
-        <Card key={language.code} padding={3} border radius={2}>
-          <Stack space={2}>
-            <Flex justify="space-between" align="center">
-              <Text size={1} weight="medium">
-                {language.name} ({language.code})
-              </Text>
-              {language.direction === "rtl" && (
-                <Text size={0} style={{ color: "#f39c12" }}>
-                  RTL
-                </Text>
-              )}
-            </Flex>
-            {fieldType === "string" ? (
-              <input
-                type="text"
-                value={value[language.code] || ""}
-                onChange={(e) =>
-                  handleLanguageChange(language.code, e.target.value)
-                }
-                placeholder={`Enter ${language.name} text...`}
-                style={{
-                  width: "100%",
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                }}
-              />
-            ) : (
-              <textarea
-                value={value[language.code] || ""}
-                onChange={(e) =>
-                  handleLanguageChange(language.code, e.target.value)
-                }
-                placeholder={`Enter ${language.name} text...`}
-                rows={3}
-                style={{
-                  width: "100%",
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  resize: "vertical",
-                }}
-              />
+        <div
+          key={language.code}
+          style={{
+            marginBottom: "1rem",
+            padding: "0.75rem",
+            border: "1px solid #e0e0e0",
+            borderRadius: "4px",
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <label
+            style={{
+              display: "block",
+              fontWeight: "500",
+              marginBottom: "0.5rem",
+              fontSize: "0.875rem",
+            }}
+          >
+            {language.name} ({language.code})
+            {language.code === "en" && (
+              <span style={{ color: "#666", marginLeft: "0.5rem" }}>
+                (Required)
+              </span>
             )}
-          </Stack>
-        </Card>
+          </label>
+          <textarea
+            value={value[language.code] || ""}
+            onChange={(e) =>
+              handleLanguageChange(language.code, e.target.value)
+            }
+            style={{
+              width: "100%",
+              minHeight: "80px",
+              padding: "0.5rem",
+              border: "1px solid #d0d0d0",
+              borderRadius: "4px",
+              fontSize: "0.875rem",
+              fontFamily: "inherit",
+              resize: "vertical",
+            }}
+            placeholder={`Enter ${language.name} content...`}
+            required={language.code === "en"}
+          />
+        </div>
       ))}
-    </Stack>
+    </div>
   );
-}
+};

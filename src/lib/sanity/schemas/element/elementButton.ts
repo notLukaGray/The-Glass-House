@@ -92,6 +92,20 @@ const base = createBaseElementSchema(
   "button",
   [
     {
+      name: "usage",
+      title: "Usage",
+      type: "string",
+      options: {
+        list: [
+          { title: "General", value: "" },
+          { title: "Hero CTA", value: "hero-cta" },
+        ],
+      },
+      fieldset: "content",
+      description:
+        "What this button element is used for (helps with organization)",
+    },
+    {
       name: "contentType",
       title: "Button Content Type",
       type: "string",
@@ -249,7 +263,7 @@ base.fields = base.fields.filter(
   (field) => field.name !== "alternativeTitle" && field.name !== "caption",
 );
 
-// Convert localeString fields to glassLocalization and update computed fields
+// Convert fields to use correct localization types and update computed fields
 base.fields = base.fields.map((field) => {
   if (
     field.name === "title" ||
@@ -258,9 +272,11 @@ base.fields = base.fields.map((field) => {
   ) {
     return {
       ...field,
-      type: "glassLocalization",
+      type: "glassLocaleString",
       components: { input: GlassLocalizationInput },
-      options: undefined,
+      options: {
+        fieldType: "string",
+      },
       description: field.description,
     };
   }
@@ -342,39 +358,36 @@ base.fields = base.fields.map((field) => {
 
 base.preview = {
   select: {
-    title: "title.en",
-    alternativeTitle: "alternativeTitle.en",
-    description: "description.en",
+    title: "title",
+    alternativeTitle: "alternativeTitle",
+    description: "description",
     subtitle: "contentType",
     media: "variant",
     svgIcon: "svgIcon",
-    svgColor: "svgColor",
-    svgRecolor: "svgRecolor",
   } as unknown as typeof base.preview.select,
   prepare(selection: Record<string, unknown>) {
-    const {
-      title,
-      alternativeTitle,
-      description,
-      subtitle,
-      media,
-      svgIcon,
-      svgColor,
-      svgRecolor,
-    } = selection as {
-      title?: string;
-      alternativeTitle?: string;
-      description?: string;
-      subtitle?: string;
-      media?: string;
-      svgIcon?: string;
-      svgColor?: string;
-      svgRecolor?: boolean;
-    };
+    const { title, alternativeTitle, description, subtitle, media, svgIcon } =
+      selection as {
+        title?: Record<string, string>;
+        alternativeTitle?: Record<string, string>;
+        description?: Record<string, string>;
+        subtitle?: string;
+        media?: string;
+        svgIcon?: string;
+      };
 
-    // Use title first, then description, then fallback
+    // Get the best available title content with fallback
     const displayTitle =
-      title || alternativeTitle || description || "Untitled Button";
+      title?.en ||
+      title?.es ||
+      Object.values(title || {}).find((val) => val?.trim()) ||
+      alternativeTitle?.en ||
+      alternativeTitle?.es ||
+      Object.values(alternativeTitle || {}).find((val) => val?.trim()) ||
+      description?.en ||
+      description?.es ||
+      Object.values(description || {}).find((val) => val?.trim()) ||
+      "Untitled Button";
 
     const buttonInfo = [];
     if (subtitle) buttonInfo.push(subtitle);
@@ -391,7 +404,7 @@ base.preview = {
     if (svgIcon && svgIcon.trim().startsWith("<svg")) {
       try {
         // Process SVG with recolor control
-        const processedSvg = processSvg(svgIcon, svgColor, svgRecolor || false);
+        const processedSvg = processSvg(svgIcon);
 
         displayMedia = React.createElement("div", {
           style: {

@@ -11,8 +11,8 @@ import type { SiteSettings, ThemeMode } from "@/types/settings";
 
 const DEFAULT_SETTINGS: SiteSettings = {
   basicInfo: {
-    title: { _type: "localeString", en: "Portfolio" },
-    description: { _type: "localeString", en: "My portfolio website" },
+    title: "Portfolio",
+    description: "My portfolio website",
     favicon: { _type: "reference", _ref: "" },
     logo: { _type: "reference", _ref: "" },
   },

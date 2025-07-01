@@ -29,8 +29,7 @@ export async function getSocialAsset(
   try {
     const asset = await client.fetch<SocialAsset>(groqQuery);
     return asset || null;
-  } catch (error) {
-    console.error("Error fetching social asset:", error);
+  } catch {
     return null;
   }
 }
@@ -48,8 +47,7 @@ export async function getSocialAssets(
   try {
     const assets = await client.fetch<SocialAsset[]>(groqQuery);
     return assets || [];
-  } catch (error) {
-    console.error("Error fetching social assets:", error);
+  } catch {
     return [];
   }
 }

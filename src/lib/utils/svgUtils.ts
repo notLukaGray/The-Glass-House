@@ -1,142 +1,133 @@
-/**
- * SVG Utilities
- * Pure functions for SVG normalization and recoloring with control over color application
- */
-
-export function normalizeSvg(svgData: string): string {
-  if (!svgData) return "";
-  let normalized = svgData.trim();
-
-  // Remove XML declaration, DOCTYPE, comments
-  normalized = normalized.replace(/<\?xml[^>]*>/g, "");
-  normalized = normalized.replace(/<!DOCTYPE[^>]*>/gi, "");
-  normalized = normalized.replace(/<!--([\s\S]*?)-->/g, "");
-
-  // Extract the <svg>...</svg> content
-  const svgMatch = normalized.match(/<svg[\s\S]*?<\/svg>/i);
-  if (!svgMatch) return "";
-  const svgContent = svgMatch[0];
-
-  // Extract width/height if present
-  let viewBox = "";
-  const viewBoxMatch = svgContent.match(/viewBox="([^"]*)"/i);
-  if (viewBoxMatch) {
-    viewBox = viewBoxMatch[1];
-  } else {
-    // Try to infer from width/height
-    const widthMatch = svgContent.match(/width="([0-9.]+)"/i);
-    const heightMatch = svgContent.match(/height="([0-9.]+)"/i);
-    if (widthMatch && heightMatch) {
-      viewBox = `0 0 ${widthMatch[1]} ${heightMatch[1]}`;
-    } else {
-      viewBox = "0 0 100 100";
-    }
-  }
-
-  // Only keep allowed shape elements
-  const shapeRegex =
-    /<(path|rect|circle|ellipse|polygon|polyline|line)([\s\S]*?)(\/>|<\/\1>)/gi;
-  let shapes = "";
-  let match;
-  while ((match = shapeRegex.exec(svgContent)) !== null) {
-    const tag = match[1];
-    const attrs = match[2];
-    // Only keep essential attributes
-    let allowedAttrs = "";
-    const attrRegex = /(d|points|x|y|r|cx|cy|rx|ry|x1|y1|x2|y2)="([^"]*)"/g;
-    let attrMatch;
-    while ((attrMatch = attrRegex.exec(attrs)) !== null) {
-      allowedAttrs += ` ${attrMatch[1]}="${attrMatch[2]}"`;
-    }
-    shapes += `<${tag}${allowedAttrs} />`;
-  }
-
-  // Build clean SVG
-  const cleanSvg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">${shapes}</svg>`;
-
-  // Remove any potentially dangerous tags and attributes
-  const cleanSvgContent = cleanSvg.replace(
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    "",
-  );
-
-  return cleanSvgContent;
-}
-
-export function getColoredSvg(svgData: string, color: string): string {
-  // Normalize SVG first (always do this for safety and consistency)
-  let cleanedSvg = normalizeSvg(svgData);
-
-  // Remove all style tags and their contents
-  cleanedSvg = cleanedSvg.replace(/<style>[\s\S]*?<\/style>/g, "");
-
-  // Remove all defs and their contents
-  cleanedSvg = cleanedSvg.replace(/<defs>[\s\S]*?<\/defs>/g, "");
-
-  // Remove all gradient definitions
-  cleanedSvg = cleanedSvg
-    .replace(/<linearGradient[\s\S]*?<\/linearGradient>/g, "")
-    .replace(/<radialGradient[\s\S]*?<\/radialGradient>/g, "")
-    .replace(/<stop[\s\S]*?\/>/g, "");
-
-  // Remove all class attributes
-  cleanedSvg = cleanedSvg.replace(/class="[^"]*"/g, "");
-
-  // Remove all fill-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/fill="[^"]*"/g, "")
-    .replace(/fill-opacity="[^"]*"/g, "")
-    .replace(/fill-rule="[^"]*"/g, "")
-    .replace(/style="[^"]*fill:[^"]*"/g, 'style=""');
-
-  // Remove all gradient-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/gradientUnits="[^"]*"/g, "")
-    .replace(/gradientTransform="[^"]*"/g, "")
-    .replace(/x1="[^"]*"/g, "")
-    .replace(/y1="[^"]*"/g, "")
-    .replace(/x2="[^"]*"/g, "")
-    .replace(/y2="[^"]*"/g, "")
-    .replace(/offset="[^"]*"/g, "")
-    .replace(/stop-color="[^"]*"/g, "");
-
-  // Remove all stroke-related attributes
-  cleanedSvg = cleanedSvg
-    .replace(/stroke="[^"]*"/g, "")
-    .replace(/stroke-width="[^"]*"/g, "")
-    .replace(/stroke-linecap="[^"]*"/g, "")
-    .replace(/stroke-linejoin="[^"]*"/g, "")
-    .replace(/stroke-opacity="[^"]*"/g, "")
-    .replace(/stroke-dasharray="[^"]*"/g, "")
-    .replace(/stroke-dashoffset="[^"]*"/g, "")
-    .replace(/style="[^"]*stroke:[^"]*"/g, 'style=""');
-
-  // Add our color as both fill and stroke to all paths and shapes
-  cleanedSvg = cleanedSvg
-    .replace(/<path/g, `<path fill="#${color}" stroke="#${color}"`)
-    .replace(/<rect/g, `<rect fill="#${color}" stroke="#${color}"`)
-    .replace(/<circle/g, `<circle fill="#${color}" stroke="#${color}"`)
-    .replace(/<ellipse/g, `<ellipse fill="#${color}" stroke="#${color}"`)
-    .replace(/<polygon/g, `<polygon fill="#${color}" stroke="#${color}"`)
-    .replace(/<polyline/g, `<polyline fill="#${color}" stroke="#${color}"`)
-    .replace(/<line/g, `<line fill="#${color}" stroke="#${color}"`);
-
-  return cleanedSvg;
-}
-
 export function processSvg(
-  svgData: string,
+  svgContent: string,
   color?: string,
-  shouldRecolor: boolean = false,
+  recolor: boolean = false,
 ): string {
-  // Always normalize for safety and consistency
-  const normalizedSvg = normalizeSvg(svgData);
+  if (!svgContent) return "";
 
-  // Only recolor if explicitly requested and color is provided
-  if (shouldRecolor && color) {
-    return getColoredSvg(normalizedSvg, color);
+  // Basic SVG validation and processing
+  const trimmed = svgContent.trim();
+
+  // Handle XML declarations and extract SVG content
+  const svgStart = trimmed.indexOf("<svg");
+  if (svgStart === -1) {
+    throw new Error("Invalid SVG content: must contain <svg tag");
   }
 
-  // Return normalized SVG with original colors preserved
-  return normalizedSvg;
+  const svgEnd = trimmed.indexOf("</svg>");
+  if (svgEnd === -1) {
+    throw new Error("Invalid SVG content: must contain </svg> tag");
+  }
+
+  const svgPart = trimmed.substring(svgStart, svgEnd + 6);
+
+  // Basic sanitization - remove script tags for security
+  let sanitized = svgPart.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+
+  // Apply color if specified and recolor is enabled
+  if (color && recolor) {
+    const hexColor = color.startsWith("#") ? color : `#${color}`;
+
+    // Replace existing fill attributes with the specified color
+    sanitized = sanitized.replace(
+      /fill=["']([^"']*)["']/gi,
+      `fill="${hexColor}"`,
+    );
+
+    // Add fill to elements that don't have it (but be more careful)
+    sanitized = sanitized.replace(
+      /<([a-z]+)([^>]*?)(?:\s+fill=["'][^"']*["'])?([^>]*?)>/gi,
+      (match, tag, attrs1, attrs2) => {
+        // Skip if already has fill or is a specific tag that shouldn't be filled
+        if (
+          match.includes("fill=") ||
+          ["defs", "g", "svg", "title", "desc", "metadata"].includes(tag)
+        ) {
+          return match;
+        }
+        // Only add fill to visual elements that should have it
+        if (
+          [
+            "path",
+            "rect",
+            "circle",
+            "ellipse",
+            "polygon",
+            "polyline",
+            "line",
+            "text",
+          ].includes(tag)
+        ) {
+          return `<${tag}${attrs1}${attrs2} fill="${hexColor}">`;
+        }
+        return match;
+      },
+    );
+  }
+
+  // Normalize SVG for preview - ensure it has proper dimensions
+  if (!sanitized.includes("width=") && !sanitized.includes("height=")) {
+    sanitized = sanitized.replace(
+      /<svg([^>]*)>/i,
+      '<svg$1 width="24" height="24">',
+    );
+  }
+
+  // Ensure SVG has viewBox if not present
+  if (!sanitized.includes("viewBox=")) {
+    const widthMatch = sanitized.match(/width=["']([^"']+)["']/);
+    const heightMatch = sanitized.match(/height=["']([^"']+)["']/);
+
+    if (widthMatch && heightMatch) {
+      const width = widthMatch[1];
+      const height = heightMatch[1];
+      sanitized = sanitized.replace(
+        /<svg([^>]*)>/i,
+        `<svg$1 viewBox="0 0 ${width} ${height}">`,
+      );
+    }
+  }
+
+  return sanitized;
+}
+
+export function validateSvg(svgContent: string): boolean {
+  if (!svgContent) return false;
+
+  const trimmed = svgContent.trim();
+
+  // Check if it's a valid SVG
+  return trimmed.startsWith("<svg") && trimmed.includes("</svg>");
+}
+
+export function extractSvgDimensions(svgContent: string): {
+  width?: string;
+  height?: string;
+} {
+  if (!svgContent) return {};
+
+  const widthMatch = svgContent.match(/width=["']([^"']+)["']/);
+  const heightMatch = svgContent.match(/height=["']([^"']+)["']/);
+
+  return {
+    width: widthMatch?.[1],
+    height: heightMatch?.[1],
+  };
+}
+
+export function createSvgPreview(
+  svgContent: string,
+  color?: string,
+  recolor: boolean = false,
+): string {
+  try {
+    const result = processSvg(svgContent, color, recolor);
+    if (color && recolor && !result) {
+      console.warn("SVG processing returned empty result with color:", color);
+    }
+    return result;
+  } catch (error) {
+    console.warn("SVG processing failed:", error);
+    return "";
+  }
 }

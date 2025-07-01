@@ -28,8 +28,7 @@ export default function LogoutButton({
         callbackUrl: "/",
         redirect: true,
       });
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
       setIsLoading(false);
     }
   };

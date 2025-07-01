@@ -9,6 +9,21 @@ const base = createBaseElementSchema(
   "Image Element",
   "image",
   [
+    // Usage field for categorization
+    {
+      name: "usage",
+      title: "Usage",
+      type: "string",
+      options: {
+        list: [
+          { title: "General", value: "" },
+          { title: "Hero Background", value: "hero-background" },
+        ],
+      },
+      fieldset: "content",
+      description:
+        "What this image element is used for (helps with organization)",
+    },
     ...createImageFields(
       "image",
       "Image",
@@ -19,12 +34,14 @@ const base = createBaseElementSchema(
   [],
 );
 
-// Override the preview to handle external URLs
+// Override the preview to handle external URLs with fallback
 base.preview = {
   select: {
-    title: "title.en",
-    alternativeTitle: "alternativeTitle.en",
-    description: "description.en",
+    title: "title",
+    alternativeTitle: "alternativeTitle",
+    description: "description",
+    subtitle: "title",
+    usage: "usage",
     media: "imageUpload",
     imageSource: "imageSource",
     imageUrl: "imageUrl",
@@ -37,22 +54,34 @@ base.preview = {
       title,
       alternativeTitle,
       description,
+      usage,
       media,
       imageSource,
       imageUrl,
     } = selection as {
-      title?: string;
-      alternativeTitle?: string;
-      description?: string;
+      title?: Record<string, string>;
+      alternativeTitle?: Record<string, string>;
+      description?: Record<string, string>;
+      usage?: string;
       media?: unknown;
       imageSource?: string;
       imageUrl?: string;
     };
 
+    // Get the best available title content
     const displayTitle =
-      alternativeTitle || title || description || "Untitled Image";
+      alternativeTitle?.en ||
+      alternativeTitle?.es ||
+      Object.values(alternativeTitle || {}).find((val) => val?.trim()) ||
+      title?.en ||
+      title?.es ||
+      Object.values(title || {}).find((val) => val?.trim()) ||
+      description?.en ||
+      description?.es ||
+      Object.values(description || {}).find((val) => val?.trim()) ||
+      "Untitled Image";
 
-    let displaySubtitle = "Image Element";
+    let displaySubtitle = usage ? `${usage} - Image Element` : "Image Element";
     let displayMedia = media;
 
     if (imageSource === "upload") {

@@ -63,11 +63,10 @@ export function useAuth(): UseAuthReturn {
               : "An error occurred during login",
         };
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       return {
         success: false,
-        error: "An unexpected error occurred",
+        error: "Login failed. Please try again.",
       };
     }
   }, []);
@@ -78,8 +77,8 @@ export function useAuth(): UseAuthReturn {
         callbackUrl: "/",
         redirect: true,
       });
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Handle logout error silently
     }
   }, []);
 

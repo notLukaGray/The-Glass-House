@@ -43,15 +43,13 @@ export default async function AboutPage(): Promise<ReactElement> {
         </div>
       </main>
     );
-  } catch (error) {
-    console.error("Error fetching about data:", error);
+  } catch {
     return (
       <main className="min-h-screen p-8 bg-white text-black max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">About</h1>
-        <div className="text-center text-gray-600">
-          <p>Unable to load about content at this time.</p>
-          <p>Please try again later.</p>
-        </div>
+        <h1 className="text-2xl font-bold mb-4">Error</h1>
+        <p>
+          Sorry, we couldn&apos;t load the about page. Please try again later.
+        </p>
       </main>
     );
   }

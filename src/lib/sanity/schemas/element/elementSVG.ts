@@ -5,7 +5,7 @@ import {
   createColorField,
   createRecolorField,
 } from "./baseElementSchema";
-import { processSvg } from "../../../utils/svgUtils";
+import { createSvgPreview } from "../../../utils/svgUtils";
 
 const base = createBaseElementSchema(
   "elementSVG",
@@ -88,18 +88,20 @@ const previewConfig = {
       "SVG",
     );
 
-    if (svgSource === "upload") {
-      displaySubtitle = "Uploaded SVG File";
-    } else if (svgSource === "string" && svgString) {
-      displaySubtitle =
-        svgString.length > 30 ? `${svgString.substring(0, 30)}...` : svgString;
+    // Always try to render SVG if we have SVG content, regardless of source
+    if (
+      svgString &&
+      svgString.trim() &&
+      (svgString.trim().startsWith("<svg") || svgString.trim().includes("<svg"))
+    ) {
+      try {
+        const processedSvg = createSvgPreview(
+          svgString,
+          color,
+          recolor || false,
+        );
 
-      // Try to render the SVG if it looks like valid SVG code
-      if (svgString.trim().startsWith("<svg")) {
-        try {
-          // Process SVG with recolor control
-          const processedSvg = processSvg(svgString, color, recolor || false);
-
+        if (processedSvg) {
           displayMedia = React.createElement("div", {
             style: {
               width: 40,
@@ -107,17 +109,24 @@ const previewConfig = {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "#f0f0f0",
+              backgroundColor: "#ffffff",
               borderRadius: "4px",
-              fontSize: "12px",
-              color: "#666",
+              border: "1px solid #e0e0e0",
+              overflow: "hidden",
             },
             dangerouslySetInnerHTML: { __html: processedSvg },
           });
-        } catch {
-          // Fallback to default if SVG rendering fails
+          displaySubtitle = "SVG Content";
         }
+      } catch {
+        displaySubtitle = "Failed to load SVG";
       }
+    } else if (svgSource === "upload") {
+      displaySubtitle = "Uploaded SVG File";
+    } else if (svgString && svgString.trim()) {
+      // Not valid SVG, show as text
+      displaySubtitle =
+        svgString.length > 30 ? `${svgString.substring(0, 30)}...` : svgString;
     }
 
     return {

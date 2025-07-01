@@ -4,108 +4,113 @@ This file lists the main changes and improvements to The Glass House. It's here 
 
 ## 2025-06-30
 
-### Major Feature: Glass Localization System
+### Major Feature: Complete Modular Architecture System (Uncommitted)
 
-- **Complete Localization Overhaul**: Implemented a dynamic, foundation-based localization system that replaces Sanity's built-in localization with a custom, flexible solution
-- **Foundation Schema**: Created `foundation` document type for core system settings including configurable language options
-- **Dynamic Language Management**: Users can now add/remove languages through the foundation settings, with all localization fields automatically updating
-- **Custom Field Types**: Implemented three new custom Sanity field types:
-  - `glassLocaleString`: For localized string fields (titles, labels, etc.)
-  - `glassLocaleText`: For localized text areas (descriptions, captions, etc.)
-  - `glassLocaleRichText`: For localized rich text content with Portable Text
-- **Runtime Dynamic Components**: Created custom React components that fetch foundation settings at runtime and dynamically render language fields
-- **TypeScript Integration**: Full TypeScript support with proper typing for all localization utilities and components
-- **Schema Integration**: Updated all element schemas (button, image, rich text, etc.) to use the new localization system
-- **Utility Functions**: Built comprehensive utility functions for reading foundation settings and generating dynamic field configurations
-- **Studio Integration**: Integrated foundation schema into Sanity Studio desk structure under Settings section
+**NEW**: Built a complete 5-layer modular architecture system for The Glass House
 
-### Technical Improvements
+#### New Modular Systems Created:
 
-- **Code Quality**: Fixed all TypeScript linting errors, removed unused imports, and ensured proper type safety throughout
-- **Performance**: Optimized component rendering with proper dependency arrays and equality checks
-- **Error Handling**: Fixed schema errors and runtime issues including undefined type props and missing field properties
-- **Build Success**: All files pass ESLint and Prettier formatting, with successful development server startup
+- **Blueprint System** (`src/lib/sanity/schemas/blueprint/`):
+  - `baseBlueprintSchema.ts`: Base schema for creating page blueprints
+  - `blueprintStaticPage.ts`: Static page blueprint implementation
+  - `index.ts`: Blueprint schema management
 
-### Schema Enhancements
+- **Scaffold System** (`src/lib/sanity/schemas/scaffold/`):
+  - `baseScaffoldSchema.ts`: Base schema for layout scaffolds with advanced behavior controls
+  - `scaffoldFixedShell.ts`: Fixed shell scaffold implementation
+  - `index.ts`: Scaffold schema management
 
-- **Button Schema**: Enhanced with configurable dropdowns for type, variant, and size with proper default values
-- **Rich Text Schema**: Implemented true dynamic localization with multiple language fields created based on foundation settings
-- **Image Schema**: Fixed preview configuration and added proper localization support
-- **Base Element Schema**: Updated to support the new localization system while maintaining backward compatibility
+- **Wing System** (`src/lib/sanity/schemas/wings/`):
+  - `baseWingSchema.ts`: Base schema for content wings
+  - `wingsFullScreen.ts`: Full screen wing implementation
+  - `castingWingSchema.ts`: Wing casting system for module integration
+  - `index.ts`: Wing schema management
+  - **Components** (`src/lib/sanity/schemas/wings/components/`):
+    - `ModuleArrayInput.tsx`: Advanced array input with drag-and-drop, module creation, and layout editing
+    - `ModuleArrayItem.tsx`: Individual module item component with preview and controls
+    - `ModuleReferencePreview.tsx`: Module reference preview component
 
-### Development Experience
+- **Module System** (`src/lib/sanity/schemas/modules/`):
+  - `baseModuleSchema.ts`: Base schema for content modules
+  - `moduleHeroImage.ts`: Hero image module implementation
+  - `castingModuleSchema.ts`: Module casting system for wing integration
+  - `index.ts`: Module schema management
 
-- **Auto-Generation**: Improved ARIA label and alt text auto-generation with better deep equality checks
-- **Conditional Fields**: Enhanced conditional visibility logic for media and text fields
-- **Field Organization**: Improved field ordering and default value references for better UX
-- **Studio UX**: Better organization of fields and improved user experience in Sanity Studio
+#### New Foundation System:
 
-### Critical Security Fixes (2025-06-25)
+- **Foundation Schemas** (`src/lib/sanity/schemas/foundation/`):
+  - `foundationBehavior.ts`: Behavior foundation for scroll and interaction settings
+  - `foundationDesign.ts`: Design foundation for theming and styling
+  - `foundationLocalization.ts`: Localization foundation for language management
+  - `foundationTheme.ts`: Theme foundation for color and design systems
+  - `index.ts`: Foundation schema management
 
-- **Fixed client-side secret exposure**: Removed `env` object from `next.config.mjs` that was bundling `SANITY_TOKEN` and other secrets into the client-side JavaScript bundle. All secrets now only accessed server-side.
-- **Database connection optimization**: Implemented PrismaClient singleton pattern to prevent connection pool exhaustion during development hot reloads and production scaling.
-- **Password input security**: Replaced `readline` with `prompt-sync` in admin CLI setup to hide password input when typing, preventing shoulder surfing attacks.
-- **Performance improvement**: Migrated from `bcryptjs` (JavaScript implementation) to native `bcrypt` for faster and more secure password hashing.
+#### New Components & Utilities:
 
-- **Removed deprecated config:**
-  - Deleted `devIndicators` from `next.config.mjs` (removed in Next.js 13.5+, only triggers warnings).
+- **FoundationProvider.tsx**: React context provider for foundation settings
+- **OrphanedFieldsBanner.tsx**: Component for detecting and managing orphaned localization fields
+- **Foundation Utils** (`src/lib/sanity/utils/foundationUtils.test.ts`): Testing utilities for foundation system
 
-- **Environment variable validation:**
-  - Replaced custom environment validation with `envalid` in `src/lib/env.ts` for type-safe, declarative, and user-friendly env checks.
-  - The app now fails fast and clearly if required environment variables are missing or malformed.
+#### New Frontend Systems:
 
-- **Explicit crypto import:**
-  - Updated `src/lib/auth/utils.ts` to explicitly import `randomUUID` from `crypto` and use it in `generateSessionId`.
-  - Ensures compatibility with all Node.js and Edge runtimes.
+- **Frontend Library** (`src/lib/frontend/`): Frontend utilities and components
+- **Module Components** (`src/components/modules/`): Frontend module rendering components
+- **Sanity Hooks** (`src/lib/sanity/hooks/`): Custom hooks for Sanity integration
 
-- **Prisma postinstall automation:**
-  - Added `"postinstall": "prisma generate"` to `package.json` scripts.
-  - Guarantees Prisma client is always generated after dependency install, preventing missing-client errors on fresh clones or CI.
+#### New Documentation:
 
-- **Testing infrastructure setup:**
-  - Added Vitest, Testing Library, and comprehensive test configuration with proper Next.js mocks.
-  - Created `vitest/` directory structure with verification tests and API route tests.
-  - Implemented proper test setup with Next.js router and image mocks for reliable component testing.
-  - Added test scripts to package.json for development and CI integration.
+- **GlassLocalization.md**: Comprehensive documentation for the Glass Localization system
+- **Scripts** (`scripts/`): Development and maintenance scripts
 
-- **Caching implementation:**
-  - Added ISR (Incremental Static Regeneration) with `revalidate` to key Sanity API routes for improved performance.
-  - Fixed Sanity middleware matcher to exclude all studio routes, preventing conflicts with caching.
-  - Implemented proper cache headers and revalidation strategies for content API endpoints.
+### Major Feature: Glass Localization System Implementation
 
-### Major Improvements (2025-06-24)
+**BREAKING CHANGE**: Replaced Sanity's built-in localization with a custom, dynamic foundation-based system
 
-- **Component Enhancements:**
-  - Improved VideoSection and ImageSection for better sizing, aspect ratio, and responsive behavior.
-  - Bunny video integration is now fully working and reliable for all supported sources.
-  - Fixed alignment, box shadow, and border radius issues for both video and image components.
-  - Simplified overlay and hover logic for cleaner visuals and easier maintenance.
-  - Updated TextSection and other content components for consistency and flexibility.
+#### New Files Created (15 files):
 
-- **Environment & Setup:**
-  - Created a comprehensive `.env.example` file with all required variables and clear instructions.
-  - Ensured `.env.example` is tracked in git and available for CI and new developers.
-  - Audited and documented all environment variables used throughout The Glass House.
-  - Improved install and setup instructions in the README for a smoother onboarding experience.
+- **DynamicLocalizationInput.tsx**: Main component that fetches foundation settings and renders language fields dynamically
+- **DynamicLocaleStringInput.tsx**: Specialized component for string localization
+- **DynamicLocaleTextInput.tsx**: Specialized component for text area localization
+- **elementButton.ts**: Complete button element with configurable types, variants, sizes, and full localization
+- **elementRichText.ts**: Rich text element with dynamic localization and formatting options
+- **elementSVG.ts**: SVG element with proper asset handling and localization support
+- **foundation.ts**: Foundation schema for configurable language management
+- **foundation/index.ts**: Foundation schema management and organization
+- **dynamicLocaleString.ts**: Runtime-dynamic string field based on foundation settings
+- **dynamicLocaleText.ts**: Runtime-dynamic text field based on foundation settings
+- **glassLocaleRichText.ts**: Complete rich text localization with Portable Text support
+- **glassLocaleString.ts**: Dynamic string localization field that adapts to configured languages
+- **glassLocaleText.ts**: Dynamic text area localization field with multi-language support
+- **foundationUtils.ts**: Complete utility system for fetching and managing foundation settings
+- **localizationUtils.ts**: Comprehensive localization utilities for field creation and management
+- **svgUtils.ts**: Enhanced SVG processing utilities with color manipulation and optimization
+- **components/index.ts**: Component exports organization
 
-- **Script & Tooling Cleanup:**
-  - Removed unused database scripts for deleting, listing, and counting users.
-  - Kept only the essential setup script for initializing the admin user and database.
-  - Cleaned up related CLI and database files to remove unnecessary code.
-  - Updated ESLint and Prettier configs for consistency and code quality.
+#### Key Schema Enhancements:
 
-- **API & User Management:**
-  - Removed user management endpoints (list/delete) from the admin API route for security and simplicity.
-  - Kept only user creation, password update, and role update actions for admin setup.
+- **baseElementSchema.ts**: Complete rewrite with new localization system integration
+- **elementImage.ts**: Enhanced with proper preview configuration and localization
+- **elementTextBlock.ts**: Streamlined and optimized for new localization system
+- **elementTextSingleLine.ts**: Updated with dynamic localization support
+- **deskStructure.ts**: Cleaned up and simplified desk structure
+- **index.ts**: Streamlined schema organization and removed legacy imports
 
-- **Continuous Integration & Deployment:**
-  - Ensured GitHub Actions workflows run lint and build checks on every push and pull request.
-  - Updated project and Vercel settings to require passing checks before deployment.
-  - Added guidance for setting up branch protection and required checks on GitHub.
+#### Component Improvements:
 
-- **General Cleanup:**
-  - Improved documentation and removed outdated references.
-  - Streamlined project structure and removed unnecessary files.
+- **GlassLocalizationInput.tsx**: Enhanced with runtime foundation fetching and dynamic field generation
+- **GenericComputedFieldsInput.tsx**: Improved with better accessibility and ARIA label generation
+
+#### Utility Enhancements:
+
+- **constants.ts**: Updated with new localization constants
+- **svgHandler.ts**: Enhanced with improved asset handling
+
+#### Legacy Updates:
+
+- **localeString.ts & localeText.ts**: Updated to work with new system
+- **glassLocalization.ts**: Enhanced type definitions
+
+This creates a flexible, maintainable localization system where users can add/remove languages through foundation settings, with all localization fields automatically updating across the entire system. The system is now production-ready with proper error handling, TypeScript safety, and excellent developer experience.
 
 ## 2025-06-23
 

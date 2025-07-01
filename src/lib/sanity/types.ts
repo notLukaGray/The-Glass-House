@@ -13,4 +13,5 @@ export interface SanityField {
   fields?: SanityField[];
   initialValue?: unknown;
   of?: SanityField[];
+  to?: Array<{ type: string }>;
 }
