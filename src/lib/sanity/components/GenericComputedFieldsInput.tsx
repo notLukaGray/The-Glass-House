@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useRef } from "react";
-import { useFormValue, useDocumentOperation } from "sanity";
+import { useFormValue, set, PatchEvent } from "sanity";
 import { Card, Stack, Text } from "@sanity/ui";
 import { getElementTypeFromDocument } from "../utils/elementUtils";
 import { generateCustomId } from "../utils/autoGeneration";
@@ -22,10 +22,6 @@ interface ComputedFields {
     [key: string]: string;
   };
   customId: string;
-}
-
-interface PatchEvent {
-  patches: unknown[];
 }
 
 interface PortableTextSpan {
@@ -62,8 +58,9 @@ interface SanityDocument {
   alternativeTitle?: Record<string, string>;
   caption?: Record<string, string>;
   text?: Record<string, string>;
+  buttonText?: Record<string, string>;
   richText?: { enabled?: boolean };
-  richTextContent?: PortableTextContent[];
+  richTextContent?: Record<string, PortableTextContent[]>;
   ariaLabel?: Record<string, string>;
   altText?: Record<string, string>;
   customId?: string;
@@ -113,6 +110,31 @@ const extractTextFromRichText = (
     .trim();
 };
 
+// Enhanced function to extract text from localized rich text content
+const extractTextFromLocalizedRichText = (
+  richTextContent: Record<string, PortableTextContent[]> | undefined,
+): Record<string, string> => {
+  if (!richTextContent || typeof richTextContent !== "object") {
+    return { en: "" };
+  }
+
+  const result: Record<string, string> = {};
+
+  Object.entries(richTextContent).forEach(([lang, content]) => {
+    if (lang !== "_type" && Array.isArray(content)) {
+      result[lang] = extractTextFromRichText(content);
+    }
+  });
+
+  // Ensure we always have at least English
+  if (!result.en) {
+    result.en = "";
+  }
+
+  return result;
+};
+
+// Generation rules for different element types
 const GENERATION_RULES: Record<string, GenerationRule> = {
   image: {
     ariaLabel: {
@@ -126,7 +148,7 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
   },
   svg: {
     ariaLabel: {
-      prefix: "SVG: ",
+      prefix: "Icon: ",
       sourceField: "title",
     },
     altText: {
@@ -141,71 +163,37 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
     },
     altText: {
       prefix: "",
-      sourceField: "description",
+      sourceField: "text",
     },
   },
   textBlock: {
     ariaLabel: {
       prefix: "Text: ",
       sourceField: "text",
-      isRichText: false,
     },
     altText: {
       prefix: "",
       sourceField: "text",
-      isRichText: false,
     },
   },
   richText: {
     ariaLabel: {
       prefix: "Text: ",
       sourceField: "richTextContent",
-      isRichText: true,
     },
     altText: {
       prefix: "",
       sourceField: "richTextContent",
-      isRichText: true,
     },
   },
   button: {
     ariaLabel: {
       prefix: "Button: ",
-      sourceField: "title",
+      sourceField: "buttonText",
     },
     altText: {
       prefix: "",
-      sourceField: "title",
-    },
-  },
-  video: {
-    ariaLabel: {
-      prefix: "Video: ",
-      sourceField: "title",
-    },
-    altText: {
-      prefix: "",
-      sourceField: "description",
-    },
-  },
-  moduleHeroImage: {
-    ariaLabel: {
-      prefix: "Module: ",
-      sourceField: "meta.moduleTitle",
-    },
-    altText: {
-      prefix: "",
-      sourceField: "meta.description",
-    },
-  },
-  module: {
-    ariaLabel: {
-      prefix: "Module: ",
-      sourceField: "title",
-    },
-    altText: {
-      prefix: "",
-      sourceField: "description",
+      sourceField: "buttonText",
     },
   },
   default: {
@@ -243,10 +231,6 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
 ) => {
   const documentData = useFormValue([]) as SanityDocument;
   const documentId = documentData?._id as string;
-  const publishedId = documentId?.startsWith("drafts.")
-    ? documentId.replace("drafts.", "")
-    : documentId;
-  const { patch } = useDocumentOperation(publishedId, "patch");
   const previousComputedFields = useRef<ComputedFields | null>(null);
 
   const elementType =
@@ -254,13 +238,6 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
     props.options?.elementType ||
     props.elementType ||
     "default";
-
-  console.log(
-    "GenericComputedFieldsInput - Document type:",
-    documentData?._type,
-  );
-  console.log("GenericComputedFieldsInput - Element type:", elementType);
-  console.log("GenericComputedFieldsInput - Document data:", documentData);
 
   const rule = useMemo(
     () =>
@@ -281,19 +258,27 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
 
     // Special handling for richText element type
     if (elementType === "richText") {
-      const richTextContent =
-        documentData.richTextContent as PortableTextContent[];
-      const extractedText = extractTextFromRichText(richTextContent);
+      const richTextContent = documentData.richTextContent as
+        | Record<string, PortableTextContent[]>
+        | undefined;
+      const extractedTexts = extractTextFromLocalizedRichText(richTextContent);
+
+      const ariaLabel: { [lang: string]: string } = {};
+      const altText: { [lang: string]: string } = {};
+
+      Object.entries(extractedTexts).forEach(([lang, text]) => {
+        const processedText = text || "Rich text content";
+        ariaLabel[lang] = rule.ariaLabel.prefix
+          ? `${rule.ariaLabel.prefix}${processedText}`
+          : processedText;
+        altText[lang] = rule.altText.prefix
+          ? `${rule.altText.prefix}${processedText}`
+          : processedText;
+      });
 
       return {
-        ariaLabel: {
-          _type: "glassLocaleString",
-          en: extractedText || "Rich text content",
-        },
-        altText: {
-          _type: "glassLocaleString",
-          en: extractedText || "Rich text content",
-        },
+        ariaLabel: { _type: "glassLocaleString", ...ariaLabel },
+        altText: { _type: "glassLocaleString", ...altText },
         customId: documentData.customId || generateCustomId(documentId || ""),
       };
     }
@@ -330,12 +315,10 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
     let ariaSourceValue: Record<string, string> | undefined;
     let altSourceValue: Record<string, string> | undefined;
 
-    // Handle nested fields for modules
-    if (elementType === "moduleHeroImage") {
-      ariaSourceValue = documentData.meta?.moduleTitle as
-        | Record<string, string>
-        | undefined;
-      altSourceValue = documentData.meta?.description as
+    // Special handling for textSingleLine to ensure correct field access
+    if (elementType === "textSingleLine") {
+      ariaSourceValue = documentData.text as Record<string, string> | undefined;
+      altSourceValue = documentData.description as
         | Record<string, string>
         | undefined;
     } else {
@@ -352,12 +335,25 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
         }, obj as unknown);
       };
 
-      ariaSourceValue = getNestedValue(documentData, ariaSourceField) as
-        | Record<string, string>
-        | undefined;
-      altSourceValue = getNestedValue(documentData, altSourceField) as
-        | Record<string, string>
-        | undefined;
+      // Get source values with support for rich text fields
+      const getSourceValue = (sourceField: string, isRichText?: boolean) => {
+        const value = getNestedValue(documentData, sourceField);
+
+        if (isRichText && value && typeof value === "object") {
+          // Handle rich text content
+          return extractTextFromLocalizedRichText(
+            value as Record<string, PortableTextContent[]>,
+          );
+        }
+
+        return value as Record<string, string> | undefined;
+      };
+
+      ariaSourceValue = getSourceValue(
+        ariaSourceField,
+        rule.ariaLabel.isRichText,
+      );
+      altSourceValue = getSourceValue(altSourceField, rule.altText.isRichText);
     }
 
     const langs = new Set<string>();
@@ -405,12 +401,22 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
           : defaultText;
       }
 
-      // For alt text, try description first, then title as fallback
+      // For alt text, use the source field directly (no fallbacks for textSingleLine and textBlock)
       let altSourceText = "";
       if (altSourceValue && altSourceValue[lang]) {
         altSourceText = altSourceValue[lang];
+      } else if (
+        elementType === "textSingleLine" ||
+        elementType === "textBlock"
+      ) {
+        // For text elements, use the text field directly with no fallbacks
+        const textValue = documentData.text as
+          | Record<string, string>
+          | undefined;
+        altSourceText =
+          textValue?.[lang] || textValue?.en || `${elementType} content`;
       } else if (elementType !== "moduleHeroImage") {
-        // For elements, try description first, then title
+        // For other elements, try description first, then title as fallback
         const description = documentData.description as
           | Record<string, string>
           | undefined;
@@ -459,50 +465,31 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
     };
   }, [documentData, rule, elementType, documentId]);
 
+  const { onChange } = props;
+
   useEffect(() => {
-    const updateComputedFields = async () => {
-      if (
-        !documentData ||
-        !documentData._id ||
-        !patch ||
-        typeof patch.execute !== "function"
-      )
-        return;
-
-      const current = ((documentData as Record<string, unknown>)
-        .computedFields as ComputedFields) || {
-        ariaLabel: { _type: "glassLocaleString" },
-        altText: { _type: "glassLocaleString" },
-        customId: "",
-      };
-
-      // Only patch if the computed fields have actually changed
-      if (
-        !deepEqual(current, computedFields) &&
-        !deepEqual(previousComputedFields.current, computedFields)
-      ) {
-        // Update the ref to track what we're about to set
-        previousComputedFields.current = computedFields;
-
-        console.log("Patching computed fields:", computedFields);
-        try {
-          await patch.execute([{ set: { computedFields } }]);
-          console.log("✅ Computed fields patched successfully");
-        } catch (error) {
-          console.warn("Failed to patch computedFields:", error);
-        }
-      } else {
-        console.log(
-          "No patch needed. Current:",
-          current,
-          "Computed:",
-          computedFields,
+    if (!onChange || !documentData) return;
+    const currentComputedFields = (
+      documentData as SanityDocument & { computedFields?: ComputedFields }
+    ).computedFields;
+    if (
+      !deepEqual(currentComputedFields, computedFields) &&
+      !deepEqual(previousComputedFields.current, computedFields)
+    ) {
+      try {
+        onChange(
+          PatchEvent.from([
+            set(computedFields.ariaLabel, ["ariaLabel"]),
+            set(computedFields.altText, ["altText"]),
+            set(computedFields.customId, ["customId"]),
+          ]),
         );
+        previousComputedFields.current = computedFields;
+      } catch {
+        // Silently handle errors
       }
-    };
-
-    updateComputedFields();
-  }, [computedFields, documentData, patch]);
+    }
+  }, [computedFields, documentData, onChange]);
 
   if (!documentData) {
     return (
@@ -515,9 +502,10 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
   return (
     <Stack space={3}>
       <Text size={1} muted>
-        Auto-generated fields based on your content:
+        Auto-generated fields based on your content (applied automatically):
       </Text>
-      {/* Display ARIA Labels */}
+
+      {}
       <Card padding={3} border radius={2}>
         <Stack space={2}>
           <Text weight="semibold" size={1}>
@@ -545,7 +533,7 @@ export const GenericComputedFieldsInput: React.FC<ComputedFieldsInputProps> = (
         </Stack>
       </Card>
 
-      {/* Display Alt Text */}
+      {}
       <Card padding={3} border radius={2}>
         <Stack space={2}>
           <Text weight="semibold" size={1}>

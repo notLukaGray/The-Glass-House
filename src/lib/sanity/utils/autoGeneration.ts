@@ -100,19 +100,6 @@ export const generateAltText = (
   return altTexts;
 };
 
-export const getElementTypeFromDocument = (docType: string): string => {
-  switch (docType) {
-    case "elementTextSingleLine":
-      return "text";
-    case "elementImage":
-      return "image";
-    case "elementVideo":
-      return "video";
-    default:
-      return docType.replace("element", "").toLowerCase();
-  }
-};
-
 export const generateAllMetadata = (
   metadata: BaseMetadata,
   config: AutoGenerationConfig,

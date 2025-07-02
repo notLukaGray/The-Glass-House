@@ -2,6 +2,41 @@
 
 This file lists the main changes and improvements to The Glass House. It's here so you can see what's new, what's fixed, and what's changed over time.
 
+## 2025-07-02
+
+### Major Fix: Computed Fields System Overhaul
+
+**FIXED**: Resolved alt text generation issues and centralized generation rules for better maintainability
+
+#### Computed Fields Improvements:
+
+- **Alt Text Generation Fixed**: `textSingleLine` and `textBlock` elements now generate alt text from actual `text` field content instead of fallback values
+- **Centralized Generation Rules**: Moved all generation rules to `GenericComputedFieldsInput.tsx` for single source of truth
+- **Removed Duplicate Logic**: Eliminated conflicting generation rules from multiple files
+- **Preview Display Fixed**: Auto-generated fields now show actual content instead of generic fallbacks
+
+#### New API & Testing:
+
+- **`src/app/api/content/elements/`**: New API endpoint for fetching elements with computed fields
+- **`src/app/test-elements/`**: Test page for validating computed fields generation
+- **`src/lib/sanity/components/DisplayOnlyField.tsx`**: New display component for computed fields
+
+#### Code Organization:
+
+- **Moved Element Casting Registry**: Relocated `elementCastingRegistry.ts` to proper `casting/` directory
+- **Removed Unused Code**: Cleaned up unused helper functions from `baseElementSchema.ts`
+- **Updated Element Schemas**: All elements now use centralized generation rules
+
+#### Technical Implementation:
+
+- **Fixed React Hook Dependencies**: Resolved useEffect dependency warnings in computed fields component
+- **Improved Type Safety**: Enhanced TypeScript types throughout the computed fields system
+- **Better Error Handling**: Improved error handling in computed fields generation logic
+
+This ensures that auto-generated accessibility fields (ARIA labels, alt text) are generated from the correct source fields and display properly in the Sanity studio interface.
+
+### Major Feature: Element Casting System Implementation
+
 ## 2025-07-01
 
 ### Major Feature: Element Casting System Implementation

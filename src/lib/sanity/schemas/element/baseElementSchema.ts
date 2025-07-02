@@ -1,5 +1,4 @@
 import { Rule } from "@sanity/types";
-import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
 import { mapElementFields } from "../../utils/elementUtils";
 import { createElementPreview } from "../../utils/previewUtils";
 import { SanityField } from "../../types";
@@ -8,6 +7,7 @@ import {
   createLocalizedTextField,
   createLocalizedComputedFields,
 } from "../../utils/localizationUtils";
+import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
 
 export const createImageFields = (
   fieldName: string,
@@ -250,9 +250,7 @@ export const createBaseElementSchema = (
       `Optional caption text to display below the ${elementType}`,
       "captionFieldset",
     ),
-
     ...additionalMetadataFields,
-
     {
       name: "customId",
       title: "Custom ID",
@@ -274,14 +272,11 @@ export const createBaseElementSchema = (
       title: "Auto-generated Fields",
       type: "object",
       fieldset: "advanced",
-      options: {
-        elementType: elementType,
-      },
       components: {
         input: GenericComputedFieldsInput,
       },
       description:
-        "These fields are automatically computed based on your description",
+        "These fields are automatically computed based on your content",
       fields: createLocalizedComputedFields(),
     },
   ];
@@ -294,12 +289,12 @@ export const createBaseElementSchema = (
       {
         name: "titleFieldset",
         title: "Title",
-        options: { collapsible: false, collapsed: false },
+        options: { collapsible: true, collapsed: false },
       },
       {
         name: "descriptionFieldset",
         title: "Description",
-        options: { collapsible: false, collapsed: false },
+        options: { collapsible: true, collapsed: false },
       },
       {
         name: "content",
@@ -309,21 +304,16 @@ export const createBaseElementSchema = (
       {
         name: "alternativeTitleFieldset",
         title: "Alternative Title",
-        options: { collapsible: false, collapsed: false },
+        options: { collapsible: true, collapsed: true },
       },
       {
         name: "captionFieldset",
         title: "Caption",
-        options: { collapsible: false, collapsed: false },
-      },
-      {
-        name: "altTextFieldset",
-        title: "Alt Text",
-        options: { collapsible: false, collapsed: false },
+        options: { collapsible: true, collapsed: true },
       },
       {
         name: "advanced",
-        title: "Advanced (Auto-generated)",
+        title: "Advanced",
         options: { collapsible: true, collapsed: true },
       },
     ],

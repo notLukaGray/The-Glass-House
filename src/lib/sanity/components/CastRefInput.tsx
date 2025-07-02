@@ -12,7 +12,7 @@ import {
   Spinner,
   Switch,
 } from "@sanity/ui";
-import { elementCastingRegistry } from "../schemas/element/elementCastingRegistry";
+import { elementCastingRegistry } from "../schemas/element/casting/elementCastingRegistry";
 import AlignmentGrid from "./AlignmentGrid";
 import AspectRatioLock from "./AspectRatioLock";
 import { CogIcon } from "@sanity/icons";
