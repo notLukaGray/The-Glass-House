@@ -13,6 +13,8 @@ import {
   Switch,
 } from "@sanity/ui";
 import { elementCastingRegistry } from "../schemas/element/casting/elementCastingRegistry";
+import { moduleCastingRegistry } from "../schemas/modules/casting/moduleCastingRegistry";
+import { wingCastingRegistry } from "../schemas/wings/casting/wingCastingRegistry";
 import AlignmentGrid from "./AlignmentGrid";
 import AspectRatioLock from "./AspectRatioLock";
 import { CogIcon } from "@sanity/icons";
@@ -109,11 +111,29 @@ const CastRefInput: React.FC<ReferenceInputProps> = (props) => {
     };
   }, [refValue, client]);
 
-  // Use the registry to get casting fields
-  const castingFields =
-    refDocType && elementCastingRegistry[refDocType]
-      ? elementCastingRegistry[refDocType]
-      : [];
+  // Use the appropriate registry to get casting fields based on document type
+  const getCastingFields = (docType: string | undefined) => {
+    if (!docType) return [];
+
+    // Check element registry first
+    if (elementCastingRegistry[docType]) {
+      return elementCastingRegistry[docType];
+    }
+
+    // Check module registry
+    if (moduleCastingRegistry[docType]) {
+      return moduleCastingRegistry[docType];
+    }
+
+    // Check wing registry
+    if (wingCastingRegistry[docType]) {
+      return wingCastingRegistry[docType];
+    }
+
+    return [];
+  };
+
+  const castingFields = getCastingFields(refDocType);
 
   // Handle reference change (PatchEvent)
   const handleRefChange = (patchEvent: PatchEvent) => {

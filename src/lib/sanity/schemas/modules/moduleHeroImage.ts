@@ -2,6 +2,7 @@ import { Rule } from "@sanity/types";
 import CastRefInput from "../../components/CastRefInput";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
 import { createLocalizedComputedFields } from "../../utils/localizationUtils";
+import { createCastingFields } from "../objects/sharedCastingFields";
 
 // Hero Image module - displays a hero image with positioned elements
 export const moduleHeroImage = {
@@ -40,6 +41,16 @@ export const moduleHeroImage = {
           description: "Tags for categorizing and filtering modules",
         },
       ],
+    },
+    // Add casting field here
+    {
+      name: "casting",
+      title: "Casting Variables",
+      type: "object",
+      fields: createCastingFields("module"),
+      options: { collapsible: true, collapsed: true },
+      description:
+        "Layout and positioning variables this module exposes to wings.",
     },
     // Background configuration
     {

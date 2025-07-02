@@ -32,7 +32,10 @@ export const createScaffoldField = (
   name: fieldName,
   title,
   type: "reference",
-  to: [{ type: "scaffoldFixedShell" }],
+  to: [
+    { type: "scaffoldTestCasting" },
+    // Add other scaffold types as needed
+  ],
   validation: (rule: Rule) => rule.required(),
   fieldset,
   description: description || "The layout framework this blueprint uses",

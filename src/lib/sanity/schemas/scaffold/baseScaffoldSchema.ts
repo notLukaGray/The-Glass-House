@@ -440,6 +440,11 @@ export const createBaseScaffoldSchema = (
       options: { collapsible: false, collapsed: false },
     },
     {
+      name: "layout",
+      title: "Layout & Casting",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
       name: "behavior",
       title: "Behavior",
       options: { collapsible: true, collapsed: false },

@@ -42,6 +42,8 @@ import {
   castRefBodyTextObject,
   castRefButtonObject,
   castRefVectorObject,
+  castRefModuleObject,
+  castRefWingObject,
 } from "./objects";
 
 // Element Schemas (The Glass House)
@@ -119,4 +121,6 @@ export const schemaTypes = [
   castRefBodyTextObject,
   castRefButtonObject,
   castRefVectorObject,
+  castRefModuleObject,
+  castRefWingObject,
 ];

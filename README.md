@@ -1,190 +1,106 @@
 # The Glass House
 
-**The Glass House** is a next-generation modular page composition system for building sophisticated, interactive web experiences.  
-It combines a CMS-first approach (Sanity), modern frontend (Next.js), and a unique, hierarchical architecture that empowers both developers and content editors to create anything from simple portfolios to immersive, app-like sites—without redeploys.
+The Glass House is my antidote to the “design → dev → content → repeat” relay race. Instead of juggling files, comments, and last-minute margin tweaks, everyone works on the same living pages. The project is still in active development. No public license yet, but the vision is clear: keep creativity flowing, keep handoffs minimal, and keep tech headaches to a dull buzz.
+
+Designs still start in Figma; they simply land here without the usual gymnastics.
 
 ---
 
-## System Architecture
+## Why It Exists
 
-The Glass House is built on a flexible, five-layer architecture:
+1. A designer perfects a layout in Figma.
+2. A developer squints at that layout and turns it into code.
+3. The content team waits their turn, then begs for tiny changes.
+4. Every tweak restarts the cycle.
 
-```
-Blueprints → Scaffolds → Wings → Modules → Elements
-```
-
-- **Blueprints:** Define what a page is, its route, and content source (e.g. blog post, landing page, error page).
-- **Scaffolds:** Control the overall layout and spatial behavior (vertical stack, horizontal scroll, viewport step, etc).
-- **Wings:** Organize modules within a scaffold—think columns, carousels, or full-screen sections.
-- **Modules:** Reusable content blocks (galleries, forms, hero images, carousels, etc).
-- **Elements:** The smallest building blocks—text, images, buttons, and more—that modules are composed from.
-
-This hierarchy enables maximum flexibility, reusability, and editor control.
+Days vanish debating twelve-pixel paddings. The Glass House trims that fat. Designers, editors, and developers shape real pages in real time. Minus the ticket ping-pong.
 
 ---
 
-## Roadmap
+## The Five-Layer Stack
 
-**Phase 1: Foundation (In Progress)**
+| Layer          | Responsibility                                                                                                             |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Blueprints** | Routes, metadata, SEO, and page-level config.                                                                              |
+| **Scaffolds**  | Overall layout logic and scroll behavior.                                                                                  |
+| **Wings**      | Large page zones: columns, hero bands, full-screen sections.                                                               |
+| **Modules**    | Reusable blocks such as hero sections, galleries, or contact forms; includes _casting variables_ for fine-grained control. |
+| **Elements**   | Text, images, buttons, video. The smallest building pieces.                                                                |
 
-- [ ] **Element system:** In progress—building out a full library of elements (text, image, button, etc) with localization and accessibility
-- [x] Modular schema for Sanity Studio
-- [x] Secure authentication (NextAuth, Prisma)
-- [x] Basic modules (hero, gallery, text block)
-- [x] Theme and typography system
-
-**Phase 2: Core**
-
-- [ ] Wing and scaffold system for advanced layouts
-- [ ] Dynamic page blueprints (routing, slugs, collection sources)
-- [ ] Editor-friendly UI for composing pages
-
-**Phase 3: Advanced**
-
-- [ ] Interactive features (animations, scroll effects, parallax)
-- [ ] Advanced modules (forms, 3D, Lottie, etc)
-- [ ] Accessibility and performance enhancements
-
-**Phase 4: Editor**
-
-- [ ] Visual page builder interface
-- [ ] Live preview and drag-and-drop editing
-- [ ] Role-based access and collaboration
-
----
-
-### Project Standards
-
-- TypeScript everywhere, with strict type safety
-- Linting and formatting enforced (ESLint, Prettier)
-- Modular, maintainable, and well-documented code
-
----
+Each layer can override the one below it; flexibility without spaghetti.
 
 _See [STRUCTURE.md](./STRUCTURE.md) for a full technical breakdown of every layer and type in the system._
 
 ---
 
-## Core Philosophy
+## Current Highlights
 
-- CMS-first: structure and content are managed in Sanity, not hardcoded
-- Auth-ready: built-in credential login with secure hashing, rate limits, and middleware protection
-- Component-based: frontend blocks are modular and dynamically filled with content
-- Deployment-agnostic: Vercel-ready, but portable to any platform
-- Future-friendly: built with clean scripts and Prisma extensibility
+### Component Library in the Browser
 
----
+Grab a hero, drop a gallery, clone a content section. Everything updates instantly.
 
-## What's Included
+### Real-Time Layout Tweaks
 
-- Next.js 15+ with App Router, server components, Tailwind CSS
-- Sanity Studio v3 for content and layout management
-- Prisma for flexible, schema-driven auth and future user roles
-- Argon2 or bcrypt password hashing
-- JWT-based session handling
-- Rate-limited login with middleware protection
-- Full media support (images, videos, SVGs, 3D files)
+Drag margins, snap alignment guides, set breakpoints, adjust _casting variables_ on the fly. No more “bump it two pixels” commits.
 
----
+### Structured, Versioned, Localized
 
-## Getting Started
+All content fields are schema-validated, version-controlled, and ready for multiple languages out of the gate.
 
-1. Clone the repository
+### Collaboration Without Collisions
 
-   git clone https://github.com/your-username/the-glass-house.git
-   cd the-glass-house
+Multiple editors can work side by side. Live cursors, change history, and friendly conflict handling keep toes un-stepped-on.
 
-2. Install dependencies
+### Layout Experiments on the Fly
 
-   npm install
+Duplicate a page, rearrange modules, ship both versions, check the numbers.
 
-3. Set up your environment
+### Shared Styling Rules
 
-   Create a `.env.local` file and add values like:
+Colors, type scales, and spacing tokens live in one place; rogue styling stays out.
 
-   # Required for all environments
+### Glass Casting System
 
-   NEXT_PUBLIC_BASE_URL=http://localhost:3000  
-   SANITY_PROJECT_ID=your-sanity-project-id  
-   SANITY_DATASET=your-dataset-name  
-   SANITY_API_VERSION=2023-05-22  
-   SANITY_TOKEN=your-sanity-access-token  
-   NEXTAUTH_SECRET=your-random-string-at-least-32-characters
-   DATABASE_URL=your-database-connection-string
+Granular control over layout and positioning at every level. Each component exposes _casting variables_ that can be fine-tuned without touching code - width, height, alignment, spacing, transforms, and more.
 
-   Note: Your NEXTAUTH_SECRET should be a long, random string. Do not expose any values via NEXT_PUBLIC unless needed client-side.
+### Glass Localization with Accessibility Generation
 
-4. Run the development server
-
-   npm run dev
-
-5. Open in your browser
-   - Main site: http://localhost:3000
-   - CMS Studio: http://localhost:3000/studio (login required)
+Dynamic multi-language support that automatically generates ARIA labels, alt text, and accessibility attributes. Content is accessible by default, with computed fields that ensure compliance without manual intervention.
 
 ---
 
-## Authentication
+## Under the Hood
 
-- Auth is managed via NextAuth with a single admin account stored in the database
-- Passwords are hashed using Argon2 or Bcrypt
-- Sessions are JWT-based and scoped by middleware
-- Rate limiting is applied on login to prevent brute force
-- User creation is handled internally — no hardcoded users or env-based logins
-- You can later extend to multi-user access with Prisma if needed
+- **Backend:** Sanity CMS with custom schemas
+- **Frontend:** Next.js, React, and TypeScript
+- **Styles:** Tailwind paired with our own design tokens
+- **Data:** PostgreSQL via Prisma
+- **Auth:** NextAuth with role-based control
+- **Deploy:** Vercel for instantaneous previews and clean rollbacks
 
----
-
-## Deployment
-
-### Deploy to Vercel
-
-1. Connect your GitHub repo to Vercel
-2. Add the required environment variables in the Vercel dashboard
-3. Trigger a deploy or run locally via CLI:
-
-   npm run deploy
-
-4. Once deployed, log in at /login, and manage content at /studio
-
-### Self-host or Netlify
-
-1. Make sure Node 18+ is installed
-2. Set the same environment variables locally or in your host's dashboard
-3. Build and start your app:
-
-   npm run build  
-   npm run start
+Everything is API-first, fully typed, and open for extension. Plugging in a custom module feels like adding batteries, not rewiring the house.
 
 ---
 
-## Available Scripts
+## Roadmap
 
-- `dev` – Starts the local development server (custom entry via src/lib/dev.ts)
-- `build` – Runs `prisma generate` and builds the Next.js app
-- `start` – Runs the Next.js production server
-- `lint` – Runs Next.js's built-in linter
-- `type-check` – Runs TypeScript type checking only
-- `setup` – Initializes an admin user in the database via CLI
-- `deploy` – Deploys the app to Vercel production
-- `deploy:preview` – Deploys the app to a Vercel preview environment
+| Phase                             | Goal                          | Details                                                                                                                         | Status         |
+| --------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| **1. Backend Bootstrapping**      | Get the engine running        | Finalize schemas, auth, localization, versioning, and expose clean APIs.                                                        | 🚧 in progress |
+| **2. Frontend Assembly**          | Make pages actually render    | Build scaffolds, wings, modules, and elements in Next.js. Connect them to the backend and publish a real site.                  | queued         |
+| **3. Visual Editor & SDK (Beta)** | Hand the controls to everyone | Ship a drag-and-drop editor, live preview canvas, alignment helpers, and an SDK for third-party components; open a closed beta. | future         |
 
 ---
 
-## Suggested Use Cases
+## Who Wins
 
-- Developer portfolio with rich case study content
-- AI-powered tools like VAELD with CMS-controlled UI
-- Internal dashboards or gated tools
-- Launchpad for new SaaS or product sites
-
----
-
-## License
-
-This project is currently unlicensed and under active development.  
-For reuse or contribution, contact Luka Gray directly.
+- **Content Teams:** Publish in hours, not sprints.
+- **Designers:** Keep your system intact. No endless handoff docs.
+- **Developers:** Build components once; stop babysitting margin tweaks. Strong typing means fewer “works on my machine” mysteries.
+- **Stakeholders:** Faster launches, lower costs, fewer headaches.
 
 ---
 
-Maintained by Luka Gray.
+## Access
+
+The Glass House is not public yet. We are still sanding rough edges. If you want to peek under the hood, reach out to Luka Gray. Early feedback is appreciated; patience is a must.

@@ -14,7 +14,6 @@ export async function getLatestCommit() {
           Accept: "application/vnd.github.v3+json",
           "User-Agent": "the-glass-house-app",
         },
-        next: { revalidate: 3600 },
       },
     );
 

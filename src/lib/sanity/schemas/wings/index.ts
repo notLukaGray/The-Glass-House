@@ -1,11 +1,11 @@
 // Wings index - export all wing schemas
-export { wingsFullScreen } from "./wingsFullScreen";
 export { createBaseWingSchema } from "./baseWingSchema";
 export { createCastingWingSchema } from "./castingWingSchema";
+export { wingsTestCasting } from "./wingsTestCasting";
 
 // Export all wings as an array
-import { wingsFullScreen } from "./wingsFullScreen";
+import { wingsTestCasting } from "./wingsTestCasting";
 
-export const wings = [wingsFullScreen];
+export const wings = [wingsTestCasting];
 
 export default wings;

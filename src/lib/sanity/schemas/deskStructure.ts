@@ -102,6 +102,13 @@ const deskStructure = (S: StructureBuilder) =>
                     "Hero Image Modules",
                   ),
                 ),
+              S.listItem()
+                .title("Test Casting Modules")
+                .child(
+                  S.documentTypeList("moduleTestCasting").title(
+                    "Test Casting Modules",
+                  ),
+                ),
             ]),
         ),
 
@@ -113,10 +120,10 @@ const deskStructure = (S: StructureBuilder) =>
             .title("Wings")
             .items([
               S.listItem()
-                .title("Full Screen Wings")
+                .title("Test Casting Wings")
                 .child(
-                  S.documentTypeList("wingsFullScreen").title(
-                    "Full Screen Wings",
+                  S.documentTypeList("wingsTestCasting").title(
+                    "Test Casting Wings",
                   ),
                 ),
             ]),
@@ -130,10 +137,10 @@ const deskStructure = (S: StructureBuilder) =>
             .title("Scaffolds")
             .items([
               S.listItem()
-                .title("Fixed Shell Scaffolds")
+                .title("Test Casting Scaffolds")
                 .child(
-                  S.documentTypeList("scaffoldFixedShell").title(
-                    "Fixed Shell Scaffolds",
+                  S.documentTypeList("scaffoldTestCasting").title(
+                    "Test Casting Scaffolds",
                   ),
                 ),
             ]),

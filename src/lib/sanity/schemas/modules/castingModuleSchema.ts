@@ -1,6 +1,11 @@
-// Casting mechanics for modules - how wings should treat/display modules
+import { createCastingFields } from "../objects/sharedCastingFields";
 
-export const castingFields = [
+// Casting mechanics for modules - how wings should treat/display modules
+// Using the new modular casting system
+export const castingFields = createCastingFields("module");
+
+// Legacy casting fields for backward compatibility (deprecated)
+export const legacyCastingFields = [
   // Wing Requirements
   {
     name: "alignment",

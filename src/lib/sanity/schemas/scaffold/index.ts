@@ -1,5 +1,10 @@
-import scaffoldFixedShell from "./scaffoldFixedShell";
+// Scaffold index - export all scaffold schemas
+export { createBaseScaffoldSchema } from "./baseScaffoldSchema";
+export { scaffoldTestCasting } from "./scaffoldTestCasting";
 
-export const scaffoldSchemas = [scaffoldFixedShell];
+// Export all scaffolds as an array
+import { scaffoldTestCasting } from "./scaffoldTestCasting";
 
-export default scaffoldSchemas;
+export const scaffolds = [scaffoldTestCasting];
+
+export default scaffolds;

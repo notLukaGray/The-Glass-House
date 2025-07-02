@@ -2,31 +2,21 @@ import { Rule } from "@sanity/types";
 import CastRefInput from "../../components/CastRefInput";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
 import { createLocalizedComputedFields } from "../../utils/localizationUtils";
+import { createCastingFields } from "../objects/sharedCastingFields";
 
 // Base module schema - basic information every module needs
 export const createBaseModuleSchema = (
   moduleName: string,
   moduleTitle: string,
   additionalFields: unknown[] = [],
-  castingFields?: unknown[],
 ) => {
+  // Use the new modular casting system (currently hidden from UI)
+  // const defaultCastingFields = createCastingFields("module");
+  // const castingFields = customCastingFields || defaultCastingFields;
+
   const fields = [
     // Additional fields
     ...additionalFields,
-    // Optionally add casting config
-    ...(castingFields && castingFields.length > 0
-      ? [
-          {
-            name: "casting",
-            title: "Casting Variables",
-            type: "object",
-            fields: castingFields,
-            options: { collapsible: true, collapsed: true },
-            description:
-              "Which layout/wing variables this module exposes to wings.",
-          },
-        ]
-      : []),
     // Module metadata (common to all modules)
     {
       name: "moduleType",
@@ -160,7 +150,9 @@ export function createRefWithCastingField({
       {
         name: "casting",
         type: "object",
-        fields: [],
+        fields: createCastingFields("element"),
+        description:
+          "Positioning and layout for this element within the module",
       },
     ],
     components: { input: CastRefInput },
