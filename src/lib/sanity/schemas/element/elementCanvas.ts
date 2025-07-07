@@ -117,4 +117,181 @@ export const elementCanvas = {
   },
 };
 
+export const elementCanvasCastingFields = [
+  {
+    name: "sizeAndPosition",
+    title: "Size & Position",
+    type: "object",
+    fields: [
+      {
+        name: "width",
+        title: "Width",
+        type: "object",
+        fields: [
+          { name: "value", title: "Value", type: "number" },
+          {
+            name: "unit",
+            title: "Unit",
+            type: "string",
+            options: {
+              list: [
+                { title: "px", value: "px" },
+                { title: "%", value: "%" },
+              ],
+            },
+            initialValue: "px",
+          },
+        ],
+      },
+      {
+        name: "height",
+        title: "Height",
+        type: "object",
+        fields: [
+          { name: "value", title: "Value", type: "number" },
+          {
+            name: "unit",
+            title: "Unit",
+            type: "string",
+            options: {
+              list: [
+                { title: "px", value: "px" },
+                { title: "%", value: "%" },
+              ],
+            },
+            initialValue: "px",
+          },
+        ],
+      },
+      {
+        name: "position",
+        title: "Position",
+        type: "object",
+        fields: [
+          {
+            name: "x",
+            title: "X",
+            type: "object",
+            fields: [
+              { name: "value", title: "Value", type: "number" },
+              {
+                name: "unit",
+                title: "Unit",
+                type: "string",
+                options: {
+                  list: [
+                    { title: "px", value: "px" },
+                    { title: "%", value: "%" },
+                  ],
+                },
+                initialValue: "px",
+              },
+            ],
+          },
+          {
+            name: "y",
+            title: "Y",
+            type: "object",
+            fields: [
+              { name: "value", title: "Value", type: "number" },
+              {
+                name: "unit",
+                title: "Unit",
+                type: "string",
+                options: {
+                  list: [
+                    { title: "px", value: "px" },
+                    { title: "%", value: "%" },
+                  ],
+                },
+                initialValue: "px",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "aspectRatioLock",
+        title: "Aspect Ratio Lock",
+        type: "boolean",
+        initialValue: false,
+      },
+      {
+        name: "rotation",
+        title: "Rotation",
+        type: "number",
+        min: -360,
+        max: 360,
+        step: 1,
+        initialValue: 0,
+      },
+      {
+        name: "scale",
+        title: "Scale",
+        type: "number",
+        initialValue: 1.0,
+        description: "Uniform scale (1.0 = 100%)",
+      },
+      {
+        name: "alignment",
+        title: "Alignment",
+        type: "string",
+        options: {
+          list: [
+            { title: "Top Left", value: "top-left" },
+            { title: "Top Center", value: "top-center" },
+            { title: "Top Right", value: "top-right" },
+            { title: "Center Left", value: "center-left" },
+            { title: "Center", value: "center" },
+            { title: "Center Right", value: "center-right" },
+            { title: "Bottom Left", value: "bottom-left" },
+            { title: "Bottom Center", value: "bottom-center" },
+            { title: "Bottom Right", value: "bottom-right" },
+          ],
+        },
+        initialValue: "center",
+      },
+    ],
+  },
+  // Display & Transform Segment
+  {
+    name: "displayAndTransform",
+    title: "Display & Transform",
+    type: "object",
+    fields: [
+      {
+        name: "opacity",
+        title: "Opacity",
+        type: "number",
+        min: 0,
+        max: 100,
+        step: 1,
+        initialValue: 100,
+        description: "Opacity percentage (0-100)",
+      },
+      {
+        name: "flipHorizontal",
+        title: "Flip Horizontal",
+        type: "boolean",
+        initialValue: false,
+        description: "Flip canvas horizontally",
+      },
+      {
+        name: "flipVertical",
+        title: "Flip Vertical",
+        type: "boolean",
+        initialValue: false,
+        description: "Flip canvas vertically",
+      },
+      {
+        name: "zIndex",
+        title: "Z-Index",
+        type: "number",
+        initialValue: 0,
+        description: "Stacking order",
+      },
+    ],
+  },
+];
+
 export default elementCanvas;

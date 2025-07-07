@@ -15,6 +15,8 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest --run",
+    "test:integration": "INTEGRATION_TESTS=true vitest --run vitest/api/elements.integration.test.ts",
+    "test:unit": "vitest --run --exclude=**/*.integration.test.ts",
     "setup": "npx tsx src/lib/db/cli.ts setup-admin",
     "studio": "prisma studio",
     "deploy": "vercel --prod",

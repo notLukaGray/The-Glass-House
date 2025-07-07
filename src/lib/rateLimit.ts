@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 // Simple in-memory store for rate limiting
 // In production, consider using a more persistent solution
@@ -108,4 +109,116 @@ export function cleanupRateLimitStore(maxAgeMs: number = 60 * 60 * 1000): void {
 // Run cleanup every hour
 if (typeof setInterval !== "undefined") {
   setInterval(cleanupRateLimitStore, 60 * 60 * 1000);
+}
+
+// In-memory rate limiter with LRU cache for development
+// In production, consider using Redis for distributed rate limiting
+class RateLimiter {
+  private cache = new Map<string, { count: number; resetTime: number }>();
+  private readonly windowMs: number;
+  private readonly maxRequests: number;
+
+  constructor(windowMs: number = 60000, maxRequests: number = 120) {
+    this.windowMs = windowMs;
+    this.maxRequests = maxRequests;
+  }
+
+  private getKey(request: NextRequest): string {
+    // Use IP address as the key
+    const forwarded = request.headers.get("x-forwarded-for");
+    const realIp = request.headers.get("x-real-ip");
+    const ip = forwarded ? forwarded.split(",")[0] : realIp || "unknown";
+    return `rate_limit:${ip}`;
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [key, value] of this.cache.entries()) {
+      if (now > value.resetTime) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  isRateLimited(request: NextRequest): boolean {
+    this.cleanup();
+
+    const key = this.getKey(request);
+    const now = Date.now();
+
+    const current = this.cache.get(key);
+
+    if (!current || now > current.resetTime) {
+      // First request or window expired
+      this.cache.set(key, {
+        count: 1,
+        resetTime: now + this.windowMs,
+      });
+      return false;
+    }
+
+    if (current.count >= this.maxRequests) {
+      return true;
+    }
+
+    // Increment count
+    current.count++;
+    this.cache.set(key, current);
+    return false;
+  }
+
+  getRemainingRequests(request: NextRequest): number {
+    const key = this.getKey(request);
+    const current = this.cache.get(key);
+
+    if (!current) {
+      return this.maxRequests;
+    }
+
+    return Math.max(0, this.maxRequests - current.count);
+  }
+
+  getResetTime(request: NextRequest): number {
+    const key = this.getKey(request);
+    const current = this.cache.get(key);
+
+    return current?.resetTime || Date.now() + this.windowMs;
+  }
+}
+
+// Liberal rate limiter: 120 requests per minute (2 per second average)
+const publicRateLimiter = new RateLimiter(60000, 120);
+
+export async function checkRateLimit(request: NextRequest): Promise<{
+  isLimited: boolean;
+  remaining: number;
+  resetTime: number;
+}> {
+  // Skip rate limiting for admin users
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  if (token?.role === "admin") {
+    return {
+      isLimited: false,
+      remaining: Infinity,
+      resetTime: Date.now(),
+    };
+  }
+
+  const isLimited = publicRateLimiter.isRateLimited(request);
+  const remaining = publicRateLimiter.getRemainingRequests(request);
+  const resetTime = publicRateLimiter.getResetTime(request);
+
+  return { isLimited, remaining, resetTime };
+}
+
+export function createRateLimitHeaders(remaining: number, resetTime: number) {
+  return {
+    "X-RateLimit-Remaining": remaining.toString(),
+    "X-RateLimit-Reset": new Date(resetTime).toISOString(),
+    "X-RateLimit-Limit": "120",
+  };
 }

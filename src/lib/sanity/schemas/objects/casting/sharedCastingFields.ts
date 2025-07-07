@@ -242,6 +242,208 @@ export const parentPositioningFields = [
   },
 ];
 
+// Theme token fields for styling
+export const themeTokenFields = [
+  {
+    name: "themeToken",
+    type: "string",
+    options: {
+      list: [
+        { title: "Primary Color", value: "primary" },
+        { title: "Secondary Color", value: "secondary" },
+        { title: "Accent Color", value: "accent" },
+        { title: "Text Primary", value: "text-primary" },
+        { title: "Text Secondary", value: "text-secondary" },
+        { title: "Background Primary", value: "bg-primary" },
+        { title: "Background Secondary", value: "bg-secondary" },
+        { title: "Border Primary", value: "border-primary" },
+        { title: "Border Secondary", value: "border-secondary" },
+        { title: "Typography Heading", value: "typography-heading" },
+        { title: "Typography Body", value: "typography-body" },
+        { title: "Typography Caption", value: "typography-caption" },
+        { title: "Spacing Small", value: "spacing-small" },
+        { title: "Spacing Medium", value: "spacing-medium" },
+        { title: "Spacing Large", value: "spacing-large" },
+        { title: "Custom", value: "custom" },
+      ],
+    },
+    description: "Reference to theme styling like colors or typography",
+  },
+  {
+    name: "customThemeToken",
+    type: "string",
+    description: "Custom theme token value when themeToken is set to custom",
+    hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+      parent?.themeToken !== "custom",
+  },
+];
+
+// Responsive casting fields for breakpoint-specific behavior
+export const responsiveCastingFields = [
+  {
+    name: "mobile",
+    title: "Mobile (< 768px)",
+    type: "object",
+    fields: [
+      {
+        name: "display",
+        title: "Display",
+        type: "string",
+        options: {
+          list: [
+            { title: "Show", value: "show" },
+            { title: "Hide", value: "hide" },
+            { title: "Collapse", value: "collapse" },
+          ],
+        },
+        initialValue: "show",
+      },
+      {
+        name: "width",
+        title: "Width",
+        type: "string",
+        options: {
+          list: [
+            { title: "Auto", value: "auto" },
+            { title: "Full Width", value: "100%" },
+            { title: "Half Width", value: "50%" },
+            { title: "Third Width", value: "33.333%" },
+            { title: "Quarter Width", value: "25%" },
+            { title: "Custom", value: "custom" },
+          ],
+        },
+        initialValue: "auto",
+      },
+      {
+        name: "customWidth",
+        title: "Custom Width",
+        type: "string",
+        description: "Custom width value (e.g., '200px', '75%')",
+        hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+          parent?.width !== "custom",
+      },
+      {
+        name: "opacity",
+        title: "Opacity",
+        type: "number",
+        min: 0,
+        max: 100,
+        step: 1,
+        initialValue: 100,
+        description: "Opacity percentage (0-100)",
+      },
+    ],
+  },
+  {
+    name: "tablet",
+    title: "Tablet (768px - 1024px)",
+    type: "object",
+    fields: [
+      {
+        name: "display",
+        title: "Display",
+        type: "string",
+        options: {
+          list: [
+            { title: "Show", value: "show" },
+            { title: "Hide", value: "hide" },
+            { title: "Collapse", value: "collapse" },
+          ],
+        },
+        initialValue: "show",
+      },
+      {
+        name: "width",
+        title: "Width",
+        type: "string",
+        options: {
+          list: [
+            { title: "Auto", value: "auto" },
+            { title: "Full Width", value: "100%" },
+            { title: "Half Width", value: "50%" },
+            { title: "Third Width", value: "33.333%" },
+            { title: "Quarter Width", value: "25%" },
+            { title: "Custom", value: "custom" },
+          ],
+        },
+        initialValue: "auto",
+      },
+      {
+        name: "customWidth",
+        title: "Custom Width",
+        type: "string",
+        description: "Custom width value (e.g., '200px', '75%')",
+        hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+          parent?.width !== "custom",
+      },
+      {
+        name: "opacity",
+        title: "Opacity",
+        type: "number",
+        min: 0,
+        max: 100,
+        step: 1,
+        initialValue: 100,
+        description: "Opacity percentage (0-100)",
+      },
+    ],
+  },
+  {
+    name: "desktop",
+    title: "Desktop (> 1024px)",
+    type: "object",
+    fields: [
+      {
+        name: "display",
+        title: "Display",
+        type: "string",
+        options: {
+          list: [
+            { title: "Show", value: "show" },
+            { title: "Hide", value: "hide" },
+            { title: "Collapse", value: "collapse" },
+          ],
+        },
+        initialValue: "show",
+      },
+      {
+        name: "width",
+        title: "Width",
+        type: "string",
+        options: {
+          list: [
+            { title: "Auto", value: "auto" },
+            { title: "Full Width", value: "100%" },
+            { title: "Half Width", value: "50%" },
+            { title: "Third Width", value: "33.333%" },
+            { title: "Quarter Width", value: "25%" },
+            { title: "Custom", value: "custom" },
+          ],
+        },
+        initialValue: "auto",
+      },
+      {
+        name: "customWidth",
+        title: "Custom Width",
+        type: "string",
+        description: "Custom width value (e.g., '200px', '75%')",
+        hidden: ({ parent }: { parent: Record<string, unknown> }) =>
+          parent?.width !== "custom",
+      },
+      {
+        name: "opacity",
+        title: "Opacity",
+        type: "number",
+        min: 0,
+        max: 100,
+        step: 1,
+        initialValue: 100,
+        description: "Opacity percentage (0-100)",
+      },
+    ],
+  },
+];
+
 // Advanced casting fields for complex layouts
 export const advancedCastingFields = [
   {
@@ -308,6 +510,20 @@ export const createCastingFields = (
     name: "displayAndTransform",
     type: "object",
     fields: displayAndTransformFields,
+  });
+
+  // All levels get theme tokens
+  fields.push({
+    name: "themeTokens",
+    type: "object",
+    fields: themeTokenFields,
+  });
+
+  // All levels get responsive behavior
+  fields.push({
+    name: "responsive",
+    type: "object",
+    fields: responsiveCastingFields,
   });
 
   // Modules, wings, and scaffolds get layout composition

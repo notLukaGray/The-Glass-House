@@ -756,9 +756,9 @@ Unique identifier used for referencing or linking elements.
 
 Flag for debugging visibility or test logging.
 
-#### **dataBinding**
+#### **casting**
 
-Connects the element's value or content to structured data.
+Visual positioning and styling system for elements (replaces dataBinding).
 
 #### **responsiveRules**
 

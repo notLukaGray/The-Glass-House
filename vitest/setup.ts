@@ -51,9 +51,46 @@ vi.mock("next/link", () => ({
   },
 }));
 
+// Shared API mocks
+vi.mock("@/lib/api/client", () => ({
+  elementApiClient: {
+    getElementsByType: vi.fn(),
+    getElementById: vi.fn(),
+    createElement: vi.fn(),
+    updateElement: vi.fn(),
+    deleteElement: vi.fn(),
+    searchElements: vi.fn(),
+    getElementTypes: vi.fn(),
+    getElementStats: vi.fn(),
+    bulkCreateElements: vi.fn(),
+    bulkUpdateElements: vi.fn(),
+    bulkDeleteElements: vi.fn(),
+  },
+}));
+
+// Mock NextAuth
+vi.mock("next-auth", () => ({
+  getServerSession: vi.fn(),
+}));
+
+// Mock rate limiting
+vi.mock("@/lib/rateLimit", () => ({
+  checkRateLimit: vi.fn(() => ({
+    isLimited: false,
+    remaining: 100,
+    resetTime: Date.now() + 60000,
+  })),
+  createRateLimitHeaders: vi.fn(() => ({
+    "X-RateLimit-Limit": "100",
+    "X-RateLimit-Remaining": "99",
+    "X-RateLimit-Reset": (Date.now() + 60000).toString(),
+  })),
+}));
+
 // Clean up after each test
 afterEach(() => {
   cleanup();
+  vi.clearAllMocks();
 });
 
 // Global test setup

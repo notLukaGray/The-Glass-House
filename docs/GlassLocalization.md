@@ -1,37 +1,39 @@
-# Glass Localization System - Simplified
+# Glass Localization System
 
-## Overview
+## The Foundation-Driven Approach
 
-The Glass House system now uses **3 simple localization field types** that adapt to your Foundation settings. No more confusion with multiple overlapping field types!
+Look, traditional CMS localization is a mess. You add a language, you update schemas, you break existing content. Not here. The Glass House uses a **foundation-driven system** that dynamically generates language fields based on your Foundation settings. Add Spanish? Boom, all your fields get Spanish versions. Remove French? Gone. No schema changes, no migrations, no headaches.
 
-## The 3 Field Types
+## The Three Field Types (That's It)
 
-### 1. `glassLocaleString` - Single Line Text
+### `glassLocaleString` - Single Line
 
-- **Use for**: Titles, labels, button text, short content
-- **Example**: Page titles, navigation labels, alt text
-- **Data structure**: `{ en: "Hello", es: "Hola" }`
+**For**: Titles, labels, button text  
+**Data**: `{ en: "Hello", es: "Hola" }`  
+**Use it**: When you need one line of text. Don't overthink it.
 
-### 2. `glassLocaleText` - Multi-Line Text
+### `glassLocaleText` - Multi-Line
 
-- **Use for**: Descriptions, captions, longer content
-- **Example**: Page descriptions, image captions, meta descriptions
-- **Data structure**: `{ en: "Long description...", es: "Descripción larga..." }`
+**For**: Descriptions, captions, longer content  
+**Data**: `{ en: "Long description...", es: "Descripción larga..." }`  
+**Use it**: When you need paragraphs. Still simple.
 
-### 3. `glassLocaleRichText` - Rich Text
+### `glassLocaleRichText` - Rich Text
 
-- **Use for**: Formatted content, articles, complex text
-- **Example**: Article content, detailed descriptions with formatting
-- **Data structure**: `{ en: [{ _type: "block", children: [...] }], es: [...] }`
+**For**: Formatted content, articles  
+**Data**: `{ en: [{ _type: "block", children: [...] }], es: [...] }`  
+**Use it**: When you need formatting. Portable Text under the hood.
 
-## How It Works
+## How It Actually Works
 
-1. **Foundation-Driven**: Languages are configured in Foundation → Localization settings
-2. **Dynamic Fields**: Add/remove languages without schema changes
-3. **Unified Component**: All 3 field types use the same `GlassLocalizationInput` component
-4. **Auto-Generation**: ARIA labels and alt text are automatically generated
+1. **Foundation Config**: Languages live in Foundation → Localization
+2. **Dynamic Fields**: System reads your config, generates fields on the fly
+3. **Unified Component**: All three types use `GlassLocalizationInput` - one component, three behaviors
+4. **Auto-Generation**: ARIA labels, alt text - all computed automatically
 
-## Usage in Schemas
+## Schema Implementation
+
+### Creating Fields
 
 ```typescript
 import {
@@ -40,43 +42,130 @@ import {
   createLocalizedRichTextField
 } from "../utils/localizationUtils";
 
-// Single line text
+// Single line - required
 createLocalizedStringField("title", "Title", "Page title", "main", (rule) => rule.required()),
 
-// Multi-line text
+// Multi-line - optional
 createLocalizedTextField("description", "Description", "Page description", "main"),
 
-// Rich text
+// Rich text - for content
 createLocalizedRichTextField("content", "Content", "Article content", "content"),
+```
+
+### Field Structure
+
+Each field is just an object with language codes as keys:
+
+```typescript
+// Simple
+{
+  en: "Welcome to our site",
+  es: "Bienvenido a nuestro sitio"
+}
+
+// Rich text (Portable Text)
+{
+  en: [
+    {
+      _type: "block",
+      children: [{ _type: "span", text: "Rich content" }]
+    }
+  ],
+  es: [
+    {
+      _type: "block",
+      children: [{ _type: "span", text: "Contenido rico" }]
+    }
+  ]
+}
 ```
 
 ## Frontend Usage
 
+### Getting Content
+
 ```typescript
 import { getLocalizedContent } from "@/lib/frontend/helpers";
 
-// Get localized content
+// Get with fallback
 const title = getLocalizedContent(element.title, "es", "en");
 const description = getLocalizedContent(element.description, "es", "en");
 ```
 
-## What Was Removed
+The helper handles language matching, fallbacks, and null safety. Don't write your own.
 
-We cleaned up the confusing mess of overlapping field types:
+## Foundation Configuration
 
-- ❌ `glassLocalization` (generic, unused)
-- ❌ `localeString` (old, replaced)
-- ❌ `localeText` (old, replaced)
-- ❌ `dynamicLocaleString` (redundant)
+Languages are configured in Foundation → Localization:
 
-## What We Have Now
+```typescript
+{
+  additionalLanguages: [
+    {
+      code: "es",
+      name: "Spanish",
+      enabled: true,
+      direction: "ltr",
+    },
+    {
+      code: "fr",
+      name: "French",
+      enabled: true,
+      direction: "ltr",
+    },
+  ];
+}
+```
 
-- ✅ `glassLocaleString` - Single line text
-- ✅ `glassLocaleText` - Multi-line text
-- ✅ `glassLocaleRichText` - Rich text with formatting
+Add languages here, they appear everywhere. Remove them, they disappear. It's that simple.
 
-**That's it! Just 3 field types for all your localization needs.**
+## Auto-Generated Fields
+
+The system computes these automatically:
+
+- **ARIA Labels**: From titles and descriptions
+- **Alt Text**: For media elements
+- **Custom IDs**: From Sanity IDs if not provided
+
+You don't manage these. They just work.
+
+## Migration from the Old Mess
+
+We cleaned up the overlapping field types that were causing confusion:
+
+**Gone**: `glassLocalization`, `localeString`, `localeText`, `dynamicLocaleString`  
+**Here**: `glassLocaleString`, `glassLocaleText`, `glassLocaleRichText`
+
+Three field types. That's it. Deal with it.
+
+## Best Practices
+
+1. **English is base** - Always required, always fallback
+2. **Keep it concise** - Single-line fields should be single lines
+3. **Use the right type** - Don't use rich text for labels
+4. **Test with multiple languages** - Your UI needs to handle different text lengths
+5. **RTL support** - The system handles it, you just need to test it
+
+## Component Customization
+
+The `GlassLocalizationInput` component accepts options:
+
+```typescript
+{
+  type: "glassLocaleString",
+  components: { input: GlassLocalizationInput },
+  options: {
+    fieldType: "string", // "string" | "text" | "richText"
+    richTextOptions: {
+      styles: [...],
+      marks: {...}
+    }
+  }
+}
+```
+
+But honestly, the defaults work for 99% of cases.
 
 ---
 
-**The Glass Localization system is now simple, consistent, and easy to understand.**
+**The Glass Localization system eliminates the complexity of traditional CMS localization. Three field types, foundation-driven, auto-generated accessibility. Build your content, not your localization system.**

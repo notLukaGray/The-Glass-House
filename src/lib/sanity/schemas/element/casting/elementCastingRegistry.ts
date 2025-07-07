@@ -6,6 +6,7 @@ import { elementButtonCastingFields } from "../elementButton";
 import { elementSVGCastingFields } from "../elementSVG";
 import { elementDividerCastingFields } from "../elementDivider";
 import { elementWidgetCastingFields } from "../elementWidget";
+import { elementCanvasCastingFields } from "../elementCanvas";
 
 export const elementCastingRegistry: Record<string, unknown[]> = {
   elementTextSingleLine: elementTextSingleLineCastingFields,
@@ -16,5 +17,6 @@ export const elementCastingRegistry: Record<string, unknown[]> = {
   elementSVG: elementSVGCastingFields,
   elementDivider: elementDividerCastingFields,
   elementWidget: elementWidgetCastingFields,
+  elementCanvas: elementCanvasCastingFields,
   // Add more mappings as you create new elements
 };
