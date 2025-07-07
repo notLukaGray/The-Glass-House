@@ -1,10 +1,6 @@
-import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
+import { GlassLocalizationInput } from "../../../components/GlassLocalizationInput";
 import type { Rule } from "@sanity/types";
 
-/**
- * Glass Locale Text - Multi-line localization field
- * This field type generates language fields based on foundation settings
- */
 const glassLocaleText = {
   name: "glassLocaleText",
   type: "object",

@@ -1,4 +1,4 @@
-import { DynamicLocaleTextInput } from "../../components/DynamicLocaleTextInput";
+// import { DynamicLocaleTextInput } from "../../components/DynamicLocaleTextInput";
 
 const dynamicLocaleText = {
   name: "dynamicLocaleText",
@@ -6,7 +6,7 @@ const dynamicLocaleText = {
   title: "Dynamic Localized Text",
   fields: [{ name: "en", type: "text", title: "English" }],
   components: {
-    input: DynamicLocaleTextInput,
+    // input: DynamicLocaleTextInput,
   },
 };
 

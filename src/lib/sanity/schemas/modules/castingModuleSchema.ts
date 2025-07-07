@@ -1,4 +1,4 @@
-import { createCastingFields } from "../objects/sharedCastingFields";
+import { createCastingFields } from "../objects/casting/sharedCastingFields";
 
 // Casting mechanics for modules - how wings should treat/display modules
 // Using the new modular casting system

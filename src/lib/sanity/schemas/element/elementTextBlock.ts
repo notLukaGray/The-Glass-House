@@ -2,7 +2,10 @@ import { createBaseElementSchema } from "./baseElementSchema";
 import { createLocalizedTextField } from "../../utils/localizationUtils";
 import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
-import { typographyObject, typographyFieldset } from "../objects/typography";
+import {
+  typographyObject,
+  typographyFieldset,
+} from "../objects/core/typography";
 
 const base = createBaseElementSchema(
   "elementTextBlock",

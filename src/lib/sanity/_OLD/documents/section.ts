@@ -1,5 +1,5 @@
 import { Rule } from "@sanity/types";
-import pageSections from "../objects/pageSections";
+// import pageSections from "../objects/pageSections";
 
 const section = {
   name: "section",
@@ -18,7 +18,8 @@ const section = {
       name: "content",
       title: "Section Content",
       type: "array",
-      of: pageSections.map((s: { name: string }) => ({ type: s.name })),
+      // of: pageSections.map((s: { name: string }) => ({ type: s.name })),
+      of: [{ type: "string" }], // Placeholder - pageSections moved to _OLD
       validation: (rule: Rule) => rule.required().min(1),
     },
     {

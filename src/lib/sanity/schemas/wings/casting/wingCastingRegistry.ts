@@ -1,4 +1,4 @@
-import { createCastingFields } from "../../objects/sharedCastingFields";
+import { createCastingFields } from "../../objects/casting/sharedCastingFields";
 
 export const wingCastingRegistry: Record<string, unknown[]> = {
   wingsTestCasting: createCastingFields("wing"),

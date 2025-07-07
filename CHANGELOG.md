@@ -2,6 +2,83 @@
 
 This file lists the main changes and improvements to The Glass House. It's here so you can see what's new, what's fixed, and what's changed over time.
 
+## 2025-07-07
+
+### Major Feature: Schema Architecture Restructuring
+
+**BREAKING CHANGE**: Complete reorganization of Sanity schema structure with enhanced functionality and modular organization
+
+_Finally organized this mess instead of letting it rot in a pile of spaghetti. Color me impressed._
+
+#### New Element Schemas Added:
+
+- **`element3D.ts`**: 3D model viewer supporting GLB, GLTF, OBJ formats with camera controls and performance options
+- **`elementAudio.ts`**: Audio player with autoplay, controls, loop, and muted functionality _(Because nothing says "professional portfolio" like autoplaying audio)_
+- **`elementCanvas.ts`**: Canvas element for embedding HTML canvas content with responsive sizing
+- **`elementDivider.ts`**: Divider element with multiple styles (solid, dashed, dotted, custom SVG) and spacing controls _(Finally, a way to separate content without it looking like I drew it)_
+- **`elementWidget.ts`**: Widget element for API integrations (currently GitHub) with refresh intervals
+
+#### New Module Schemas Added:
+
+- **`moduleDynamicBackground.ts`**: Dynamic background module with dot grid patterns, performance configurations, and blend modes
+- **`moduleImage.ts`**: Image-focused module with casting variables for content management
+- **`moduleTextBlock.ts`**: Text module for headlines and body text with casting support
+
+#### New Object Schemas and Organization:
+
+- **`sharedCastingFields.ts`**: Centralized casting fields for positioning, styling, and layout composition
+- **Video Objects**: Three separate implementations for video handling (embed, CDN, direct)
+- **Module Objects**: Background configurations (`objectModuleDynamicBackgroundDotGrid.ts`) and GitHub widget (`objectModuleWidgetGithub.ts`)
+- **Core Objects**: Reorganized into subdirectories (seo.ts, typography.ts, orderableDocumentList.ts, metaCoreFields.ts)
+- **Glass Localization**: Moved to organized subdirectories (glassLocaleString.ts, glassLocaleText.ts, glassLocaleRichText.ts)
+- **Element Objects**: Video handling objects (objectElementVideoEmbed.ts, objectElementVideoCDN.ts, objectElementVideoDirect.ts)
+
+#### New Utility:
+
+- **`moduleUtils.ts`**: Utility functions for module field mapping and type detection
+
+#### Schema Organization Changes:
+
+- **`src/lib/sanity/schemas/index.ts`**: Reorganized imports, removed legacy schemas, added new functionality
+- **`src/lib/sanity/schemas/element/index.ts`**: Added new element exports (video, divider, widget, audio, 3D, canvas)
+- **`src/lib/sanity/schemas/modules/index.ts`**: Added new modules, removed test module
+- **`src/lib/sanity/schemas/objects/index.ts`**: Reorganized object structure and added new exports
+
+#### Casting System Updates:
+
+- **`elementCastingRegistry.ts`**: Added casting fields for new elements (divider, widget)
+- **`moduleCastingRegistry.ts`**: Updated for new modules
+- **`wingCastingRegistry.ts`**: Updated casting references
+
+#### API and Documentation Updates:
+
+- **`src/app/api/content/elements/route.ts`**: Added elementWidget to query list
+- **`STRUCTURE.md`**: Removed form input elements, now implemented as object types within form modules
+
+#### Files Moved to `_OLD` Directory:
+
+- All asset schemas (model3d.ts, photo.ts, svg.ts, video.ts) _(Apparently these weren't working anyway)_
+- All document schemas (about.ts, author.ts, blog.ts, category.ts, etc.)
+- Page section schemas (avatarSection.ts, buttonRowSection.ts, etc.)
+- Legacy utility files (autoGeneration.ts, castingUtils.ts, localization.ts) _(All probably broken)_
+
+#### Files Completely Removed:
+
+- **`moduleTestCasting.ts`**: Test module removed _(At least I'm cleaning up after myself)_
+- **`src/lib/types/portfolio.ts`**: ResolvedSection type removed (now empty file) _(Symbolic of the previous architecture)_
+
+#### Architectural Improvements:
+
+- **Modular Organization**: Schemas organized into logical subdirectories (core/, glass/, element/, module/)
+- **Enhanced Media Support**: 3D models, audio, canvas, dynamic backgrounds
+- **API Integration**: GitHub integration through widget elements
+- **Performance Features**: Dynamic backgrounds with performance configuration
+- **Cleaner Form Handling**: Object-based approach instead of individual form elements
+
+This restructuring maintains backward compatibility while adding substantial new capabilities and improving code organization. The new architecture provides better maintainability and extensibility for future development.
+
+_At least I didn't break everything in the process._
+
 ## 2025-07-02
 
 ### Major Fix: Computed Fields System Overhaul

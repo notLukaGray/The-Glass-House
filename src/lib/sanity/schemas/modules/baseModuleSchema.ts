@@ -1,13 +1,19 @@
 import { Rule } from "@sanity/types";
 import CastRefInput from "../../components/CastRefInput";
 import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
-import { createLocalizedComputedFields } from "../../utils/localizationUtils";
-import { createCastingFields } from "../objects/sharedCastingFields";
+import {
+  createLocalizedComputedFields,
+  createLocalizedStringField,
+} from "../../utils/localizationUtils";
+import { createCastingFields } from "../objects/casting/sharedCastingFields";
+import { mapModuleFields } from "../../utils/moduleUtils";
+import { SanityField } from "../../types";
 
 // Base module schema - basic information every module needs
 export const createBaseModuleSchema = (
   moduleName: string,
   moduleTitle: string,
+  moduleType: string,
   additionalFields: unknown[] = [],
 ) => {
   // Use the new modular casting system (currently hidden from UI)
@@ -15,9 +21,7 @@ export const createBaseModuleSchema = (
   // const castingFields = customCastingFields || defaultCastingFields;
 
   const fields = [
-    // Additional fields
-    ...additionalFields,
-    // Module metadata (common to all modules)
+    // Module metadata (common to all modules) - ALWAYS FIRST
     {
       name: "moduleType",
       title: "Module Type",
@@ -27,21 +31,20 @@ export const createBaseModuleSchema = (
       hidden: true,
       fieldset: "metadata",
     },
-    {
-      name: "title",
-      title: "Module Title",
-      type: "string",
-      description: "Internal title for this module",
-      fieldset: "metadata",
-      validation: (rule: Rule) => rule.required(),
-    },
-    {
-      name: "description",
-      title: "Module Description",
-      type: "text",
-      description: "Brief description of what this module does",
-      fieldset: "metadata",
-    },
+    // Localized title and description
+    createLocalizedStringField(
+      "title",
+      "Module Title",
+      "Internal title for this module",
+      "metadata",
+      (rule: Rule) => rule.required(),
+    ),
+    createLocalizedStringField(
+      "description",
+      "Module Description",
+      "Brief description of what this module does",
+      "metadata",
+    ),
     {
       name: "tags",
       title: "Tags",
@@ -50,6 +53,9 @@ export const createBaseModuleSchema = (
       description: "Tags for categorizing and filtering modules",
       fieldset: "metadata",
     },
+    // Additional fields (module-specific content)
+    ...additionalFields,
+    // Advanced fields (always last)
     {
       name: "debug",
       title: "Debug Mode",
@@ -64,7 +70,8 @@ export const createBaseModuleSchema = (
       type: "object",
       fieldset: "advanced",
       options: {
-        elementType: "module",
+        elementType: moduleType, // Keep elementType for compatibility
+        moduleType: moduleType,
       },
       components: {
         input: GenericComputedFieldsInput,
@@ -80,13 +87,13 @@ export const createBaseModuleSchema = (
     type: "document",
     fieldsets: [
       {
-        name: "content",
-        title: "Content",
-        options: { collapsible: false, collapsed: false },
+        name: "metadata",
+        title: "Module Information",
+        options: { collapsible: true, collapsed: false },
       },
       {
-        name: "metadata",
-        title: "Metadata",
+        name: "content",
+        title: "Content",
         options: { collapsible: true, collapsed: true },
       },
       {
@@ -95,11 +102,11 @@ export const createBaseModuleSchema = (
         options: { collapsible: true, collapsed: true },
       },
     ],
-    fields,
+    fields: mapModuleFields(fields as SanityField[], moduleType),
     preview: {
       select: {
-        title: "title",
-        description: "description",
+        title: "title.en",
+        description: "description.en",
         moduleType: "moduleType",
       },
       prepare({

@@ -1,77 +1,65 @@
 import { createBaseElementSchema } from "./baseElementSchema";
-import { Rule } from "@sanity/types";
 
-const base = createBaseElementSchema(
+export const elementVideo = createBaseElementSchema(
   "elementVideo",
   "Video Element",
   "video",
   [
     {
-      name: "videoSource",
-      title: "Video Source",
+      name: "videos",
+      title: "Video Sources",
+      type: "array",
+      of: [
+        { type: "objectElementVideoEmbed" },
+        { type: "objectElementVideoCDN" },
+        { type: "objectElementVideoDirect" },
+      ],
+      description:
+        "Add one or more video sources (first will be primary, others as fallbacks)",
+      validation: (rule) => rule.min(1).max(3),
+    },
+    {
+      name: "aspectRatio",
+      title: "Aspect Ratio",
       type: "string",
       options: {
         list: [
-          { title: "Upload Video", value: "upload" },
-          { title: "External URL", value: "external" },
+          { title: "Auto (Natural)", value: "auto" },
+          { title: "16:9 (Widescreen)", value: "16:9" },
+          { title: "4:3 (Standard)", value: "4:3" },
+          { title: "1:1 (Square)", value: "1:1" },
+          { title: "3:4 (Portrait)", value: "3:4" },
+          { title: "9:16 (Mobile)", value: "9:16" },
         ],
-        layout: "radio",
       },
-      validation: (rule: Rule) => rule.required(),
+      initialValue: "auto",
+      description:
+        "Force a specific aspect ratio (auto uses video's natural ratio)",
       fieldset: "content",
     },
     {
-      name: "sanityVideo",
-      title: "Upload Video",
-      type: "file",
+      name: "objectFit",
+      title: "Object Fit",
+      type: "string",
       options: {
-        accept: "video/*",
+        list: [
+          { title: "Cover", value: "cover" },
+          { title: "Contain", value: "contain" },
+          { title: "Fill", value: "fill" },
+          { title: "None", value: "none" },
+          { title: "Scale Down", value: "scale-down" },
+        ],
       },
-      hidden: ({ parent }: { parent: Record<string, unknown> }) =>
-        parent &&
-        typeof parent === "object" &&
-        (parent as Record<string, unknown>).videoSource !== "upload",
+      initialValue: "cover",
+      description: "How the video should fit within its container",
       fieldset: "content",
-      validation: (rule: Rule) =>
-        rule.custom(
-          (value: unknown, context: { document?: Record<string, unknown> }) => {
-            const { videoSource } = context.document || {};
-            if (videoSource === "upload" && !value) {
-              return "Video is required when using upload option";
-            }
-            return true;
-          },
-        ),
-    },
-    {
-      name: "externalUrl",
-      title: "External Video URL",
-      type: "url",
-      hidden: ({ parent }: { parent: Record<string, unknown> }) =>
-        parent &&
-        typeof parent === "object" &&
-        (parent as Record<string, unknown>).videoSource !== "external",
-      fieldset: "content",
-      validation: (rule: Rule) =>
-        rule.custom(
-          (value: unknown, context: { document?: Record<string, unknown> }) => {
-            const { videoSource } = context.document || {};
-            if (videoSource === "external" && !value) {
-              return "URL is required when using external option";
-            }
-            if (
-              value &&
-              typeof value === "string" &&
-              !value.match(/^https?:\/\//)
-            ) {
-              return "URL must start with http:// or https://";
-            }
-            return true;
-          },
-        ),
     },
   ],
-  [],
+  [], // No additional metadata fields
+  {
+    subtitleField: "description.en",
+    mediaField: "videos.0",
+  },
 );
 
-export default base;
+export default elementVideo;

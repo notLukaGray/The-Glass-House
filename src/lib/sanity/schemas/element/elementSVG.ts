@@ -9,7 +9,7 @@ import { createSvgPreview } from "../../../utils/svgUtils";
 import {
   sizeAndPositionFields,
   displayAndTransformFields,
-} from "../objects/sharedCastingFields";
+} from "../objects/casting/sharedCastingFields";
 
 const base = createBaseElementSchema(
   "elementSVG",

@@ -14,7 +14,7 @@ import { GenericComputedFieldsInput } from "../../components/GenericComputedFiel
 import {
   sizeAndPositionFields,
   displayAndTransformFields,
-} from "../objects/sharedCastingFields";
+} from "../objects/casting/sharedCastingFields";
 
 const createButtonTypeField = (
   fieldName: string = "buttonType",

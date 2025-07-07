@@ -147,7 +147,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       }`;
     } else {
       // Get all element types
-      query = `*[_type in ["elementImage", "elementButton", "elementTextSingleLine", "elementTextBlock", "elementRichText", "elementSVG"]] | order(_createdAt desc)[0...${limit}]{
+      query = `*[_type in ["elementImage", "elementButton", "elementTextSingleLine", "elementTextBlock", "elementRichText", "elementSVG", "elementWidget"]] | order(_createdAt desc)[0...${limit}]{
         _id,
         _type,
         title,

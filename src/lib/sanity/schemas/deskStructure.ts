@@ -50,16 +50,41 @@ const deskStructure = (S: StructureBuilder) =>
             .title("Elements")
             .items([
               S.listItem()
+                .title("3D Models")
+                .child(
+                  S.documentTypeList("element3D").title("3D Model Elements"),
+                ),
+              S.listItem()
+                .title("Audio")
+                .child(
+                  S.documentTypeList("elementAudio").title("Audio Elements"),
+                ),
+              S.listItem()
+                .title("Buttons")
+                .child(
+                  S.documentTypeList("elementButton").title("Button Elements"),
+                ),
+              S.listItem()
+                .title("Canvas")
+                .child(
+                  S.documentTypeList("elementCanvas").title("Canvas Elements"),
+                ),
+              S.listItem()
+                .title("Dividers")
+                .child(
+                  S.documentTypeList("elementDivider").title(
+                    "Divider Elements",
+                  ),
+                ),
+              S.listItem()
                 .title("Images")
                 .child(
                   S.documentTypeList("elementImage").title("Image Elements"),
                 ),
               S.listItem()
-                .title("Text (Single Line)")
+                .title("SVG Icons")
                 .child(
-                  S.documentTypeList("elementTextSingleLine").title(
-                    "Single Line Text Elements",
-                  ),
+                  S.documentTypeList("elementSVG").title("SVG Icon Elements"),
                 ),
               S.listItem()
                 .title("Text (Block)")
@@ -69,21 +94,28 @@ const deskStructure = (S: StructureBuilder) =>
                   ),
                 ),
               S.listItem()
-                .title("Rich Text")
+                .title("Text (Rich Text)")
                 .child(
                   S.documentTypeList("elementRichText").title(
-                    "Rich Text Elements",
+                    "Text (Rich Text) Elements",
                   ),
                 ),
               S.listItem()
-                .title("Buttons")
+                .title("Text (Single)")
                 .child(
-                  S.documentTypeList("elementButton").title("Button Elements"),
+                  S.documentTypeList("elementTextSingleLine").title(
+                    "Text (Single) Elements",
+                  ),
                 ),
               S.listItem()
-                .title("SVG Icons")
+                .title("Videos")
                 .child(
-                  S.documentTypeList("elementSVG").title("SVG Icon Elements"),
+                  S.documentTypeList("elementVideo").title("Video Elements"),
+                ),
+              S.listItem()
+                .title("Widgets")
+                .child(
+                  S.documentTypeList("elementWidget").title("Widget Elements"),
                 ),
             ]),
         ),
@@ -103,10 +135,22 @@ const deskStructure = (S: StructureBuilder) =>
                   ),
                 ),
               S.listItem()
-                .title("Test Casting Modules")
+                .title("Text Blocks")
                 .child(
-                  S.documentTypeList("moduleTestCasting").title(
-                    "Test Casting Modules",
+                  S.documentTypeList("moduleTextBlock").title(
+                    "Text Block Modules",
+                  ),
+                ),
+              S.listItem()
+                .title("Images")
+                .child(
+                  S.documentTypeList("moduleImage").title("Image Modules"),
+                ),
+              S.listItem()
+                .title("Dynamic Backgrounds")
+                .child(
+                  S.documentTypeList("moduleDynamicBackground").title(
+                    "Dynamic Background Modules",
                   ),
                 ),
             ]),

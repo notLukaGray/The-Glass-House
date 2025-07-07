@@ -1,63 +1,19 @@
 import { Rule } from "@sanity/types";
 import CastRefInput from "../../components/CastRefInput";
-import { GenericComputedFieldsInput } from "../../components/GenericComputedFieldsInput";
-import { createLocalizedComputedFields } from "../../utils/localizationUtils";
-import { createCastingFields } from "../objects/sharedCastingFields";
+import { createBaseModuleSchema } from "./baseModuleSchema";
 
 // Hero Image module - displays a hero image with positioned elements
-export const moduleHeroImage = {
-  name: "moduleHeroImage",
-  title: "Hero Image Module",
-  type: "document",
-  fields: [
-    // Module metadata and identification
-    {
-      name: "meta",
-      title: "Module Information",
-      type: "object",
-      options: { collapsible: true, collapsed: false },
-      fields: [
-        // Module Title (localized, required)
-        {
-          name: "moduleTitle",
-          title: "Module Title",
-          type: "glassLocaleString",
-          description: "Internal title for this module (localized)",
-          validation: (rule: Rule) => rule.required(),
-        },
-        // Module Description (localized, required)
-        {
-          name: "description",
-          title: "Module Description",
-          type: "glassLocaleText",
-          description: "Brief description of what this module does (localized)",
-          validation: (rule: Rule) => rule.required(),
-        },
-        {
-          name: "moduleTags",
-          title: "Module Tags",
-          type: "array",
-          of: [{ type: "string" }],
-          description: "Tags for categorizing and filtering modules",
-        },
-      ],
-    },
-    // Add casting field here
-    {
-      name: "casting",
-      title: "Casting Variables",
-      type: "object",
-      fields: createCastingFields("module"),
-      options: { collapsible: true, collapsed: true },
-      description:
-        "Layout and positioning variables this module exposes to wings.",
-    },
+export const moduleHeroImage = createBaseModuleSchema(
+  "moduleHeroImage",
+  "Hero Image Module",
+  "heroImage",
+  [
     // Background configuration
     {
       name: "background",
       title: "Background",
       type: "object",
-      options: { collapsible: true, collapsed: true },
+      fieldset: "content",
       fields: [
         {
           name: "type",
@@ -155,7 +111,7 @@ export const moduleHeroImage = {
       name: "content",
       title: "Content",
       type: "object",
-      options: { collapsible: true, collapsed: true },
+      fieldset: "content",
       fields: [
         {
           name: "images",
@@ -204,61 +160,7 @@ export const moduleHeroImage = {
       description:
         "Custom ID for linking or analytics (auto-generated from Sanity ID if empty)",
     },
-    {
-      name: "debug",
-      title: "Debug Mode",
-      type: "boolean",
-      initialValue: false,
-      fieldset: "advanced",
-      description: "Enable debug information for this module",
-    },
-    // Computed fields (auto-generated ARIA and alt text)
-    {
-      name: "computedFields",
-      title: "Auto-generated Fields",
-      type: "object",
-      fieldset: "advanced",
-      options: {
-        elementType: "moduleHeroImage",
-      },
-      components: {
-        input: GenericComputedFieldsInput,
-      },
-      description:
-        "These fields are automatically computed based on your module title and description",
-      fields: createLocalizedComputedFields(),
-    },
   ],
-  fieldsets: [
-    {
-      name: "advanced",
-      title: "Advanced",
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
-  preview: {
-    select: {
-      title: "meta.moduleTitle",
-      description: "meta.description",
-      customId: "customId",
-    },
-    prepare({
-      title,
-      description,
-      customId,
-    }: {
-      title?: Record<string, string>;
-      description?: Record<string, string>;
-      customId?: string;
-    }) {
-      const displayTitle = title?.en || "Untitled Hero Image Module";
-      const displayDescription = description?.en || "No description";
-      const idSuffix = customId ? ` (ID: ${customId})` : "";
+);
 
-      return {
-        title: `Hero Image Module: ${displayTitle}${idSuffix}`,
-        subtitle: displayDescription,
-      };
-    },
-  },
-};
+export default moduleHeroImage;

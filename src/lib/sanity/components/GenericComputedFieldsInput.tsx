@@ -2,7 +2,14 @@ import React, { useMemo, useEffect, useRef } from "react";
 import { useFormValue, set, PatchEvent } from "sanity";
 import { Card, Stack, Text } from "@sanity/ui";
 import { getElementTypeFromDocument } from "../utils/elementUtils";
-import { generateCustomId } from "../utils/autoGeneration";
+
+// Generate a custom ID from Sanity document ID
+const generateCustomId = (sanityId: string): string => {
+  return sanityId
+    .replace(/^[a-z0-9]+\./, "")
+    .replace(/[^a-z0-9]/g, "")
+    .substring(0, 20);
+};
 
 interface ComputedFieldsInputProps {
   onChange?: (patch: PatchEvent) => void;
@@ -194,6 +201,36 @@ const GENERATION_RULES: Record<string, GenerationRule> = {
     altText: {
       prefix: "",
       sourceField: "buttonText",
+    },
+  },
+  divider: {
+    ariaLabel: {
+      prefix: "Divider: ",
+      sourceField: "title",
+    },
+    altText: {
+      prefix: "",
+      sourceField: "description",
+    },
+  },
+  moduleTextBlock: {
+    ariaLabel: {
+      prefix: "Text Block: ",
+      sourceField: "meta.moduleTitle",
+    },
+    altText: {
+      prefix: "",
+      sourceField: "meta.description",
+    },
+  },
+  moduleImage: {
+    ariaLabel: {
+      prefix: "Image Module: ",
+      sourceField: "meta.moduleTitle",
+    },
+    altText: {
+      prefix: "",
+      sourceField: "meta.description",
     },
   },
   default: {

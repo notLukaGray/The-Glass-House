@@ -1,23 +1,20 @@
-import { ELEMENT_TYPES } from "./constants";
+import { MODULE_TYPES } from "./constants";
 import { GlassLocalizationInput } from "../components/GlassLocalizationInput";
 import { GenericComputedFieldsInput } from "../components/GenericComputedFieldsInput";
 import { SanityField } from "../types";
 
-export const getElementTypeFromDocument = (
+export const getModuleTypeFromDocument = (
   docType: string | undefined,
 ): string => {
   if (!docType || typeof docType !== "string") return "default";
 
   return (
-    ELEMENT_TYPES[docType as keyof typeof ELEMENT_TYPES] ||
-    docType.replace("element", "").toLowerCase()
+    MODULE_TYPES[docType as keyof typeof MODULE_TYPES] ||
+    docType.replace("module", "").toLowerCase()
   );
 };
 
-export const mapElementFields = (
-  fields: SanityField[],
-  elementType: string,
-) => {
+export const mapModuleFields = (fields: SanityField[], moduleType: string) => {
   return fields.map((field) => {
     // Convert title and description to glassLocaleString (single line)
     if (field.name === "title" || field.name === "description") {
@@ -45,13 +42,14 @@ export const mapElementFields = (
       };
     }
 
-    // Update computedFields with element type
+    // Update computedFields with module type
     if (field.name === "computedFields") {
       return {
         ...field,
         components: { input: GenericComputedFieldsInput },
         options: {
-          elementType: elementType,
+          elementType: moduleType, // Keep elementType for compatibility
+          moduleType: moduleType,
         },
       };
     }

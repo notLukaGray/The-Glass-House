@@ -558,6 +558,8 @@ Live updating countdown timer with end-date input and style customization.
 
 Standard form module with input fields, labels, and submit button.
 
+**Note:** All form input fields (text inputs, checkboxes, radio buttons, selects, date pickers, file uploads, etc.) are implemented as object types within form modules, not as separate elements.
+
 #### **formMultiStep**
 
 Paginated form experience with progress indicators for multi-part submission.
@@ -720,41 +722,9 @@ Audio player element with play/pause and optional transcript.
 
 SVG or vector-based graphical element for scalable icons or shapes.
 
-#### **icon**
-
-Small, often symbolic image used to indicate function or status.
-
 #### **button**
 
 Interactive UI element that triggers an action or navigation.
-
-#### **inputField**
-
-Text input area for user interaction, typically in forms.
-
-#### **checkbox**
-
-Binary selector for toggling on/off or true/false states.
-
-#### **radioButton**
-
-Single-select option in a grouped choice set.
-
-#### **toggleSwitch**
-
-Styled toggle element to switch between binary states.
-
-#### **selectDropdown**
-
-Dropdown UI for selecting one option from a list.
-
-#### **datePicker**
-
-Calendar input component to select a date.
-
-#### **fileUploader**
-
-UI control for uploading a local file.
 
 #### **3dModel**
 

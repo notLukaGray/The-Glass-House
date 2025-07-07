@@ -63,7 +63,9 @@ const castRefModuleObject = createCastRefModuleObject({
   name: "castRefModuleObject",
   to: [
     { type: "moduleHeroImage" },
-    { type: "moduleTestCasting" },
+    { type: "moduleTextBlock" },
+    { type: "moduleImage" },
+
     // Add other module types as needed
   ],
   preview: {

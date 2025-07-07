@@ -7,15 +7,15 @@ export const SUPPORTED_LANGUAGES = [
   "zh",
 ] as const;
 
-export const ELEMENT_TYPE_MAPPINGS = {
+export const ELEMENT_TYPES = {
   elementTextSingleLine: "textSingleLine",
   elementTextBlock: "textBlock",
   elementRichText: "richText",
   elementImage: "image",
-  elementVideo: "video",
-  elementButton: "button",
   elementSVG: "svg",
-  moduleHeroImage: "moduleHeroImage",
+  elementButton: "button",
+  elementDivider: "divider",
+  elementWidget: "widget",
 } as const;
 
 export const ELEMENT_TITLES = {
@@ -26,5 +26,14 @@ export const ELEMENT_TITLES = {
   video: "Video Element",
   button: "Button Element",
   svg: "SVG Element",
+  widget: "Widget Element",
+  divider: "Divider Element",
   moduleHeroImage: "Hero Image Module",
+} as const;
+
+export const MODULE_TYPES = {
+  moduleHeroImage: "heroImage",
+  moduleTextBlock: "textBlock",
+  moduleImage: "image",
+  moduleDynamicBackground: "dynamicBackground",
 } as const;

@@ -1,6 +1,9 @@
 import { createBaseElementSchema } from "./baseElementSchema";
 import { Rule } from "@sanity/types";
-import { typographyObject, typographyFieldset } from "../objects/typography";
+import {
+  typographyObject,
+  typographyFieldset,
+} from "../objects/core/typography";
 import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
 
 const base = createBaseElementSchema(

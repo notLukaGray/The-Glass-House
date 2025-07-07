@@ -221,36 +221,42 @@ export const createBaseElementSchema = (
   elementType: string,
   contentFields: SanityField[] = [],
   additionalMetadataFields: SanityField[] = [],
+  previewConfig?: { subtitleField?: string; mediaField?: string },
 ) => {
   const baseFields = [
+    // Base Information (shown by default, collapsible)
     createLocalizedStringField(
       "title",
       "Title",
       `Short title for the ${elementType} (required)`,
-      "titleFieldset",
+      "basic",
       (rule: Rule) => rule.required(),
     ),
     createLocalizedStringField(
       "description",
       "Description",
       `Brief description of the ${elementType} content (required)`,
-      "descriptionFieldset",
+      "basic",
       (rule: Rule) => rule.required(),
     ),
+
+    // Content (hidden by default, collapsible)
     ...contentFields,
-    createLocalizedStringField(
-      "alternativeTitle",
-      "Alternative Title",
-      `Optional alternative title for display`,
-      "alternativeTitleFieldset",
-    ),
+    ...additionalMetadataFields,
     createLocalizedTextField(
       "caption",
       "Caption",
       `Optional caption text to display below the ${elementType}`,
-      "captionFieldset",
+      "content",
     ),
-    ...additionalMetadataFields,
+    createLocalizedStringField(
+      "alternativeTitle",
+      "Alternative Title",
+      `Optional alternative title for display`,
+      "content",
+    ),
+
+    // Advanced (hidden by default, collapsible)
     {
       name: "customId",
       title: "Custom ID",
@@ -287,28 +293,13 @@ export const createBaseElementSchema = (
     type: "document",
     fieldsets: [
       {
-        name: "titleFieldset",
-        title: "Title",
-        options: { collapsible: true, collapsed: false },
-      },
-      {
-        name: "descriptionFieldset",
-        title: "Description",
+        name: "basic",
+        title: "Base Information",
         options: { collapsible: true, collapsed: false },
       },
       {
         name: "content",
         title: "Content",
-        options: { collapsible: false, collapsed: false },
-      },
-      {
-        name: "alternativeTitleFieldset",
-        title: "Alternative Title",
-        options: { collapsible: true, collapsed: true },
-      },
-      {
-        name: "captionFieldset",
-        title: "Caption",
         options: { collapsible: true, collapsed: true },
       },
       {
@@ -318,6 +309,10 @@ export const createBaseElementSchema = (
       },
     ],
     fields: mapElementFields(baseFields, elementType),
-    preview: createElementPreview({ elementType }),
+    preview: createElementPreview({
+      elementType,
+      subtitleField: previewConfig?.subtitleField,
+      mediaField: previewConfig?.mediaField,
+    }),
   };
 };

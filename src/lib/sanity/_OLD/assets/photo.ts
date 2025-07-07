@@ -1,5 +1,5 @@
 import { Rule } from "@sanity/types";
-import { metaCoreFields } from "../objects/metaCoreFields";
+import { metaCoreFields } from "../../schemas/objects/core/metaCoreFields";
 import React from "react";
 
 interface PreviewProps {

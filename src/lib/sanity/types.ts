@@ -12,6 +12,6 @@ export interface SanityField {
   readOnly?: boolean;
   fields?: SanityField[];
   initialValue?: unknown;
-  of?: SanityField[];
+  of?: Array<{ type: string; [key: string]: unknown }>;
   to?: Array<{ type: string }>;
 }

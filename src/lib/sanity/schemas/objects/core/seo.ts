@@ -1,4 +1,4 @@
-import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
+import { GlassLocalizationInput } from "../../../components/GlassLocalizationInput";
 
 const seo = {
   name: "seo",

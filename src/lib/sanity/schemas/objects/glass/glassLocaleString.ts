@@ -1,4 +1,4 @@
-import { GlassLocalizationInput } from "../../components/GlassLocalizationInput";
+import { GlassLocalizationInput } from "../../../components/GlassLocalizationInput";
 import type { Rule } from "@sanity/types";
 
 /**
