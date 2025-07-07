@@ -109,11 +109,31 @@ export interface ApiError {
 export const QueryParamsSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10).optional(),
   page: z.coerce.number().min(1).default(1).optional(),
-  sort: z.string().nullable().optional(),
-  order: z.enum(["asc", "desc"]).nullable().default("desc"),
-  filter: z.record(z.unknown()).nullable().optional(),
-  include: z.array(z.string()).nullable().optional(),
-  exclude: z.array(z.string()).nullable().optional(),
+  sort: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => (val === null ? undefined : val)),
+  order: z
+    .enum(["asc", "desc"])
+    .nullable()
+    .default("desc")
+    .transform((val) => (val === null ? undefined : val)),
+  filter: z
+    .record(z.unknown())
+    .nullable()
+    .optional()
+    .transform((val) => (val === null ? undefined : val)),
+  include: z
+    .array(z.string())
+    .nullable()
+    .optional()
+    .transform((val) => (val === null ? undefined : val)),
+  exclude: z
+    .array(z.string())
+    .nullable()
+    .optional()
+    .transform((val) => (val === null ? undefined : val)),
 });
 
 export const ElementBaseSchema = z.object({
