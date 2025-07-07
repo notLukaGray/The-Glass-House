@@ -11,7 +11,18 @@ if (!process.env.NEXTAUTH_SECRET) {
 const secret = process.env.NEXTAUTH_SECRET;
 
 // Routes that require admin authentication
-const ADMIN_PROTECTED_ROUTES = ["/admin", "/api/auth/setup"] as const;
+const ADMIN_PROTECTED_ROUTES = [
+  "/admin",
+  "/api/auth/setup",
+  "/studio",
+  "/structure",
+  "/desk",
+  "/tool",
+  "/vision",
+  "/media",
+  "/assist",
+  "/settings",
+] as const;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -32,33 +43,51 @@ export async function middleware(request: NextRequest) {
       if (!token) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(loginUrl);
+        const response = NextResponse.redirect(loginUrl);
+        response.headers.set("x-middleware-debug", "no-token");
+        return response;
       }
 
       // Check token expiry
       if (typeof token.exp === "number" && token.exp < Date.now() / 1000) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(loginUrl);
+        const response = NextResponse.redirect(loginUrl);
+        response.headers.set("x-middleware-debug", "token-expired");
+        return response;
       }
 
       if (token.role !== "admin") {
-        return new NextResponse(null, { status: 403 });
+        const response = new NextResponse(null, { status: 403 });
+        response.headers.set("x-middleware-debug", "not-admin");
+        return response;
       }
 
-      return NextResponse.next();
+      const response = NextResponse.next();
+      response.headers.set("x-middleware-debug", "admin-ok");
+      return response;
     }
 
     return NextResponse.next();
   } catch {
-    return new NextResponse(null, { status: 500 });
+    const response = new NextResponse(null, { status: 500 });
+    response.headers.set("x-middleware-debug", "error");
+    return response;
   }
 }
 
 export const config = {
   matcher: [
-    // Admin routes that need protection
+    // Admin and Sanity Studio routes that need protection
     "/admin/:path*",
     "/api/auth/setup/:path*",
+    "/studio/:path*",
+    "/structure/:path*",
+    "/desk/:path*",
+    "/tool/:path*",
+    "/vision/:path*",
+    "/media/:path*",
+    "/assist/:path*",
+    "/settings/:path*",
   ],
 };
