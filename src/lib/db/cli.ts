@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 
-import { createUser, isSetupComplete, validatePassword } from "./index";
+import "dotenv/config";
+import {
+  createUser,
+  isSetupComplete,
+  validatePassword,
+  updateUserPassword,
+  prisma,
+} from "./index";
 import promptSync from "prompt-sync";
 
 const prompt = promptSync({ sigint: true });
@@ -76,6 +83,38 @@ async function setupAdmin() {
   }
 }
 
+async function changeAdminPassword() {
+  // Find the admin user
+  const adminUser = await prisma.user.findFirst({ where: { role: "admin" } });
+  if (!adminUser) {
+    console.error("No admin user found.");
+    process.exit(1);
+  }
+
+  let password = "";
+  let passwordValid = false;
+
+  while (!passwordValid) {
+    password = question("New admin password: ", true); // Hide password input
+    const validation = validatePassword(password);
+    if (validation.isValid) {
+      passwordValid = true;
+    } else {
+      console.error(`Password error: ${validation.error}`);
+    }
+  }
+
+  try {
+    await updateUserPassword(adminUser.id, password);
+    console.log("\n✅ Admin password updated successfully!");
+    console.log(`Username: ${adminUser.username}`);
+    console.log(`Email: ${adminUser.email}`);
+  } catch (error) {
+    console.error("Failed to update admin password:", error);
+    process.exit(1);
+  }
+}
+
 async function main() {
   const command = process.argv[2];
 
@@ -83,9 +122,13 @@ async function main() {
     case "setup-admin":
       await setupAdmin();
       break;
+    case "change-admin-password":
+      await changeAdminPassword();
+      break;
     default:
       // Available commands:
-      //   setup-admin     - Create first admin user
+      //   setup-admin           - Create first admin user
+      //   change-admin-password - Change admin password
       break;
   }
 

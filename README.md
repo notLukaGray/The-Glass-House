@@ -1,6 +1,6 @@
 # The Glass House
 
-The Glass House is my antidote to the “design → dev → content → repeat” relay race. Instead of juggling files, comments, and last-minute margin tweaks, everyone works on the same living pages. The project is still in active development. No public license yet, but the vision is clear: keep creativity flowing, keep handoffs minimal, and keep tech headaches to a dull buzz.
+The Glass House is my antidote to the "design → dev → content → repeat" relay race. Instead of juggling files, comments, and last-minute margin tweaks, everyone works on the same living pages. The project is still in active development. No public license yet, but the vision is clear: keep creativity flowing, keep handoffs minimal, and keep tech headaches to a dull buzz.
 
 Designs still start in Figma; they simply land here without the usual gymnastics.
 
@@ -41,7 +41,7 @@ Grab a hero, drop a gallery, clone a content section. Everything updates instant
 
 ### Real-Time Layout Tweaks
 
-Drag margins, snap alignment guides, set breakpoints, adjust _casting variables_ on the fly. No more “bump it two pixels” commits.
+Drag margins, snap alignment guides, set breakpoints, adjust _casting variables_ on the fly. No more "bump it two pixels" commits.
 
 ### Structured, Versioned, Localized
 
@@ -96,7 +96,7 @@ Everything is API-first, fully typed, and open for extension. Plugging in a cust
 
 - **Content Teams:** Publish in hours, not sprints.
 - **Designers:** Keep your system intact. No endless handoff docs.
-- **Developers:** Build components once; stop babysitting margin tweaks. Strong typing means fewer “works on my machine” mysteries.
+- **Developers:** Build components once; stop babysitting margin tweaks. Strong typing means fewer "works on my machine" mysteries.
 - **Stakeholders:** Faster launches, lower costs, fewer headaches.
 
 ---
@@ -104,3 +104,17 @@ Everything is API-first, fully typed, and open for extension. Plugging in a cust
 ## Access
 
 The Glass House is not public yet. We are still sanding rough edges. If you want to peek under the hood, reach out to Luka Gray. Early feedback is appreciated; patience is a must.
+
+---
+
+## CLI Commands
+
+### Reset Admin Password
+
+Forgot my password, so I thought you would too. If you ever need to reset the admin password from the command line:
+
+```sh
+npx tsx src/lib/db/cli.ts change-admin-password
+```
+
+You'll be prompted for a new password, and the admin account will be updated securely.
