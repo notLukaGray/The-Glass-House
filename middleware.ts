@@ -10,28 +10,23 @@ if (!process.env.NEXTAUTH_SECRET) {
 
 const secret = process.env.NEXTAUTH_SECRET;
 
-const SANITY_PATHS = [
-  "/studio",
-  "/structure",
-  "/desk",
-  "/tool",
-  "/vision",
-  "/media",
-  "/assist",
-  "/settings",
-] as const;
+// Routes that require admin authentication
+const ADMIN_PROTECTED_ROUTES = ["/admin", "/api/auth/setup"] as const;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/")) {
+  // Skip API routes that don't need admin protection
+  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth/setup")) {
     return NextResponse.next();
   }
 
   try {
-    const isSanityPath = SANITY_PATHS.some((path) => pathname.startsWith(path));
+    const isAdminRoute = ADMIN_PROTECTED_ROUTES.some((route) =>
+      pathname.startsWith(route),
+    );
 
-    if (isSanityPath) {
+    if (isAdminRoute) {
       const token = await getToken({ req: request, secret });
 
       if (!token) {
@@ -51,19 +46,19 @@ export async function middleware(request: NextRequest) {
         return new NextResponse(null, { status: 403 });
       }
 
-      return NextResponse.rewrite(new URL("/studio/[[...index]]", request.url));
+      return NextResponse.next();
     }
 
     return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware error:", error);
+  } catch {
     return new NextResponse(null, { status: 500 });
   }
 }
 
 export const config = {
   matcher: [
-    // Exclude static files, images, and all Sanity studio routes
-    "/((?!_next/static|_next/image|favicon.ico|studio|structure|desk|tool|vision|media|assist|settings).*)",
+    // Admin routes that need protection
+    "/admin/:path*",
+    "/api/auth/setup/:path*",
   ],
 };
