@@ -11,7 +11,7 @@ const DotGrid = dynamic(() => import("@/components/features/DotGrid"), {
   loading: () => <div className="w-full h-full" />,
 });
 
-function TimerClient({
+function GitHubTooltip({
   commitTime,
   commitMessage,
 }: {
@@ -20,6 +20,8 @@ function TimerClient({
 }) {
   const { settings, currentTheme } = useSettings();
   const [since, setSince] = React.useState<string>("");
+  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = React.useState(false);
 
   const themeColors =
     currentTheme === "dark"
@@ -45,13 +47,46 @@ function TimerClient({
     return () => clearInterval(interval);
   }, [commitTime]);
 
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseEnter = () => {
+      setIsVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsVisible(false);
+    };
+
+    const container = document.querySelector(".group");
+    if (container) {
+      container.addEventListener("mouseenter", handleMouseEnter);
+      container.addEventListener("mouseleave", handleMouseLeave);
+    }
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      if (container) {
+        container.removeEventListener("mouseenter", handleMouseEnter);
+        container.removeEventListener("mouseleave", handleMouseLeave);
+      }
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
   return (
     <div
-      className="fixed top-[75%] left-1/2 -translate-x-1/2 px-6 py-3 rounded border font-mono text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px] backdrop-blur-sm"
+      className="fixed px-6 py-3 rounded border font-mono text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px] backdrop-blur-sm transition-opacity duration-300 pointer-events-none z-50"
       style={{
         backgroundColor,
         color: textColor,
         borderColor: `${textColor}20`,
+        left: mousePosition.x + 15,
+        top: mousePosition.y + 15,
+        opacity: isVisible ? 1 : 0,
       }}
     >
       <div className="opacity-70 text-xs">Last Github Commit</div>
@@ -64,6 +99,38 @@ function TimerClient({
       )}
       <div>{commitTime ? since : "..."}</div>
     </div>
+  );
+}
+
+function BookLink() {
+  const { settings, currentTheme } = useSettings();
+
+  const themeColors =
+    currentTheme === "dark"
+      ? settings?.theme.darkMode.colors
+      : settings?.theme.lightMode.colors;
+  const backgroundColor = themeColors?.secondary || "rgba(0, 0, 0, 0.8)";
+  const textColor = themeColors?.text || "#FFFFFF";
+  const accentColor = themeColors?.accent || "#8f4d89";
+
+  return (
+    <a
+      href="https://www.looksgoodnowwhat.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="px-6 py-3 rounded border font-mono text-sm tracking-wider shadow-lg flex flex-col items-center gap-1 min-w-[260px] backdrop-blur-sm hover:scale-105 transition-transform duration-200 cursor-pointer"
+      style={{
+        backgroundColor,
+        color: textColor,
+        borderColor: `${textColor}20`,
+      }}
+    >
+      <div className="opacity-70 text-xs">In the meantime, read my book?</div>
+      <div className="text-xs font-mono" style={{ color: accentColor }}>
+        Looks Good, Now What?
+      </div>
+      <div className="text-xs opacity-60">Design Principles</div>
+    </a>
   );
 }
 
@@ -125,21 +192,34 @@ export default function HomePageClient({
 
       <div className="absolute inset-0 grid place-items-center">
         <div className="flex flex-col items-center">
-          <div className="w-screen max-w-[900px] flex items-center justify-center px-4">
-            <TextPressure
-              text="UNDER CONSTRUCTION"
-              fontFamily="Compressa VF"
-              fontUrl="https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2"
-              width={true}
-              weight={true}
-              italic={true}
-              alpha={false}
-              flex={true}
-              stroke={true}
-              scale={false}
-              textColor={textColor}
-              strokeColor={backgroundColor}
-              minFontSize={100}
+          <div className="w-screen max-w-[900px] flex items-center justify-center px-4 relative group">
+            <div className="w-full flex items-center justify-center">
+              <a
+                href="https://github.com/notLukaGray/The-Glass-House"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer w-full flex items-center justify-center"
+              >
+                <TextPressure
+                  text="UNDER CONSTRUCTION"
+                  fontFamily="Compressa VF"
+                  fontUrl="https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2"
+                  width={true}
+                  weight={true}
+                  italic={true}
+                  alpha={false}
+                  flex={true}
+                  stroke={true}
+                  scale={false}
+                  textColor={textColor}
+                  strokeColor={backgroundColor}
+                  minFontSize={100}
+                />
+              </a>
+            </div>
+            <GitHubTooltip
+              commitTime={commitTime}
+              commitMessage={commitMessage}
             />
           </div>
           <div
@@ -150,7 +230,9 @@ export default function HomePageClient({
           </div>
         </div>
 
-        <TimerClient commitTime={commitTime} commitMessage={commitMessage} />
+        <div className="fixed bottom-[10%] left-1/2 -translate-x-1/2">
+          <BookLink />
+        </div>
       </div>
 
       <style jsx global>{`
